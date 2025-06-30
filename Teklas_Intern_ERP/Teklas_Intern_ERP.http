@@ -1,0 +1,6 @@
+@Teklas_Intern_ERP_HostAddress = http://localhost:5107
+
+GET {{Teklas_Intern_ERP_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
