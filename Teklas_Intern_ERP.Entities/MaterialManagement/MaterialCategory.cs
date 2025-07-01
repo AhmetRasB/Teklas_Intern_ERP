@@ -4,13 +4,13 @@ namespace Teklas_Intern_ERP.Entities.MaterialManagement
 {
     public class MaterialCategory
     {
-        public int Id { get; set; } // Birincil anahtar
-        public string CategoryCode { get; set; } // Kategori kodu
-        public string CategoryName { get; set; } // Kategori adı
-        public string Description { get; set; } // Açıklama
-        public int? ParentCategoryId { get; set; } // Üst kategori (hiyerarşi için)
-        public bool IsActive { get; set; } // Aktif/pasif
-        public DateTime CreatedDate { get; set; } // Oluşturulma tarihi
-        public DateTime? UpdatedDate { get; set; } // Son güncellenme tarihi
+        public int Id { get; set; }
+        public string CategoryCode { get; set; }
+        public string CategoryName { get; set; }
+        public string Description { get; set; }
+        public int? ParentCategoryId { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
     }
 } 
