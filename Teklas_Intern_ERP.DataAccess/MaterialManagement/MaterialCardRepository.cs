@@ -3,7 +3,7 @@ using System.Linq;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
 using Teklas_Intern_ERP.DataAccess;
 
-namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
+namespace Teklas_Intern_ERP.DataAccess.MaterialManagement   
 {
     public class MaterialCardRepository
     {
@@ -25,8 +25,8 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             var existing = _context.MaterialCards.Find(card.Id);
             if (existing == null) return false;
-            existing.Name = card.Name;
-            existing.Code = card.Code;
+            existing.MaterialName = card.MaterialName;
+            existing.MaterialCode = card.MaterialCode;
             _context.SaveChanges();
             return true;
         }

@@ -25,8 +25,8 @@ namespace Teklas_Intern_ERP.DataAccess.WarehouseManagement
         {
             var existing = _context.Locations.Find(location.Id);
             if (existing == null) return false;
-            existing.Name = location.Name;
-            existing.Code = location.Code;
+            existing.LocationName = location.LocationName;
+            existing.LocationCode = location.LocationCode;
             _context.SaveChanges();
             return true;
         }

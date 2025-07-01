@@ -25,8 +25,8 @@ namespace Teklas_Intern_ERP.DataAccess.SalesOrderManagement
         {
             var existing = _context.CustomerOrders.Find(order.Id);
             if (existing == null) return false;
-            existing.OrderNumber = order.OrderNumber;
-            existing.Date = order.Date;
+            existing.OrderNo = order.OrderNo;
+            existing.OrderDate = order.OrderDate;
             _context.SaveChanges();
             return true;
         }

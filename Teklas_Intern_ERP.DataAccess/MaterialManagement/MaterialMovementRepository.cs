@@ -25,9 +25,9 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             var existing = _context.MaterialMovements.Find(movement.Id);
             if (existing == null) return false;
-            existing.MaterialCardId = movement.MaterialCardId;
+            existing.MaterialId = movement.MaterialId;
             existing.Quantity = movement.Quantity;
-            existing.Date = movement.Date;
+            existing.MovementDate = movement.MovementDate;
             _context.SaveChanges();
             return true;
         }

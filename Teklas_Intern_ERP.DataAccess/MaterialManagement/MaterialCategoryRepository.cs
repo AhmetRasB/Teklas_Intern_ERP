@@ -25,7 +25,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             var existing = _context.MaterialCategories.Find(category.Id);
             if (existing == null) return false;
-            existing.Name = category.Name;
+            existing.CategoryName = category.CategoryName;
             _context.SaveChanges();
             return true;
         }

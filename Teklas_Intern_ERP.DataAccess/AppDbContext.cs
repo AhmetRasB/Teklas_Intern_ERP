@@ -24,5 +24,7 @@ namespace Teklas_Intern_ERP.DataAccess
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierType> SupplierTypes { get; set; }
         public DbSet<CustomerOrder> CustomerOrders { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<MaterialBatch> MaterialBatches { get; set; }
     }
 } 

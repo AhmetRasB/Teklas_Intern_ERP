@@ -25,7 +25,6 @@ namespace Teklas_Intern_ERP.DataAccess.ProductionManagement
         {
             var existing = _context.BillOfMaterials.Find(bom.Id);
             if (existing == null) return false;
-            existing.Name = bom.Name;
             _context.SaveChanges();
             return true;
         }

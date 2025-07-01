@@ -25,8 +25,8 @@ namespace Teklas_Intern_ERP.DataAccess.ProductionManagement
         {
             var existing = _context.WorkOrders.Find(order.Id);
             if (existing == null) return false;
-            existing.OrderNumber = order.OrderNumber;
-            existing.Date = order.Date;
+            existing.WorkOrderNo = order.WorkOrderNo;
+            existing.PlannedStartDate = order.PlannedStartDate;
             _context.SaveChanges();
             return true;
         }

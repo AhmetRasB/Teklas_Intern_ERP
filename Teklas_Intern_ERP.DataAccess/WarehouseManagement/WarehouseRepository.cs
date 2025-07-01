@@ -21,8 +21,8 @@ namespace Teklas_Intern_ERP.DataAccess.WarehouseManagement
         {
             var existing = GetById(warehouse.Id);
             if (existing == null) return false;
-            existing.Name = warehouse.Name;
-            existing.Code = warehouse.Code;
+            existing.WarehouseName = warehouse.WarehouseName;
+            existing.WarehouseCode = warehouse.WarehouseCode;
             return true;
         }
         public bool Delete(int id)

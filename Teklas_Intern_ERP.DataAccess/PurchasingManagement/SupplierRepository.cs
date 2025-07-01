@@ -25,7 +25,7 @@ namespace Teklas_Intern_ERP.DataAccess.PurchasingManagement
         {
             var existing = _context.Suppliers.Find(supplier.Id);
             if (existing == null) return false;
-            existing.Name = supplier.Name;
+            existing.SupplierName = supplier.SupplierName;
             existing.SupplierTypeId = supplier.SupplierTypeId;
             _context.SaveChanges();
             return true;
