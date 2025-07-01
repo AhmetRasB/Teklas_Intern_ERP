@@ -1,10 +1,17 @@
 using Teklas_Intern_ERP.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Serilog konfigürasyonunu builder'a ekle
+builder.Host.UseSerilog((context, services, configuration) =>
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+);
 
 builder.Services.AddControllers()
     .AddFluentValidation(fv =>
@@ -43,6 +50,23 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Global exception handler
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var error = exceptionHandlerPathFeature?.Error;
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(error, "Unhandled exception occurred");
+        await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new { error = "Beklenmeyen bir hata oluştu." }));
+    });
+});
+
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
 {
