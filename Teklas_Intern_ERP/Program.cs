@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Teklas_Intern_ERP.DataAccess;
 using Teklas_Intern_ERP.DataAccess.Mapping;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddAutoMapper(typeof(EntityMappingProfile).Assembly);
 builder.Services.AddScoped<Teklas_Intern_ERP.DataAccess.MaterialManagement.MaterialCardRepository>();
 builder.Services.AddScoped<Teklas_Intern_ERP.Business.MaterialManagement.MaterialCardManager>();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "TeklasERP_";
+});
 
 var app = builder.Build();
 

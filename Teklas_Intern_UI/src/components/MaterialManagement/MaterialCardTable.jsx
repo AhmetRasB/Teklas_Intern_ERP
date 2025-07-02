@@ -253,6 +253,14 @@ const MaterialCardTable = () => {
     return str.length > n ? str.slice(0, 7) + '...' : str;
   };
 
+  // Yardımcı fonksiyon: ISO tarihleri okunabilir formata çevir
+  const formatDateTime = (val) => {
+    if (!val) return '';
+    const d = new Date(val);
+    if (isNaN(d)) return val;
+    return d.toLocaleDateString('tr-TR') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  };
+
   // Detay modalını aç
   const handleView = (row) => {
     setSelectedCard(row);
@@ -343,6 +351,9 @@ const MaterialCardTable = () => {
             <style>{`
               .modal.fade .modal-dialog { opacity: 0; transform: scale(0.96); transition: all 0.25s cubic-bezier(.4,0,.2,1); }
               .modal.fade.show .modal-dialog { opacity: 1; transform: scale(1); }
+              .dark-bg {
+                background: #23272f !important;
+              }
             `}</style>
             <div
               className="modal-dialog"
@@ -389,8 +400,8 @@ const MaterialCardTable = () => {
                           ['Menşei Ülke', selectedCard.originCountry],
                           ['Üretici', selectedCard.manufacturer],
                           ['Aktif mi?', selectedCard.isActive ? 'Aktif' : 'Pasif'],
-                          ['Oluşturulma', selectedCard.createdDate],
-                          ['Güncellenme', selectedCard.updatedDate],
+                          ['Oluşturulma', formatDateTime(selectedCard.createdDate)],
+                          ['Güncellenme', formatDateTime(selectedCard.updatedDate)],
                           ['Oluşturan', selectedCard.createdBy],
                           ['Güncelleyen', selectedCard.updatedBy],
                         ].map(([label, value], i) => (
@@ -403,7 +414,7 @@ const MaterialCardTable = () => {
                     )}
                   </div>
                 </div>
-                <div className="modal-footer d-flex justify-content-end gap-2">
+                <div className="modal-footer d-flex justify-content-end gap-2" style={{background: 'transparent', borderTop: 'none', boxShadow: 'none', padding: 0}}>
                   <button className="btn btn-soft-primary" onClick={() => handleEdit(selectedCard)}>Düzenle</button>
                   <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedCard)}>Sil</button>
                   <button className="btn btn-secondary" onClick={() => { setShowDetail(false); setSelectedCard(null); }}>Kapat</button>

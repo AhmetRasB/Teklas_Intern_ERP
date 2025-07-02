@@ -200,7 +200,7 @@ Bu proje, .NET tabanlı, katmanlı, monolitik bir ERP uygulamasıdır. Amaç; ma
 - **Örnek:**  
   ```csharp
   CreateMap<MaterialCard, MaterialCardDto>().ReverseMap();
-  ```
+```
 
 ---
 
@@ -386,10 +386,10 @@ Bu proje, .NET tabanlı, katmanlı, monolitik bir ERP uygulamasıdır. Amaç; ma
 3. **Kullanım:**  
    `IDistributedCache` arayüzü ile veri ekle, oku, sil:
    ```csharp
-   public class MaterialCardManager
-   {
+public class MaterialCardManager
+{
        private readonly IDistributedCache _cache;
-       private readonly MaterialCardRepository _repo;
+    private readonly MaterialCardRepository _repo;
        public async Task<List<MaterialCard>> GetAllAsync()
        {
            var cacheKey = "MaterialCards_All";
@@ -399,9 +399,9 @@ Bu proje, .NET tabanlı, katmanlı, monolitik bir ERP uygulamasıdır. Amaç; ma
            var data = await _repo.GetAllAsync();
            await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(data), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) });
            return data;
-       }
-   }
-   ```
+    }
+}
+```
 4. **Cache Invalidation:**  
    Veri güncellenirse/silinirse ilgili cache anahtarı silinir.
 
