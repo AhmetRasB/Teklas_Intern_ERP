@@ -3,6 +3,7 @@ using Teklas_Intern_ERP.Business.MaterialManagement;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
 using Microsoft.EntityFrameworkCore;
 using Teklas_Intern_ERP.DataAccess;
+using Teklas_Intern_ERP.DataAccess.MaterialManagement;
 
 namespace Teklas_Intern_ERP.Controllers.MaterialManagement
 {
@@ -14,40 +15,40 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         private readonly MaterialMovementManager _manager;
         public MaterialMovementController(AppDbContext context)
         {
-            _manager = new MaterialMovementManager(context);
+            _manager = new MaterialMovementManager(new MaterialMovementRepository(context));
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_manager.GetAll());
+        public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var movement = _manager.GetById(id);
+            var movement = await _manager.GetByIdAsync(id);
             if (movement == null) return NotFound();
             return Ok(movement);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] MaterialMovement movement)
+        public async Task<IActionResult> Add([FromBody] MaterialMovement movement)
         {
-            var created = _manager.Add(movement);
+            var created = await _manager.AddAsync(movement);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] MaterialMovement movement)
+        public async Task<IActionResult> Update(int id, [FromBody] MaterialMovement movement)
         {
             movement.Id = id;
-            var updated = _manager.Update(movement);
+            var updated = await _manager.UpdateAsync(movement);
             if (!updated) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var deleted = _manager.Delete(id);
+            var deleted = await _manager.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }

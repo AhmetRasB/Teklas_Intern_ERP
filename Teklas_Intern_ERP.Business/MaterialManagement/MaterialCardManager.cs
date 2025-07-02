@@ -2,15 +2,16 @@ using Teklas_Intern_ERP.DataAccess.MaterialManagement;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
 using System.Collections.Generic;
 using Teklas_Intern_ERP.DataAccess;
+using System.Threading.Tasks;
 
 namespace Teklas_Intern_ERP.Business.MaterialManagement
 {
     public class MaterialCardManager
     {
         private readonly MaterialCardRepository _repo;
-        public MaterialCardManager(AppDbContext context)
+        public MaterialCardManager(MaterialCardRepository repo)
         {
-            _repo = new MaterialCardRepository(context);
+            _repo = repo;
         }
 
         public List<MaterialCard> GetAll() => _repo.GetAll();
@@ -18,5 +19,14 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
         public MaterialCard Add(MaterialCard card) => _repo.Add(card);
         public bool Update(MaterialCard card) => _repo.Update(card);
         public bool Delete(int id) => _repo.Delete(id);
+
+        public async Task<List<MaterialCard>> GetAllAsync() => await _repo.GetAllAsync();
+        public async Task<MaterialCard> GetByIdAsync(int id) => await _repo.GetByIdAsync(id);
+        public async Task<MaterialCard> AddAsync(MaterialCard card) => await _repo.AddAsync(card);
+        public async Task<bool> UpdateAsync(MaterialCard card) => await _repo.UpdateAsync(card);
+        public async Task<bool> DeleteAsync(int id) => await _repo.DeleteAsync(id);
+
+        public async Task<(List<MaterialCard> Items, int TotalCount)> GetPagedAsync(int page, int pageSize)
+            => await _repo.GetPagedAsync(page, pageSize);
     }
 } 

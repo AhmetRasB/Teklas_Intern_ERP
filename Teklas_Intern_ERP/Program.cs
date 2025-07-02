@@ -1,7 +1,8 @@
-using Teklas_Intern_ERP.DataAccess;
-using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Teklas_Intern_ERP.DataAccess;
+using Teklas_Intern_ERP.DataAccess.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,6 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
 );
-
 builder.Services.AddControllers()
     .AddFluentValidation(fv =>
     {
@@ -48,6 +48,10 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+builder.Services.AddAutoMapper(typeof(EntityMappingProfile).Assembly);
+builder.Services.AddScoped<Teklas_Intern_ERP.DataAccess.MaterialManagement.MaterialCardRepository>();
+builder.Services.AddScoped<Teklas_Intern_ERP.Business.MaterialManagement.MaterialCardManager>();
 
 var app = builder.Build();
 

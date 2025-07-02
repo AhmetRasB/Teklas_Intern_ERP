@@ -2,15 +2,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Teklas_Intern_ERP.Entities.SalesOrderManagement;
 using Teklas_Intern_ERP.DataAccess;
+using Teklas_Intern_ERP.DataAccess.SalesOrderManagement;
+using System.Threading.Tasks;
 
 namespace Teklas_Intern_ERP.Business.SalesOrderManagement
 {
     public class CustomerManager
     {
         private readonly AppDbContext _context;
-        public CustomerManager(AppDbContext context)
+        private readonly CustomerRepository _repo;
+        public CustomerManager(AppDbContext context, CustomerRepository repo)
         {
             _context = context;
+            _repo = repo;
         }
 
         public List<Customer> GetAll() => _context.Customers.ToList();
@@ -51,5 +55,10 @@ namespace Teklas_Intern_ERP.Business.SalesOrderManagement
             _context.SaveChanges();
             return true;
         }
+        public async Task<List<Customer>> GetAllAsync() => await _repo.GetAllAsync();
+        public async Task<Customer> GetByIdAsync(int id) => await _repo.GetByIdAsync(id);
+        public async Task<Customer> AddAsync(Customer customer) => await _repo.AddAsync(customer);
+        public async Task<bool> UpdateAsync(Customer customer) => await _repo.UpdateAsync(customer);
+        public async Task<bool> DeleteAsync(int id) => await _repo.DeleteAsync(id);
     }
 } 

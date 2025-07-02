@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Teklas_Intern_ERP.Entities.ProductionManagement;
 using Teklas_Intern_ERP.DataAccess;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Teklas_Intern_ERP.DataAccess.ProductionManagement
 {
@@ -36,6 +38,32 @@ namespace Teklas_Intern_ERP.DataAccess.ProductionManagement
             if (confirmation == null) return false;
             _context.ProductionConfirmations.Remove(confirmation);
             _context.SaveChanges();
+            return true;
+        }
+
+        public async Task<List<ProductionConfirmation>> GetAllAsync() => await _context.ProductionConfirmations.ToListAsync();
+        public async Task<ProductionConfirmation> GetByIdAsync(int id) => await _context.ProductionConfirmations.FindAsync(id);
+        public async Task<ProductionConfirmation> AddAsync(ProductionConfirmation confirmation)
+        {
+            _context.ProductionConfirmations.Add(confirmation);
+            await _context.SaveChangesAsync();
+            return confirmation;
+        }
+        public async Task<bool> UpdateAsync(ProductionConfirmation confirmation)
+        {
+            var existing = await _context.ProductionConfirmations.FindAsync(confirmation.Id);
+            if (existing == null) return false;
+            existing.WorkOrderId = confirmation.WorkOrderId;
+            existing.ConfirmationDate = confirmation.ConfirmationDate;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var confirmation = await _context.ProductionConfirmations.FindAsync(id);
+            if (confirmation == null) return false;
+            _context.ProductionConfirmations.Remove(confirmation);
+            await _context.SaveChangesAsync();
             return true;
         }
     }

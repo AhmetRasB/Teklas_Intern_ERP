@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Teklas_Intern_ERP.Entities.WarehouseManagement;
+using System.Threading.Tasks;
 
 namespace Teklas_Intern_ERP.DataAccess.WarehouseManagement
 {
@@ -32,6 +33,26 @@ namespace Teklas_Intern_ERP.DataAccess.WarehouseManagement
             if (entry == null) return false;
             _entries.Remove(entry);
             return true;
+        }
+        public async Task<List<StockEntry>> GetAllAsync()
+        {
+            return await Task.Run(() => GetAll());
+        }
+        public async Task<StockEntry> GetByIdAsync(int id)
+        {
+            return await Task.Run(() => GetById(id));
+        }
+        public async Task<StockEntry> AddAsync(StockEntry entry)
+        {
+            return await Task.Run(() => Add(entry));
+        }
+        public async Task<bool> UpdateAsync(StockEntry entry)
+        {
+            return await Task.Run(() => Update(entry));
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await Task.Run(() => Delete(id));
         }
     }
 } 

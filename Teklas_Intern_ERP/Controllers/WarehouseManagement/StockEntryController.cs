@@ -12,36 +12,36 @@ namespace Teklas_Intern_ERP.Controllers.WarehouseManagement
         private readonly StockEntryManager _manager = new StockEntryManager();
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_manager.GetAll());
+        public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var entry = _manager.GetById(id);
+            var entry = await _manager.GetByIdAsync(id);
             if (entry == null) return NotFound();
             return Ok(entry);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] StockEntry entry)
+        public async Task<IActionResult> Add([FromBody] StockEntry entry)
         {
-            var created = _manager.Add(entry);
+            var created = await _manager.AddAsync(entry);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] StockEntry entry)
+        public async Task<IActionResult> Update(int id, [FromBody] StockEntry entry)
         {
             entry.Id = id;
-            var updated = _manager.Update(entry);
+            var updated = await _manager.UpdateAsync(entry);
             if (!updated) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var deleted = _manager.Delete(id);
+            var deleted = await _manager.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }

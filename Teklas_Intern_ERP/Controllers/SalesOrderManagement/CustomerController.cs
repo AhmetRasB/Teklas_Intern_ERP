@@ -15,35 +15,35 @@ namespace Teklas_Intern_ERP.Controllers.SalesOrderManagement
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_manager.GetAll());
+        public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var result = _manager.GetById(id);
+            var result = await _manager.GetByIdAsync(id);
             if (result == null) return NotFound();
             return Ok(result);
         }
 
         [HttpPost]
-        public IActionResult Add(Customer customer)
+        public async Task<IActionResult> Add(Customer customer)
         {
-            var result = _manager.Add(customer);
+            var result = await _manager.AddAsync(customer);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpPut]
-        public IActionResult Update(Customer customer)
+        public async Task<IActionResult> Update(Customer customer)
         {
-            var result = _manager.Update(customer);
+            var result = await _manager.UpdateAsync(customer);
             if (!result) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _manager.Delete(id);
+            var result = await _manager.DeleteAsync(id);
             if (!result) return NotFound();
             return NoContent();
         }

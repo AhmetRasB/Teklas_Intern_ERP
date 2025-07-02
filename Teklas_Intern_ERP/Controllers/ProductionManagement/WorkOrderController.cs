@@ -17,36 +17,36 @@ namespace Teklas_Intern_ERP.Controllers.ProductionManagement
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_manager.GetAll());
+        public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var order = _manager.GetById(id);
+            var order = await _manager.GetByIdAsync(id);
             if (order == null) return NotFound();
             return Ok(order);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] WorkOrder order)
+        public async Task<IActionResult> Add([FromBody] WorkOrder order)
         {
-            var created = _manager.Add(order);
+            var created = await _manager.AddAsync(order);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] WorkOrder order)
+        public async Task<IActionResult> Update(int id, [FromBody] WorkOrder order)
         {
             order.Id = id;
-            var updated = _manager.Update(order);
+            var updated = await _manager.UpdateAsync(order);
             if (!updated) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var deleted = _manager.Delete(id);
+            var deleted = await _manager.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }

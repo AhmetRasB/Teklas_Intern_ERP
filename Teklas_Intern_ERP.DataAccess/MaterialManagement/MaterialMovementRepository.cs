@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
 using Teklas_Intern_ERP.DataAccess;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
 {
@@ -37,6 +39,33 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             if (movement == null) return false;
             _context.MaterialMovements.Remove(movement);
             _context.SaveChanges();
+            return true;
+        }
+
+        public async Task<List<MaterialMovement>> GetAllAsync() => await _context.MaterialMovements.ToListAsync();
+        public async Task<MaterialMovement> GetByIdAsync(int id) => await _context.MaterialMovements.FindAsync(id);
+        public async Task<MaterialMovement> AddAsync(MaterialMovement movement)
+        {
+            _context.MaterialMovements.Add(movement);
+            await _context.SaveChangesAsync();
+            return movement;
+        }
+        public async Task<bool> UpdateAsync(MaterialMovement movement)
+        {
+            var existing = await _context.MaterialMovements.FindAsync(movement.Id);
+            if (existing == null) return false;
+            existing.MaterialId = movement.MaterialId;
+            existing.Quantity = movement.Quantity;
+            existing.MovementDate = movement.MovementDate;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var movement = await _context.MaterialMovements.FindAsync(id);
+            if (movement == null) return false;
+            _context.MaterialMovements.Remove(movement);
+            await _context.SaveChangesAsync();
             return true;
         }
     }

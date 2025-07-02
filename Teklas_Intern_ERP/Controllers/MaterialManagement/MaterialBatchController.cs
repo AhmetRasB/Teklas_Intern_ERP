@@ -15,35 +15,35 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_manager.GetAll());
+        public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var result = _manager.GetById(id);
+            var result = await _manager.GetByIdAsync(id);
             if (result == null) return NotFound();
             return Ok(result);
         }
 
         [HttpPost]
-        public IActionResult Add(MaterialBatch batch)
+        public async Task<IActionResult> Add(MaterialBatch batch)
         {
-            var result = _manager.Add(batch);
+            var result = await _manager.AddAsync(batch);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpPut]
-        public IActionResult Update(MaterialBatch batch)
+        public async Task<IActionResult> Update(MaterialBatch batch)
         {
-            var result = _manager.Update(batch);
+            var result = await _manager.UpdateAsync(batch);
             if (!result) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _manager.Delete(id);
+            var result = await _manager.DeleteAsync(id);
             if (!result) return NotFound();
             return NoContent();
         }
