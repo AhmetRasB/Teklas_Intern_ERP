@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import PaginationLayer from '../PaginationLayer';
+import TableDataLayer from '../TableDataLayer';
 import { Icon } from '@iconify/react';
 
 const BASE_URL = 'https://localhost:7178';
@@ -69,19 +70,30 @@ const MaterialCardTable = () => {
   const [deleteError, setDeleteError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
+    // Kategori listesini çek
+    axios.get(`${BASE_URL}/api/MaterialCategory`)
+      .then(res => setCategories(res.data))
+      .catch(() => setCategories([]));
+  }, []);
+
+  useEffect(() => {
     fetchData();
-  }, [page]);
+  }, [selectedCategory]);
 
   const fetchData = () => {
     setLoading(true);
-    axios.get(`${BASE_URL}/api/MaterialCard/paged?page=${page}&pageSize=${pageSize}`)
+    let url = `${BASE_URL}/api/MaterialCard`;
+    if (selectedCategory) url += `?categoryId=${selectedCategory}`;
+    axios.get(url)
       .then(res => {
-        setData(res.data.items);
-        setTotalCount(res.data.totalCount);
+        setData(res.data);
+        setTotalCount(res.data.length);
         setLoading(false);
       })
       .catch(err => {
@@ -128,18 +140,26 @@ const MaterialCardTable = () => {
       OriginCountry: form.OriginCountry,
       Manufacturer: form.Manufacturer,
       IsActive: form.IsActive,
-      CreatedDate: now,
-      UpdatedDate: null,
-      CreatedBy: 'admin',
-      UpdatedBy: '',
+      CreatedDate: form.CreatedDate || now,
+      UpdatedDate: now,
+      CreatedBy: form.CreatedBy || 'admin',
+      UpdatedBy: 'admin',
     };
+
     try {
-      await axios.post(BASE_URL + '/api/MaterialCard', payload);
+      if (editMode && form.id) {
+        // GÜNCELLEME (PUT)
+        await axios.put(`${BASE_URL}/api/MaterialCard/${form.id}`, payload);
+      } else {
+        // YENİ EKLEME (POST)
+        await axios.post(`${BASE_URL}/api/MaterialCard`, payload);
+      }
       setShowModal(false);
+      setEditMode(false);
       setForm(initialForm);
       fetchData();
     } catch (err) {
-      setFormError('Ekleme başarısız!');
+      setFormError(editMode ? 'Güncelleme başarısız!' : 'Ekleme başarısız!');
     } finally {
       setFormLoading(false);
     }
@@ -191,88 +211,40 @@ const MaterialCardTable = () => {
     }
   };
 
-  const startEdit = (item) => {
+  const handleEdit = (row) => {
     setForm({
-      MaterialCode: item.materialCode || item.MaterialCode || '',
-      MaterialName: item.materialName || item.MaterialName || '',
-      MaterialType: item.materialType || item.MaterialType || '',
-      CategoryId: item.categoryId || item.CategoryId || '',
-      UnitOfMeasure: item.unitOfMeasure || item.UnitOfMeasure || '',
-      Barcode: item.barcode || item.Barcode || '',
-      Description: item.description || item.Description || '',
-      Brand: item.brand || item.Brand || '',
-      Model: item.model || item.Model || '',
-      PurchasePrice: item.purchasePrice || item.PurchasePrice || '',
-      SalesPrice: item.salesPrice || item.SalesPrice || '',
-      MinimumStockLevel: item.minimumStockLevel || item.MinimumStockLevel || '',
-      MaximumStockLevel: item.maximumStockLevel || item.MaximumStockLevel || '',
-      ReorderLevel: item.reorderLevel || item.ReorderLevel || '',
-      ShelfLife: item.shelfLife || item.ShelfLife || '',
-      Weight: item.weight || item.Weight || '',
-      Volume: item.volume || item.Volume || '',
-      Length: item.length || item.Length || '',
-      Width: item.width || item.Width || '',
-      Height: item.height || item.Height || '',
-      Color: item.color || item.Color || '',
-      OriginCountry: item.originCountry || item.OriginCountry || '',
-      Manufacturer: item.manufacturer || item.Manufacturer || '',
-      IsActive: item.isActive ?? item.IsActive ?? true,
-      id: item.id || item.Id || '',
-      CreatedBy: item.createdBy || item.CreatedBy || '',
-      CreatedDate: item.createdDate || item.CreatedDate || '',
+      MaterialCode: row.materialCode || row.MaterialCode || '',
+      MaterialName: row.materialName || row.MaterialName || '',
+      MaterialType: row.materialType || row.MaterialType || '',
+      CategoryId: row.categoryId || row.CategoryId || '',
+      UnitOfMeasure: row.unitOfMeasure || row.UnitOfMeasure || '',
+      Barcode: row.barcode || row.Barcode || '',
+      Description: row.description || row.Description || '',
+      Brand: row.brand || row.Brand || '',
+      Model: row.model || row.Model || '',
+      PurchasePrice: row.purchasePrice || row.PurchasePrice || '',
+      SalesPrice: row.salesPrice || row.SalesPrice || '',
+      MinimumStockLevel: row.minimumStockLevel || row.MinimumStockLevel || '',
+      MaximumStockLevel: row.maximumStockLevel || row.MaximumStockLevel || '',
+      ReorderLevel: row.reorderLevel || row.ReorderLevel || '',
+      ShelfLife: row.shelfLife || row.ShelfLife || '',
+      Weight: row.weight || row.Weight || '',
+      Volume: row.volume || row.Volume || '',
+      Length: row.length || row.Length || '',
+      Width: row.width || row.Width || '',
+      Height: row.height || row.Height || '',
+      Color: row.color || row.Color || '',
+      OriginCountry: row.originCountry || row.OriginCountry || '',
+      Manufacturer: row.manufacturer || row.Manufacturer || '',
+      IsActive: row.isActive ?? row.IsActive ?? true,
+      id: row.id || row.Id || '',
+      CreatedBy: row.createdBy || row.CreatedBy || '',
+      CreatedDate: row.createdDate || row.CreatedDate || '',
       UpdatedBy: 'admin',
       UpdatedDate: new Date().toISOString(),
     });
     setEditMode(true);
     setShowModal(true);
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    setFormLoading(true);
-    setFormError(null);
-    const payload = {
-      Id: form.id || form.Id,
-      MaterialCode: form.MaterialCode,
-      MaterialName: form.MaterialName,
-      MaterialType: form.MaterialType,
-      CategoryId: Number(form.CategoryId) || 1,
-      UnitOfMeasure: form.UnitOfMeasure,
-      IsActive: form.IsActive,
-      Barcode: form.Barcode,
-      Description: form.Description,
-      Brand: form.Brand,
-      Model: form.Model,
-      PurchasePrice: Number(form.PurchasePrice) || 0,
-      SalesPrice: Number(form.SalesPrice) || 0,
-      MinimumStockLevel: Number(form.MinimumStockLevel) || 0,
-      MaximumStockLevel: Number(form.MaximumStockLevel) || 0,
-      ReorderLevel: Number(form.ReorderLevel) || 0,
-      ShelfLife: form.ShelfLife ? Number(form.ShelfLife) : null,
-      Weight: form.Weight ? Number(form.Weight) : null,
-      Volume: form.Volume ? Number(form.Volume) : null,
-      Length: form.Length ? Number(form.Length) : null,
-      Width: form.Width ? Number(form.Width) : null,
-      Height: form.Height ? Number(form.Height) : null,
-      Color: form.Color,
-      OriginCountry: form.OriginCountry,
-      Manufacturer: form.Manufacturer,
-      CreatedBy: form.CreatedBy,
-      CreatedDate: form.CreatedDate,
-      UpdatedBy: form.UpdatedBy,
-      UpdatedDate: form.UpdatedDate,
-    };
-    try {
-      await axios.put(`${BASE_URL}/api/MaterialCard/${payload.Id}`, payload);
-      setShowModal(false);
-      setEditMode(false);
-      setForm(initialForm);
-      fetchData();
-    } catch (err) {
-      setFormError('Güncelleme başarısız!');
-    } finally {
-      setFormLoading(false);
-    }
   };
 
   // Truncate fonksiyonu
@@ -281,20 +253,37 @@ const MaterialCardTable = () => {
     return str.length > n ? str.slice(0, 7) + '...' : str;
   };
 
-  // Detay modalını açarken animasyonu başlat
-  const openDetail = (item) => {
-    setSelectedCard(item);
+  // Detay modalını aç
+  const handleView = (row) => {
+    setSelectedCard(row);
     setShowDetail(true);
     setTimeout(() => setDetailFade(true), 10);
   };
-  // Detay modalını kapatırken animasyonu başlat
-  const closeDetail = () => {
-    setDetailFade(false);
-    setTimeout(() => {
-      setShowDetail(false);
-      setSelectedCard(null);
-    }, 250); // animasyon süresiyle uyumlu
+
+  // Silme işlemini başlat
+  const handleDeleteRow = (row) => {
+    handleDelete(row);
   };
+
+  // Tablo kolon başlıkları
+  const columns = [
+    { header: "#", accessor: "rowNumber" },
+    { header: "Kod", accessor: "materialCode" },
+    { header: "Ad", accessor: "materialName" },
+    { header: "Tip", accessor: "materialType" },
+    { header: "Birim", accessor: "unitOfMeasure" },
+    { header: "Barkod", accessor: "barcode" },
+    { header: "Marka", accessor: "brand" },
+    { header: "Model", accessor: "model" },
+    { header: "Alış Fiyatı", accessor: "purchasePrice" },
+    { header: "Satış Fiyatı", accessor: "salesPrice" },
+    { header: "Aktif mi?", accessor: "isActive" }
+  ];
+  // Sıra numarası ekle
+  const dataWithRowNumber = data.map((item, idx) => ({
+    ...item,
+    rowNumber: idx + 1
+  }));
 
   if (loading) return <div>Yükleniyor...</div>;
   if (error) return <div>{error}</div>;
@@ -310,193 +299,120 @@ const MaterialCardTable = () => {
         </div>
         <div className="card-body">
           <div className="table-responsive">
-            <table className="table striped-table mb-0">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Kod</th>
-                  <th>Ad</th>
-                  <th>Tip</th>
-                  <th>Birim</th>
-                  <th>Barkod</th>
-                  <th>Marka</th>
-                  <th>Model</th>
-                  <th>Alış Fiyatı</th>
-                  <th>Satış Fiyatı</th>
-                  <th>Aktif mi?</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item, idx) => (
-                  <tr key={item.id || item.Id}>
-                    <td>{idx + 1}</td>
-                    <td>{truncate(item.materialCode)}</td>
-                    <td>{truncate(item.materialName)}</td>
-                    <td>{truncate(item.materialType)}</td>
-                    <td>{truncate(item.unitOfMeasure)}</td>
-                    <td>{truncate(item.barcode)}</td>
-                    <td>{truncate(item.brand)}</td>
-                    <td>{truncate(item.model)}</td>
-                    <td>{item.purchasePrice}</td>
-                    <td>{item.salesPrice}</td>
-                    <td>
-                      {item.isActive ? (
-                        <span className="bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm">Aktif</span>
-                      ) : (
-                        <span className="bg-lilac-100 text-lilac-600 px-32 py-4 rounded-pill fw-medium text-sm">Pasif</span>
-                      )}
-                    </td>
-                    <td className="d-flex gap-2">
-                      <button className="btn btn-sm rounded-pill btn-neutral-100 text-primary-light px-16 py-6" title="Detay" onClick={() => openDetail(item)}>
-                        <i className="ri-eye-line"></i>
-                      </button>
-                      <button className="btn btn-sm rounded-pill btn-warning-100 text-warning-600 px-16 py-6" title="Düzenle" onClick={() => startEdit(item)}>
-                        <i className="ri-edit-line"></i>
-                      </button>
-                      <button className="btn btn-sm rounded-pill btn-danger-100 text-danger-600 px-16 py-6" title="Sil" onClick={() => handleDelete(item)}>
-                        <i className="ri-delete-bin-line"></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="d-flex justify-content-center mt-4">
-            <nav>
-              <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link bg-primary-50 text-secondary-light fw-medium radius-8 border-0 py-10 d-flex align-items-center justify-content-center h-48-px w-48-px"
-                    onClick={() => setPage(1)} disabled={page === 1}>
-                    <Icon icon="ep:d-arrow-left" className="text-xl" />
-                  </button>
-                </li>
-                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link bg-primary-50 text-secondary-light fw-medium radius-8 border-0 py-10 d-flex align-items-center justify-content-center h-48-px w-48-px"
-                    onClick={() => setPage(page - 1)} disabled={page === 1}>
-                    <Icon icon="iconamoon:arrow-left-2-light" className="text-xxl" />
-                  </button>
-                </li>
-                {Array.from({ length: Math.ceil(totalCount / pageSize) }, (_, i) => i + 1).map(num => (
-                  <li key={num} className={`page-item ${page === num ? 'active' : ''}`}>
-                    <button className={`page-link bg-primary-50 text-secondary-light fw-medium radius-8 border-0 py-10 d-flex align-items-center justify-content-center h-48-px w-48-px ${page === num ? 'bg-primary-600 text-white' : ''}`}
-                      onClick={() => setPage(num)}>{num}</button>
-                  </li>
-                ))}
-                <li className={`page-item ${page === Math.ceil(totalCount / pageSize) ? 'disabled' : ''}`}>
-                  <button className="page-link bg-primary-50 text-secondary-light fw-medium radius-8 border-0 py-10 d-flex align-items-center justify-content-center h-48-px w-48-px"
-                    onClick={() => setPage(page + 1)} disabled={page === Math.ceil(totalCount / pageSize)}>
-                    <Icon icon="iconamoon:arrow-right-2-light" className="text-xxl" />
-                  </button>
-                </li>
-                <li className={`page-item ${page === Math.ceil(totalCount / pageSize) ? 'disabled' : ''}`}>
-                  <button className="page-link bg-primary-50 text-secondary-light fw-medium radius-8 border-0 py-10 d-flex align-items-center justify-content-center h-48-px w-48-px"
-                    onClick={() => setPage(Math.ceil(totalCount / pageSize))} disabled={page === Math.ceil(totalCount / pageSize)}>
-                    <Icon icon="ep:d-arrow-right" className="text-xl" />
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <TableDataLayer
+              data={dataWithRowNumber}
+              columns={columns}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDeleteRow}
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={val => { setSelectedCategory(val); setPage(1); }}
+              pageSize={pageSize}
+              onPageSizeChange={val => { setPageSize(val); setPage(1); }}
+              page={page}
+              totalCount={totalCount}
+              onPageChange={setPage}
+            />
           </div>
         </div>
-      </div>
-      <MaterialCardModal
-        open={showModal}
-        onClose={() => { setShowModal(false); setEditMode(false); setForm(initialForm); }}
-        onSubmit={editMode ? handleEditSubmit : handleSubmit}
-        form={form}
-        onChange={handleInputChange}
-        loading={formLoading}
-        error={formError}
-        title={editMode ? 'Malzeme Kartı Düzenle' : 'Malzeme Kartı Ekle'}
-      />
-      {showDetail && (
-        <div
-          className={`modal fade ${detailFade ? 'show' : ''}`}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.3)',
-            zIndex: 1050,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          onClick={closeDetail}
-        >
-          <style>{`
-            .modal.fade .modal-dialog { opacity: 0; transform: scale(0.96); transition: all 0.25s cubic-bezier(.4,0,.2,1); }
-            .modal.fade.show .modal-dialog { opacity: 1; transform: scale(1); }
-          `}</style>
+        <MaterialCardModal
+          open={showModal}
+          onClose={() => { setShowModal(false); setEditMode(false); setForm(initialForm); }}
+          onSubmit={handleSubmit}
+          form={form}
+          onChange={handleInputChange}
+          loading={formLoading}
+          error={formError}
+          title={editMode ? 'Malzeme Kartı Düzenle' : 'Malzeme Kartı Ekle'}
+        />
+        {showDetail && (
           <div
-            className="modal-dialog"
+            className={`modal fade ${detailFade ? 'show' : ''}`}
             style={{
-              maxWidth: 800,
-              width: '90vw',
-              margin: 0,
-              borderRadius: 16,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.3)',
+              zIndex: 1050,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={() => { setShowDetail(false); setSelectedCard(null); }}
           >
-            <div className="modal-content" style={{ borderRadius: 16, padding: '24px' }}>
-              <div className="modal-header">
-                <h5 className="modal-title">Malzeme Kartı Detay</h5>
-                <button type="button" className="btn-close" onClick={closeDetail}></button>
-              </div>
-              <div className="modal-body" style={{padding: '16px 8px 8px 8px'}}>
-                <div style={{maxHeight: '70vh', overflowY: 'auto', padding: 0}}>
-                  {selectedCard && (
-                    <div>
-                      {[
-                        ['Kod', selectedCard.materialCode],
-                        ['Ad', selectedCard.materialName],
-                        ['Tip', selectedCard.materialType],
-                        ['Kategori', selectedCard.categoryId],
-                        ['Birim', selectedCard.unitOfMeasure],
-                        ['Barkod', selectedCard.barcode],
-                        ['Açıklama', selectedCard.description],
-                        ['Marka', selectedCard.brand],
-                        ['Model', selectedCard.model],
-                        ['Alış Fiyatı', selectedCard.purchasePrice],
-                        ['Satış Fiyatı', selectedCard.salesPrice],
-                        ['Minimum Stok', selectedCard.minimumStockLevel],
-                        ['Maksimum Stok', selectedCard.maximumStockLevel],
-                        ['Yeniden Sipariş', selectedCard.reorderLevel],
-                        ['Raf Ömrü', selectedCard.shelfLife],
-                        ['Ağırlık', selectedCard.weight],
-                        ['Hacim', selectedCard.volume],
-                        ['Uzunluk', selectedCard.length],
-                        ['Genişlik', selectedCard.width],
-                        ['Yükseklik', selectedCard.height],
-                        ['Renk', selectedCard.color],
-                        ['Menşei Ülke', selectedCard.originCountry],
-                        ['Üretici', selectedCard.manufacturer],
-                        ['Aktif mi?', selectedCard.isActive ? 'Aktif' : 'Pasif'],
-                        ['Oluşturulma', selectedCard.createdDate],
-                        ['Güncellenme', selectedCard.updatedDate],
-                        ['Oluşturan', selectedCard.createdBy],
-                        ['Güncelleyen', selectedCard.updatedBy],
-                      ].map(([label, value], i) => (
-                        <div key={label} className="d-flex align-items-center px-4 py-3 mb-2" style={{background: 'transparent', borderRadius: 8}}>
-                          <span className="fw-bold text-secondary-light flex-shrink-0" style={{minWidth: 140}}>{label}</span>
-                          <span className="flex-grow-1 ms-3 px-3 py-2" style={{background: (typeof document !== 'undefined' && (document.body.classList.contains('dark') || document.documentElement.classList.contains('dark'))) ? '#1B2431' : '#F5F6FA', borderRadius: 6, color: (typeof document !== 'undefined' && (document.body.classList.contains('dark') || document.documentElement.classList.contains('dark'))) ? '#f1f1f1' : '#23272f', minWidth: 0, wordBreak: 'break-all'}}>{value ?? ''}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            <style>{`
+              .modal.fade .modal-dialog { opacity: 0; transform: scale(0.96); transition: all 0.25s cubic-bezier(.4,0,.2,1); }
+              .modal.fade.show .modal-dialog { opacity: 1; transform: scale(1); }
+            `}</style>
+            <div
+              className="modal-dialog"
+              style={{
+                maxWidth: 800,
+                width: '90vw',
+                margin: 0,
+                borderRadius: 16,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="modal-content" style={{ borderRadius: 16, padding: '24px' }}>
+                <div className="modal-header">
+                  <h5 className="modal-title">Malzeme Kartı Detay</h5>
+                  <button type="button" className="btn-close" onClick={() => { setShowDetail(false); setSelectedCard(null); }}></button>
                 </div>
-              </div>
-              <div className="modal-footer d-flex justify-content-end gap-2">
-                <button className="btn btn-soft-primary" onClick={() => startEdit(selectedCard)}>Düzenle</button>
-                <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedCard)}>Sil</button>
-                <button className="btn btn-secondary" onClick={closeDetail}>Kapat</button>
+                <div className="modal-body" style={{padding: '16px 8px 8px 8px'}}>
+                  <div style={{maxHeight: '70vh', overflowY: 'auto', padding: 0}}>
+                    {selectedCard && (
+                      <div>
+                        {[
+                          ['Kod', selectedCard.materialCode],
+                          ['Ad', selectedCard.materialName],
+                          ['Tip', selectedCard.materialType],
+                          ['Kategori', selectedCard.categoryId],
+                          ['Birim', selectedCard.unitOfMeasure],
+                          ['Barkod', selectedCard.barcode],
+                          ['Açıklama', selectedCard.description],
+                          ['Marka', selectedCard.brand],
+                          ['Model', selectedCard.model],
+                          ['Alış Fiyatı', selectedCard.purchasePrice],
+                          ['Satış Fiyatı', selectedCard.salesPrice],
+                          ['Minimum Stok', selectedCard.minimumStockLevel],
+                          ['Maksimum Stok', selectedCard.maximumStockLevel],
+                          ['Yeniden Sipariş', selectedCard.reorderLevel],
+                          ['Raf Ömrü', selectedCard.shelfLife],
+                          ['Ağırlık', selectedCard.weight],
+                          ['Hacim', selectedCard.volume],
+                          ['Uzunluk', selectedCard.length],
+                          ['Genişlik', selectedCard.width],
+                          ['Yükseklik', selectedCard.height],
+                          ['Renk', selectedCard.color],
+                          ['Menşei Ülke', selectedCard.originCountry],
+                          ['Üretici', selectedCard.manufacturer],
+                          ['Aktif mi?', selectedCard.isActive ? 'Aktif' : 'Pasif'],
+                          ['Oluşturulma', selectedCard.createdDate],
+                          ['Güncellenme', selectedCard.updatedDate],
+                          ['Oluşturan', selectedCard.createdBy],
+                          ['Güncelleyen', selectedCard.updatedBy],
+                        ].map(([label, value], i) => (
+                          <div key={label} className="d-flex align-items-center px-4 py-3 mb-2" style={{background: 'transparent', borderRadius: 8}}>
+                            <span className="fw-bold text-secondary-light flex-shrink-0" style={{minWidth: 140}}>{label}</span>
+                            <span className="flex-grow-1 ms-3 px-3 py-2" style={{background: (typeof document !== 'undefined' && (document.body.classList.contains('dark') || document.documentElement.classList.contains('dark'))) ? '#1B2431' : '#F5F6FA', borderRadius: 6, color: (typeof document !== 'undefined' && (document.body.classList.contains('dark') || document.documentElement.classList.contains('dark'))) ? '#f1f1f1' : '#23272f', minWidth: 0, wordBreak: 'break-all'}}>{value ?? ''}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="modal-footer d-flex justify-content-end gap-2">
+                  <button className="btn btn-soft-primary" onClick={() => handleEdit(selectedCard)}>Düzenle</button>
+                  <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedCard)}>Sil</button>
+                  <button className="btn btn-secondary" onClick={() => { setShowDetail(false); setSelectedCard(null); }}>Kapat</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

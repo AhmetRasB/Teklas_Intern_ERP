@@ -17,8 +17,8 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         // GET: api/MaterialCard
-        // [HttpGet]
-        // public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
+        [HttpGet]
+        public async Task<IActionResult> GetAll() => Ok(await _manager.GetAllAsync());
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
@@ -50,13 +50,6 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
             var deleted = await _manager.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
-        }
-
-        [HttpGet("paged")]
-        public async Task<IActionResult> GetPaged(int page = 1, int pageSize = 10)
-        {
-            var (items, totalCount) = await _manager.GetPagedAsync(page, pageSize);
-            return Ok(new { items, totalCount });
         }
     }
 } 

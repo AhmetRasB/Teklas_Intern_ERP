@@ -14,10 +14,7 @@ namespace Teklas_Intern_ERP.DataAccess.Mapping
         public EntityMappingProfile()
         {
             CreateMap<MaterialCard, MaterialCardDto>().ReverseMap();
-            CreateMap<MaterialCardDto, MaterialCard>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<MaterialCard, MaterialCard>().ForMember(dest => dest.Id, opt => opt.Ignore()).ForMember(dest => dest.CreatedDate, opt => opt.Ignore()).ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<MaterialBatch, MaterialBatchDto>().ReverseMap();
             CreateMap<MaterialCategory, MaterialCategoryDto>().ReverseMap();
             CreateMap<MaterialMovement, MaterialMovementDto>().ReverseMap();

@@ -1,1112 +1,246 @@
-import React, { useEffect } from 'react'
-import $ from 'jquery';
-import 'datatables.net-dt/js/dataTables.dataTables.js';
-import { Icon } from '@iconify/react/dist/iconify.js';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { Icon } from '@iconify/react';
 
-const TableDataLayer = () => {
-    useEffect(() => {
-        const table = $('#dataTable').DataTable({
-            pageLength: 10,
-        });
-        return () => {
-            table.destroy(true);
-        };
-    }, []);
+const TableDataLayer = ({
+  data,
+  columns,
+  onView = () => {},
+  onEdit = () => {},
+  onDelete = () => {},
+  selectable = false,
+  selectedRows = [],
+  onSelectRow = () => {},
+  onSelectAll = () => {},
+  showActions = true,
+  actions = ['view', 'edit', 'delete'],
+  pageSizeOptions = [5, 10, 20, 50, 100],
+  ...rest
+}) => {
+  // Local state for search, page, pageSize, sort
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortCol, setSortCol] = useState(null);
+  const [sortDir, setSortDir] = useState('asc');
+
+  // Search & sort & pagination
+  const filteredData = useMemo(() => {
+    let filtered = data;
+    if (search) {
+      filtered = filtered.filter(row =>
+        columns.some(col =>
+          String(row[col.accessor] ?? '')
+            .toLowerCase()
+            .includes(search.toLowerCase())
+        )
+      );
+    }
+    if (sortCol) {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = a[sortCol];
+        const bVal = b[sortCol];
+        if (aVal === bVal) return 0;
+        if (sortDir === 'asc') return aVal > bVal ? 1 : -1;
+        return aVal < bVal ? 1 : -1;
+      });
+    }
+    return filtered;
+  }, [data, search, columns, sortCol, sortDir]);
+
+  const totalCount = filteredData.length;
+  const pageCount = Math.ceil(totalCount / pageSize);
+  const pagedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+  // Sıralama ikonları
+  const getSortIcon = col => {
+    if (sortCol !== col) return <span style={{ opacity: 0.3, fontSize: 16, marginLeft: 4 }}>⇅</span>;
+    return (
+      <span style={{ marginLeft: 4 }}>
+        <span style={{ color: sortDir === 'asc' ? '#3b82f6' : '#bbb', fontSize: 14, position: 'relative', top: -2 }}>▲</span>
+        <span style={{ color: sortDir === 'desc' ? '#3b82f6' : '#bbb', fontSize: 14, position: 'relative', top: 2, left: -2 }}>▼</span>
+      </span>
+    );
+  };
+
+  // Alt bar için gösterim aralığı
+  const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, totalCount);
+
+  // isActive badge render fonksiyonu
+  const renderBadge = val => (
+    <span className={val ? "bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm" : "bg-lilac-100 text-lilac-600 px-32 py-4 rounded-pill fw-medium text-sm"}>
+      {val ? "Aktif" : "Pasif"}
+    </span>
+  );
+
     return (
         <div className="card basic-data-table">
-            <div className="card-header">
-                <h5 className="card-title mb-0">Default Data Tables</h5>
-            </div>
             <div className="card-body">
-                <table
-                    className="table bordered-table mb-0"
-                    id="dataTable"
-                    data-page-length={10}
-                >
+        {/* Üst bar */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <select
+              className="form-select d-inline-block w-auto"
+              value={pageSize}
+              onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+            >
+              {pageSizeOptions.map(size => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+            <span className="ms-2">sayfa başı kayıt</span>
+          </div>
+          <div>
+            <span className="me-2">Ara:</span>
+            <input
+              type="text"
+              className="form-control d-inline-block w-auto"
+              style={{ minWidth: 200 }}
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Arama..."
+            />
+          </div>
+        </div>
+        {/* Tablo */}
+        <div className="table-responsive" style={{overflowX: 'auto', maxWidth: '100%'}}>
+          <table className="table bordered-table mb-0" style={{ minWidth: 900 }}>
                     <thead>
                         <tr>
-                            <th scope="col">
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">S.L</label>
-                                </div>
+                {selectable && (
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={pagedData.length > 0 && pagedData.every(row => selectedRows.includes(row.id || row.Id))}
+                      onChange={e => onSelectAll(e.target.checked)}
+                    />
+                  </th>
+                )}
+                {columns.map((col, idx) => (
+                  <th
+                    key={idx}
+                    style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    onClick={() => {
+                      if (sortCol === col.accessor) {
+                        setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+                      } else {
+                        setSortCol(col.accessor);
+                        setSortDir('asc');
+                      }
+                    }}
+                  >
+                    {col.header}
+                    {getSortIcon(col.accessor)}
                             </th>
-                            <th scope="col">Invoice</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Issued Date</th>
-                            <th scope="col" className='dt-orderable-asc dt-orderable-desc'>Amount</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Action</th>
+                ))}
+                {showActions && (
+                  <th
+                    style={{
+                      position: 'sticky',
+                      right: 0,
+                      zIndex: 2,
+                      background: 'var(--bs-card-bg, #23272f)',
+                    }}
+                  >
+                    İşlem
+                  </th>
+                )}
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">01</label>
-                                </div>
+              {pagedData.map((row, i) => (
+                <tr key={row.id || row.Id || i}>
+                  {selectable && (
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedRows.includes(row.id || row.Id)}
+                        onChange={e => onSelectRow(row, e.target.checked)}
+                      />
                             </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526534
-                                </Link>
+                  )}
+                  {columns.map((col, idx) => (
+                    <td key={idx} style={{ whiteSpace: 'normal' }}>
+                      {col.accessor === 'isActive'
+                        ? renderBadge(row[col.accessor])
+                        : col.render
+                          ? col.render(row[col.accessor], row)
+                          : String(row[col.accessor] ?? '')}
                             </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list1.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Kathryn Murphy
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>25 Jan 2024</td>
-                            <td>$200.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
+                  ))}
+                  {showActions && (
+                    <td
+                      style={{
+                        position: 'sticky',
+                        right: 0,
+                        zIndex: 2,
+                        background: 'var(--bs-card-bg, #23272f)',
+                      }}
+                    >
+                      {actions.includes('view') && (
+                        <button
                                     className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                          onClick={() => onView(row)}
+                          title="Görüntüle"
                                 >
                                     <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
+                        </button>
+                      )}
+                      {actions.includes('edit') && (
+                        <button
                                     className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                          onClick={() => onEdit(row)}
+                          title="Düzenle"
                                 >
                                     <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
+                        </button>
+                      )}
+                      {actions.includes('delete') && (
+                        <button
                                     className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                          onClick={() => onDelete(row)}
+                          title="Sil"
                                 >
                                     <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
+                        </button>
+                      )}
+                    </td>
+                  )}
                         </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">02</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #696589
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list2.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Annette Black
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>25 Jan 2024</td>
-                            <td>$200.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">03</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #256584
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list3.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Ronald Richards
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>10 Feb 2024</td>
-                            <td>$200.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">04</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526587
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list4.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Eleanor Pena
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>10 Feb 2024</td>
-                            <td>$150.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">05</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #105986
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list5.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Leslie Alexander
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>15 March 2024</td>
-                            <td>$150.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Pending
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">06</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526589
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list6.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Albert Flores
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>15 March 2024</td>
-                            <td>$150.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">07</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526520
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list7.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Jacob Jones
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>27 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">08</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #256584
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list8.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Jerome Bell
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>27 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Pending
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">09</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #200257
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list9.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Marvin McKinney
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>30 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">10</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526525
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list10.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Cameron Williamson
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>30 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">01</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526534
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list1.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Kathryn Murphy
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>25 Jan 2024</td>
-                            <td>$200.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">02</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #696589
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list2.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Annette Black
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>25 Jan 2024</td>
-                            <td>$200.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">03</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #256584
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list3.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Ronald Richards
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>10 Feb 2024</td>
-                            <td>$200.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">04</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526587
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list4.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Eleanor Pena
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>10 Feb 2024</td>
-                            <td>$150.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">05</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #105986
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list5.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Leslie Alexander
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>15 March 2024</td>
-                            <td>$150.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Pending
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">06</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526589
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list6.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Albert Flores
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>15 March 2024</td>
-                            <td>$150.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">07</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526520
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list7.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Jacob Jones
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>27 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">08</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #256584
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list8.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Jerome Bell
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>27 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Pending
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">09</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #200257
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list9.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Marvin McKinney
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>30 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div className="form-check style-check d-flex align-items-center">
-                                    <input className="form-check-input" type="checkbox" />
-                                    <label className="form-check-label">10</label>
-                                </div>
-                            </td>
-                            <td>
-                                <Link to="#" className="text-primary-600">
-                                    #526525
-                                </Link>
-                            </td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img
-                                        src="assets/images/user-list/user-list10.png"
-                                        alt=""
-                                        className="flex-shrink-0 me-12 radius-8"
-                                    />
-                                    <h6 className="text-md mb-0 fw-medium flex-grow-1">
-                                        Cameron Williamson
-                                    </h6>
-                                </div>
-                            </td>
-                            <td>30 April 2024</td>
-                            <td>$250.00</td>
-                            <td>
-                                {" "}
-                                <span className="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">
-                                    Paid
-                                </span>
-                            </td>
-                            <td>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="iconamoon:eye-light" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="lucide:edit" />
-                                </Link>
-                                <Link
-                                    to="#"
-                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                                >
-                                    <Icon icon="mingcute:delete-2-line" />
-                                </Link>
-                            </td>
-                        </tr>
+              ))}
                     </tbody>
                 </table>
             </div>
+        {/* Alt bar */}
+        <div className="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            {`${from} - ${to} arası gösteriliyor, toplam ${totalCount} kayıt`}
+          </div>
+          <nav>
+            <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center mb-0">
+              <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setPage(1)} disabled={page === 1}>&laquo;</button>
+              </li>
+              <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setPage(page - 1)} disabled={page === 1}>&lsaquo;</button>
+              </li>
+              {Array.from({ length: pageCount }, (_, i) => i + 1).map(num => (
+                <li key={num} className={`page-item ${page === num ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => setPage(num)}>{num}</button>
+                </li>
+              ))}
+              <li className={`page-item ${page === pageCount ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setPage(page + 1)} disabled={page === pageCount}>&rsaquo;</button>
+              </li>
+              <li className={`page-item ${page === pageCount ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setPage(pageCount)} disabled={page === pageCount}>&raquo;</button>
+              </li>
+            </ul>
+          </nav>
         </div>
+      </div>
+    </div>
+  );
+};
 
-    )
-}
-
-export default TableDataLayer
+export default TableDataLayer;
