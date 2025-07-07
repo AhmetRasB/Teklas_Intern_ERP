@@ -8,6 +8,7 @@ using Teklas_Intern_ERP.Business.Interfaces;
 using Teklas_Intern_ERP.DataAccess.Repositories;
 using Teklas_Intern_ERP.Business.MaterialManagement;
 using Teklas_Intern_ERP.Business.Mapping;
+using Teklas_Intern_ERP.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,34 +73,12 @@ builder.Services.AddStackExchangeRedisCache(options =>
 var app = builder.Build();
 
 // Global exception handler
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "application/json";
-        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
-        var error = exceptionHandlerPathFeature?.Error;
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogError(error, "Unhandled exception occurred");
-        await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new { error = "Beklenmeyen bir hata oluştu." }));
-    });
-});
+app.UseCustomExceptionHandler();
 
 app.UseSerilogRequestLogging();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/MaterialManagement/swagger.json", "Material Management");
-        c.SwaggerEndpoint("/swagger/ProductionManagement/swagger.json", "Production Management");
-        c.SwaggerEndpoint("/swagger/WarehouseManagement/swagger.json", "Warehouse Management");
-        c.SwaggerEndpoint("/swagger/PurchasingManagement/swagger.json", "Purchasing Management");
-        c.SwaggerEndpoint("/swagger/SalesOrderManagement/swagger.json", "Sales & Order Management");
-    });
-}
+// Swagger configuration
+app.UseCustomSwagger(app.Environment);
 
 app.UseHttpsRedirection();
 
