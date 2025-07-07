@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
-
+using Teklas_Intern_ERP.Entities;
 
 namespace Teklas_Intern_ERP.DataAccess
 {
@@ -9,6 +9,8 @@ namespace Teklas_Intern_ERP.DataAccess
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<MaterialCard> MaterialCards { get; set; }
+        public DbSet<MaterialCategory> MaterialCategories { get; set; }
+        public DbSet<MaterialMovement> MaterialMovements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +27,11 @@ namespace Teklas_Intern_ERP.DataAccess
                 entity.Property(e => e.Width).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Height).HasColumnType("decimal(18,2)");
             });
+
+            // Global query filters for soft delete
+            modelBuilder.Entity<MaterialCard>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<MaterialCategory>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<MaterialMovement>().HasQueryFilter(x => !x.IsDeleted);
         }
     }
 } 
