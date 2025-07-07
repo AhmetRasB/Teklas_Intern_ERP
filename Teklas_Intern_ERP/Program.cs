@@ -9,6 +9,7 @@ using Teklas_Intern_ERP.DataAccess.Repositories;
 using Teklas_Intern_ERP.Business.MaterialManagement;
 using Teklas_Intern_ERP.Business.Mapping;
 using Teklas_Intern_ERP.Extensions;
+using Teklas_Intern_ERP.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ builder.Services.AddControllers()
 // FluentValidation yeni nesil registration
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<MaterialCardDto>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
