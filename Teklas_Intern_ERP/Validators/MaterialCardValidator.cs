@@ -1,5 +1,6 @@
 using FluentValidation;
 using Teklas_Intern_ERP.DTOs;
+using Teklas_Intern_ERP;
 
 namespace Teklas_Intern_ERP.Validators
 {

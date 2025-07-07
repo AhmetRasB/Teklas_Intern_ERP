@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Teklas_Intern_ERP.DataAccess;
+using Teklas_Intern_ERP.Entities.Interfaces;
 
 namespace Teklas_Intern_ERP.DataAccess.Repositories
 {
@@ -13,7 +14,7 @@ namespace Teklas_Intern_ERP.DataAccess.Repositories
         {
             _context = context;
         }
-        public IRepository<T> Repository<T>() where T : class
+        public IRepository<T> Repository<T>() where T : class, IEntity
         {
             if (!_repositories.ContainsKey(typeof(T)))
             {

@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Teklas_Intern_ERP.DataAccess\Teklas_Intern_ERP.DataAccess.csproj" />
     <ProjectReference Include="..\Teklas_Intern_ERP.Entities\Teklas_Intern_ERP.Entities.csproj" />
+    <ProjectReference Include="..\Teklas_Intern_ERP.DTOs\Teklas_Intern_ERP.DTOs.csproj" />
   </ItemGroup>
 
   <ItemGroup>

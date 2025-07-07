@@ -330,6 +330,27 @@ const MaterialCardTable = () => {
     rowNumber: idx + 1
   }));
 
+  const modalStyle = {
+    width: 'min(96vw, 1100px)',
+    maxHeight: '96vh',
+    overflowY: 'auto',
+    background: '#fff',
+    borderRadius: 16,
+    boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+    padding: 32,
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+  };
+
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gap: 24,
+    width: '100%',
+  };
+
   if (loading) return <div>Yükleniyor...</div>;
   if (error) return <div>{error}</div>;
 

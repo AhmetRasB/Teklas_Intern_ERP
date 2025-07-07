@@ -1,11 +1,13 @@
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Teklas_Intern_ERP.DataAccess;
-using Teklas_Intern_ERP.DataAccess.Mapping;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Teklas_Intern_ERP.Business.Interfaces;
 using Teklas_Intern_ERP.DataAccess.Repositories;
 using Teklas_Intern_ERP.Business.MaterialManagement;
+using Teklas_Intern_ERP.Business.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,12 +22,12 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    })
-    .AddFluentValidation(fv =>
-    {
-        fv.RegisterValidatorsFromAssemblyContaining<Program>();
-        fv.AutomaticValidationEnabled = true;
     });
+
+// FluentValidation yeni nesil registration
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
