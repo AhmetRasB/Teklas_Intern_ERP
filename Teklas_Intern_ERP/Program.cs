@@ -4,6 +4,8 @@ using Serilog;
 using Teklas_Intern_ERP.DataAccess;
 using Teklas_Intern_ERP.DataAccess.Mapping;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Teklas_Intern_ERP.DataAccess.Repositories;
+using Teklas_Intern_ERP.Business.MaterialManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,10 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .Enrich.FromLogContext()
 );
 builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    })
     .AddFluentValidation(fv =>
     {
         fv.RegisterValidatorsFromAssemblyContaining<Program>();
@@ -25,10 +31,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("MaterialManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Material Management", Version = "v1" });
-    c.SwaggerDoc("ProductionManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Production Management", Version = "v1" });
-    c.SwaggerDoc("WarehouseManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Warehouse Management", Version = "v1" });
-    c.SwaggerDoc("PurchasingManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Purchasing Management", Version = "v1" });
-    c.SwaggerDoc("SalesOrderManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Sales & Order Management", Version = "v1" });
+    //c.SwaggerDoc("ProductionManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Production Management", Version = "v1" });
+    //c.SwaggerDoc("WarehouseManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Warehouse Management", Version = "v1" });
+    //c.SwaggerDoc("PurchasingManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Purchasing Management", Version = "v1" });
+    //c.SwaggerDoc("SalesOrderManagement", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Sales & Order Management", Version = "v1" });
     c.DocInclusionPredicate((docName, apiDesc) =>
     {
         var groupName = apiDesc.GroupName ?? string.Empty;
@@ -51,8 +57,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(EntityMappingProfile).Assembly);
-builder.Services.AddScoped<Teklas_Intern_ERP.DataAccess.MaterialManagement.MaterialCardRepository>();
-builder.Services.AddScoped<Teklas_Intern_ERP.Business.MaterialManagement.MaterialCardManager>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
+builder.Services.AddScoped<IMaterialCardService, MaterialCardService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {

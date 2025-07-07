@@ -97,6 +97,7 @@ import AccessDeniedPage from "./pages/AccessDeniedPage";
 import MaintenancePage from "./pages/MaintenancePage";
 import BlankPagePage from "./pages/BlankPagePage";
 import MaterialCardPage from "./pages/MaterialCardPage";
+import MaterialCardTrashPage from './pages/MaterialCardTrashPage';
 
 function App() {
   return (
@@ -222,6 +223,7 @@ function App() {
         <Route exact path='/widgets' element={<WidgetsPage />} />
         <Route exact path='/wizard' element={<WizardPage />} />
         <Route exact path='/material-cards' element={<MaterialCardPage />} />
+        <Route exact path='/material-card-trash' element={<MaterialCardTrashPage />} />
 
         <Route exact path='*' element={<ErrorPage />} />
       </Routes>

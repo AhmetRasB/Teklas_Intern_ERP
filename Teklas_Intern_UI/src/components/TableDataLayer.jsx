@@ -162,35 +162,53 @@ const TableDataLayer = ({
                             </td>
                   ))}
                   {showActions && (
-                    <td>
+                            <td>
                       {actions.includes('view') && (
                         <button
-                          className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    className="w-32-px h-32-px me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
                           onClick={() => onView(row)}
                           title="Görüntüle"
-                        >
-                          <Icon icon="iconamoon:eye-light" />
+                                >
+                                    <Icon icon="iconamoon:eye-light" />
                         </button>
                       )}
                       {actions.includes('edit') && (
                         <button
-                          className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
                           onClick={() => onEdit(row)}
                           title="Düzenle"
-                        >
-                          <Icon icon="lucide:edit" />
+                                >
+                                    <Icon icon="lucide:edit" />
                         </button>
                       )}
                       {actions.includes('delete') && (
                         <button
-                          className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
                           onClick={() => onDelete(row)}
                           title="Sil"
-                        >
+                                >
                           <Icon icon="ic:round-delete" />
                         </button>
                       )}
-                    </td>
+                      {actions.includes('restore') && (
+                        <button
+                          className="w-32-px h-32-px me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                          onClick={() => rest.onRestore(row)}
+                          title="Geri Al"
+                        >
+                          <Icon icon="ri:reply-line" />
+                        </button>
+                      )}
+                      {actions.includes('permanentDelete') && (
+                        <button
+                          className="w-32-px h-32-px me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                          onClick={() => rest.onPermanentDelete(row)}
+                          title="Kalıcı Sil"
+                        >
+                          <Icon icon="ri:delete-bin-7-line" />
+                        </button>
+                      )}
+                            </td>
                   )}
                         </tr>
               ))}

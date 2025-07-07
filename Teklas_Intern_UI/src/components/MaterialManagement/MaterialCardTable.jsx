@@ -7,12 +7,13 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import PaginationLayer from '../PaginationLayer';
 import TableDataLayer from '../TableDataLayer';
 import { Icon } from '@iconify/react';
+import { useNavigate } from 'react-router-dom';
 
 const BASE_URL = 'https://localhost:7178';
 
 const initialForm = {
-  MaterialCode: '',
-  MaterialName: '',
+  Code: '',
+  Name: '',
   MaterialType: '',
   CategoryId: '',
   UnitOfMeasure: '',
@@ -74,6 +75,11 @@ const MaterialCardTable = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [deletedData, setDeletedData] = useState([]);
+  const [restoreLoading, setRestoreLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Kategori listesini çek
@@ -102,6 +108,36 @@ const MaterialCardTable = () => {
       });
   };
 
+  const fetchDeletedData = async () => {
+    setRestoreLoading(true);
+    try {
+      const res = await axios.get(`${BASE_URL}/api/MaterialCard?deleted=true`);
+      setDeletedData(res.data);
+    } catch {
+      setDeletedData([]);
+    } finally {
+      setRestoreLoading(false);
+    }
+  };
+
+  const handleShowDeleted = () => {
+    fetchDeletedData();
+  };
+
+  const handleRestore = async (item) => {
+    setRestoreLoading(true);
+    try {
+      await axios.put(`${BASE_URL}/api/MaterialCard/restore/${item.id || item.Id}`);
+      fetchDeletedData();
+      fetchData();
+      MySwal.fire({ title: 'Geri Alındı!', text: 'Kart başarıyla geri alındı.', icon: 'success' });
+    } catch {
+      MySwal.fire({ title: 'Hata', text: 'Geri alma başarısız!', icon: 'error' });
+    } finally {
+      setRestoreLoading(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -116,8 +152,8 @@ const MaterialCardTable = () => {
     setFormError(null);
     const now = new Date().toISOString();
     const payload = {
-      MaterialCode: form.MaterialCode,
-      MaterialName: form.MaterialName,
+      Code: form.Code,
+      Name: form.Name,
       MaterialType: form.MaterialType,
       CategoryId: Number(form.CategoryId) || 1,
       UnitOfMeasure: form.UnitOfMeasure,
@@ -213,33 +249,34 @@ const MaterialCardTable = () => {
 
   const handleEdit = (row) => {
     setForm({
-      MaterialCode: row.materialCode || row.MaterialCode || '',
-      MaterialName: row.materialName || row.MaterialName || '',
-      MaterialType: row.materialType || row.MaterialType || '',
-      CategoryId: row.categoryId || row.CategoryId || '',
-      UnitOfMeasure: row.unitOfMeasure || row.UnitOfMeasure || '',
-      Barcode: row.barcode || row.Barcode || '',
-      Description: row.description || row.Description || '',
-      Brand: row.brand || row.Brand || '',
-      Model: row.model || row.Model || '',
-      PurchasePrice: row.purchasePrice || row.PurchasePrice || '',
-      SalesPrice: row.salesPrice || row.SalesPrice || '',
-      MinimumStockLevel: row.minimumStockLevel || row.MinimumStockLevel || '',
-      MaximumStockLevel: row.maximumStockLevel || row.MaximumStockLevel || '',
-      ReorderLevel: row.reorderLevel || row.ReorderLevel || '',
-      ShelfLife: row.shelfLife || row.ShelfLife || '',
-      Weight: row.weight || row.Weight || '',
-      Volume: row.volume || row.Volume || '',
-      Length: row.length || row.Length || '',
-      Width: row.width || row.Width || '',
-      Height: row.height || row.Height || '',
-      Color: row.color || row.Color || '',
-      OriginCountry: row.originCountry || row.OriginCountry || '',
-      Manufacturer: row.manufacturer || row.Manufacturer || '',
-      IsActive: row.isActive ?? row.IsActive ?? true,
-      id: row.id || row.Id || '',
-      CreatedBy: row.createdBy || row.CreatedBy || '',
-      CreatedDate: row.createdDate || row.CreatedDate || '',
+      ...row,
+      Code: row.code || '',
+      Name: row.name || '',
+      MaterialType: row.materialType || '',
+      CategoryId: row.categoryId || '',
+      UnitOfMeasure: row.unitOfMeasure || '',
+      Barcode: row.barcode || '',
+      Description: row.description || '',
+      Brand: row.brand || '',
+      Model: row.model || '',
+      PurchasePrice: row.purchasePrice || '',
+      SalesPrice: row.salesPrice || '',
+      MinimumStockLevel: row.minimumStockLevel || '',
+      MaximumStockLevel: row.maximumStockLevel || '',
+      ReorderLevel: row.reorderLevel || '',
+      ShelfLife: row.shelfLife || '',
+      Weight: row.weight || '',
+      Volume: row.volume || '',
+      Length: row.length || '',
+      Width: row.width || '',
+      Height: row.height || '',
+      Color: row.color || '',
+      OriginCountry: row.originCountry || '',
+      Manufacturer: row.manufacturer || '',
+      IsActive: row.isActive ?? true,
+      id: row.id || '',
+      CreatedBy: row.createdBy || '',
+      CreatedDate: row.createdDate || '',
       UpdatedBy: 'admin',
       UpdatedDate: new Date().toISOString(),
     });
@@ -276,8 +313,8 @@ const MaterialCardTable = () => {
   // Tablo kolon başlıkları
   const columns = [
     { header: "#", accessor: "rowNumber" },
-    { header: "Kod", accessor: "materialCode" },
-    { header: "Ad", accessor: "materialName" },
+    { header: "Kod", accessor: "code" },
+    { header: "Ad", accessor: "name" },
     { header: "Tip", accessor: "materialType" },
     { header: "Birim", accessor: "unitOfMeasure" },
     { header: "Barkod", accessor: "barcode" },
@@ -301,9 +338,20 @@ const MaterialCardTable = () => {
       <div className="card h-100">
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="card-title mb-0">Malzeme Kartları</h5>
-          <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => setShowModal(true)}>
-            <i className="ri-add-line"></i> Yeni Ekle
-          </button>
+          <div className="d-flex gap-2 align-items-center">
+            <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => setShowModal(true)}>
+              <i className="ri-add-line"></i> Yeni Ekle
+            </button>
+            <button
+              className="btn rounded-pill btn-soft-danger text-danger px-20 py-11"
+              style={{ fontWeight: 600 }}
+              title="Silinenleri Göster"
+              onClick={() => navigate('/material-card-trash')}
+            >
+              <i className="ri-delete-bin-6-line" style={{ marginRight: 6 }} />
+              Çöp Kutusu
+            </button>
+          </div>
         </div>
         <div className="card-body">
           <div className="table-responsive">
@@ -376,8 +424,8 @@ const MaterialCardTable = () => {
                     {selectedCard && (
                       <div>
                         {[
-                          ['Kod', selectedCard.materialCode],
-                          ['Ad', selectedCard.materialName],
+                          ['Kod', selectedCard.code],
+                          ['Ad', selectedCard.name],
                           ['Tip', selectedCard.materialType],
                           ['Kategori', selectedCard.categoryId],
                           ['Birim', selectedCard.unitOfMeasure],

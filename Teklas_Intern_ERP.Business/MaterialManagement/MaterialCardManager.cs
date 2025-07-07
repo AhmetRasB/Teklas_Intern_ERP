@@ -1,65 +1,56 @@
-using Teklas_Intern_ERP.DataAccess.MaterialManagement;
+using Teklas_Intern_ERP.DataAccess.Repositories;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
 using System.Collections.Generic;
-using Teklas_Intern_ERP.DataAccess;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
+using Teklas_Intern_ERP.Business.Interfaces;
 
 namespace Teklas_Intern_ERP.Business.MaterialManagement
 {
-    public class MaterialCardManager
+    public class MaterialCardService : IMaterialCardService
     {
-        private readonly MaterialCardRepository _repo;
-        private readonly IDistributedCache _cache;
-        public MaterialCardManager(MaterialCardRepository repo, IDistributedCache cache)
+        private readonly IRepository<MaterialCard> _repo;
+        public MaterialCardService(IRepository<MaterialCard> repo)
         {
             _repo = repo;
-            _cache = cache;
         }
-
-        public List<MaterialCard> GetAll() => _repo.GetAll();
-        public MaterialCard GetById(int id) => _repo.GetById(id);
-        public MaterialCard Add(MaterialCard card) => _repo.Add(card);
-        public bool Update(MaterialCard card) => _repo.Update(card);
-        public bool Delete(int id) => _repo.Delete(id);
-
-        public async Task<List<MaterialCard>> GetAllAsync()
-        {
-            var cacheKey = "MaterialCards_All";
-            var cached = await _cache.GetStringAsync(cacheKey);
-            if (cached != null)
-                return JsonSerializer.Deserialize<List<MaterialCard>>(cached);
-            var data = await _repo.GetAllAsync();
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = System.TimeSpan.FromMinutes(10)
-            };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(data), options);
-            return data;
-        }
+        public async Task<List<MaterialCard>> GetAllAsync() => await _repo.GetAllAsync();
         public async Task<MaterialCard> GetByIdAsync(int id) => await _repo.GetByIdAsync(id);
         public async Task<MaterialCard> AddAsync(MaterialCard card)
         {
-            var created = await _repo.AddAsync(card);
-            await _cache.RemoveAsync("MaterialCards_All");
-            return created;
+            card.UpdatedDate = DateTime.Now;
+            card.CreatedDate = DateTime.Now;
+            await _repo.AddAsync(card);
+            return card;
         }
         public async Task<bool> UpdateAsync(MaterialCard card)
         {
-            var result = await _repo.UpdateAsync(card);
-            if (result)
-                await _cache.RemoveAsync("MaterialCards_All");
-            return result;
+            var existing = await _repo.GetByIdAsync(card.Id);
+            if (existing == null) return false;
+            card.UpdatedDate = DateTime.Now;
+            await _repo.UpdateAsync(card);
+            return true;
         }
         public async Task<bool> DeleteAsync(int id)
         {
-            var result = await _repo.DeleteAsync(id);
-            if (result)
-                await _cache.RemoveAsync("MaterialCards_All");
-            return result;
+            var card = await _repo.GetByIdAsync(id);
+            if (card == null) return false;
+            await _repo.DeleteAsync(card);
+            return true;
         }
-        public async Task<(List<MaterialCard> Items, int TotalCount)> GetPagedAsync(int page, int pageSize)
-            => await _repo.GetPagedAsync(page, pageSize);
+        public async Task<List<MaterialCard>> GetDeletedAsync() => await _repo.GetDeletedAsync();
+        public async Task<bool> RestoreAsync(int id)
+        {
+            var card = await _repo.GetByIdIncludeDeletedAsync(id);
+            if (card == null) return false;
+            await _repo.RestoreAsync(card);
+            return true;
+        }
+        public async Task<bool> PermanentDeleteAsync(int id)
+        {
+            var card = await _repo.GetByIdIncludeDeletedAsync(id);
+            if (card == null) return false;
+            await _repo.PermanentDeleteAsync(card);
+            return true;
+        }
     }
 } 
