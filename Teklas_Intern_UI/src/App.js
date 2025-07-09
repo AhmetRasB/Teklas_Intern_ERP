@@ -98,6 +98,8 @@ import MaintenancePage from "./pages/MaintenancePage";
 import BlankPagePage from "./pages/BlankPagePage";
 import MaterialCardPage from "./pages/MaterialCardPage";
 import MaterialCardTrashPage from './pages/MaterialCardTrashPage';
+import MaterialCategoryPage from './pages/MaterialCategoryPage';
+import MaterialCategoryTrashPage from './pages/MaterialCategoryTrashPage';
 
 function App() {
   return (
@@ -224,6 +226,8 @@ function App() {
         <Route exact path='/wizard' element={<WizardPage />} />
         <Route exact path='/material-cards' element={<MaterialCardPage />} />
         <Route exact path='/material-card-trash' element={<MaterialCardTrashPage />} />
+        <Route exact path='/material-category' element={<MaterialCategoryPage />} />
+        <Route exact path='/material-category-trash' element={<MaterialCategoryTrashPage />} />
 
         <Route exact path='*' element={<ErrorPage />} />
       </Routes>

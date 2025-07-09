@@ -19,9 +19,9 @@ const MaterialCardTrashPage = () => {
   const fetchDeletedData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/api/MaterialCard?deleted=true`);
+      const res = await axios.get(`${BASE_URL}/api/materials/deleted`);
       setData(res.data);
-    } catch {
+    } catch (err) {
       setData([]);
     } finally {
       setLoading(false);
@@ -31,7 +31,7 @@ const MaterialCardTrashPage = () => {
   const handleRestore = async (item) => {
     setRestoreLoading(true);
     try {
-      await axios.put(`${BASE_URL}/api/MaterialCard/restore/${item.id || item.Id}`);
+      await axios.put(`${BASE_URL}/api/materials/${item.id || item.Id}/restore`);
       fetchDeletedData();
     } catch {
       alert('Geri alma başarısız!');
@@ -44,7 +44,7 @@ const MaterialCardTrashPage = () => {
     if (!window.confirm('Bu kartı kalıcı olarak silmek istediğinize emin misiniz?')) return;
     setRestoreLoading(true);
     try {
-      await axios.delete(`${BASE_URL}/api/MaterialCard/permanent/${item.id || item.Id}`);
+      await axios.delete(`${BASE_URL}/api/materials/${item.id || item.Id}/permanent`);
       fetchDeletedData();
     } catch {
       alert('Kalıcı silme başarısız!');

@@ -12,40 +12,40 @@ using ValidationException = FluentValidation.ValidationException;
 
 namespace Teklas_Intern_ERP.Business.MaterialManagement
 {
-    public class MaterialCardService : IMaterialCardService
+    public class MaterialCategoryService : IMaterialCategoryService
     {
-        private readonly IMaterialCardRepository _repository;
+        private readonly IMaterialCategoryRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public MaterialCardService(
-            IMaterialCardRepository repository,
+        public MaterialCategoryService(
+            IMaterialCategoryRepository repository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _repository = repository;
             _unitOfWork = unitOfWork;
-            _mapper = mapper;   
+            _mapper = mapper;
         }
 
         #region Basic CRUD Operations
 
-        public async Task<List<MaterialCardDto>> GetAllAsync()
+        public async Task<List<MaterialCategoryDto>> GetAllAsync()
         {
             var entities = await _repository.GetAllAsync();
-            return _mapper.Map<List<MaterialCardDto>>(entities);
+            return _mapper.Map<List<MaterialCategoryDto>>(entities);
         }
 
-        public async Task<MaterialCardDto?> GetByIdAsync(long id)
+        public async Task<MaterialCategoryDto?> GetByIdAsync(long id)
         {
             var entity = await _repository.GetByIdAsync(id);
-            return _mapper.Map<MaterialCardDto>(entity);
+            return _mapper.Map<MaterialCategoryDto>(entity);
         }
 
-        public async Task<MaterialCardDto> AddAsync(MaterialCardDto dto)
+        public async Task<MaterialCategoryDto> AddAsync(MaterialCategoryDto dto)
         {
             // VALIDATION
-            var validator = new MaterialCardDtoValidator();
+            var validator = new MaterialCategoryDto.MaterialCategoryDtoValidator();
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
@@ -54,7 +54,7 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
             {
                 await _unitOfWork.BeginTransactionAsync();
 
-                var entity = _mapper.Map<MaterialCard>(dto);
+                var entity = _mapper.Map<MaterialCategory>(dto);
                 entity.Status = Entities.StatusType.Active;
                 entity.CreateUserId = 1;
                 entity.UpdateUserId = 1;
@@ -62,7 +62,7 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
                 var addedEntity = await _repository.AddAsync(entity);
                 await _unitOfWork.CommitTransactionAsync();
 
-                return _mapper.Map<MaterialCardDto>(addedEntity);
+                return _mapper.Map<MaterialCategoryDto>(addedEntity);
             }
             catch
             {
@@ -71,10 +71,10 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
             }
         }
 
-        public async Task<MaterialCardDto> UpdateAsync(MaterialCardDto dto)
+        public async Task<MaterialCategoryDto> UpdateAsync(MaterialCategoryDto dto)
         {
             // VALIDATION
-            var validator = new MaterialCardDtoValidator();
+            var validator = new MaterialCategoryDto.MaterialCategoryDtoValidator();
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
@@ -83,11 +83,11 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
             {
                 await _unitOfWork.BeginTransactionAsync();
 
-                var entity = _mapper.Map<MaterialCard>(dto);
+                var entity = _mapper.Map<MaterialCategory>(dto);
                 await _repository.UpdateAsync(entity);
                 await _unitOfWork.CommitTransactionAsync();
 
-                return _mapper.Map<MaterialCardDto>(entity);
+                return _mapper.Map<MaterialCategoryDto>(entity);
             }
             catch
             {
@@ -101,10 +101,10 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
             return await _repository.DeleteAsync(id);
         }
 
-        public async Task<List<MaterialCardDto>> GetDeletedAsync()
+        public async Task<List<MaterialCategoryDto>> GetDeletedAsync()
         {
             var entities = await _repository.GetDeletedAsync();
-            return _mapper.Map<List<MaterialCardDto>>(entities);
+            return _mapper.Map<List<MaterialCategoryDto>>(entities);
         }
 
         public async Task<bool> RestoreAsync(long id)
@@ -121,27 +121,26 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
 
         #region Basic Search Operations
 
-        public async Task<List<MaterialCardDto>> GetMaterialsByCategoryAsync(long categoryId)
+        public async Task<List<MaterialCategoryDto>> GetRootCategoriesAsync()
         {
-            var entities = await _repository.GetMaterialsByCategoryAsync(categoryId);
-            return _mapper.Map<List<MaterialCardDto>>(entities);
+            var entities = await _repository.GetRootCategoriesAsync();
+            return _mapper.Map<List<MaterialCategoryDto>>(entities);
         }
 
-        public async Task<List<MaterialCardDto>> SearchMaterialsAsync(string searchTerm)
+        public async Task<List<MaterialCategoryDto>> GetSubCategoriesAsync(long parentId)
         {
-            var entities = await _repository.SearchMaterialsAsync(searchTerm);
-            return _mapper.Map<List<MaterialCardDto>>(entities);
+            var entities = await _repository.GetSubCategoriesAsync(parentId);
+            return _mapper.Map<List<MaterialCategoryDto>>(entities);
         }
 
-        public async Task<MaterialCardDto?> GetMaterialByBarcodeAsync(string barcode)
+        public async Task<bool> HasMaterialsAsync(long categoryId)
         {
-            var entity = await _repository.GetMaterialByBarcodeAsync(barcode);
-            return _mapper.Map<MaterialCardDto>(entity);
+            return await _repository.HasMaterialsAsync(categoryId);
         }
 
-        public async Task<bool> IsMaterialCodeUniqueAsync(string code, long? excludeId = null)
+        public async Task<int> GetMaterialCountAsync(long categoryId)
         {
-            return await _repository.IsMaterialCodeUniqueAsync(code, excludeId);
+            return await _repository.GetMaterialCountAsync(categoryId);
         }
 
         #endregion

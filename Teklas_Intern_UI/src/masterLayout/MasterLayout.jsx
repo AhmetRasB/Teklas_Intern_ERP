@@ -130,7 +130,7 @@ const MasterLayout = ({ children }) => {
               <NavLink to='/index-10' className={(navData) => navData.isActive ? "active-page" : ""}>
                 <Icon icon='solar:home-smile-angle-outline' className='menu-icon' />
                 <span>Ana Sayfa</span>
-                  </NavLink>
+              </NavLink>
             </li>
 
             {/* Malzeme Yönetimi */}
@@ -145,7 +145,11 @@ const MasterLayout = ({ children }) => {
                     <span>Malzeme Kartları</span>
                   </NavLink>
                 </li>
-                {/* Diğer Malzeme Yönetimi alt menüleri buraya eklenebilir */}
+                <li>
+                  <NavLink to='/material-category' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Kategori Tanımlama</span>
+                  </NavLink>
+                </li>
               </ul>
             </li>
 

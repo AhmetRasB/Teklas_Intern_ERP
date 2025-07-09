@@ -31,6 +31,13 @@ namespace Teklas_Intern_ERP.DTOs
         public const string OriginCountryMaxLength = "Menşei ülke en fazla 50 karakter olabilir.";
         public const string ManufacturerMaxLength = "Üretici en fazla 100 karakter olabilir.";
         
+        // Material Category Error Messages
+        public const string CategoryCodeRequired = "Kategori kodu zorunludur.";
+        public const string CategoryNameRequired = "Kategori adı zorunludur.";
+        public const string CategoryCodeMaxLength = "Kategori kodu en fazla 50 karakter olabilir.";
+        public const string CategoryNameMaxLength = "Kategori adı en fazla 100 karakter olabilir.";
+        public const string CategoryDescriptionMaxLength = "Kategori açıklaması en fazla 500 karakter olabilir.";
+        
         // Generic Error Messages
         public const string FieldRequired = "Bu alan zorunludur.";
         public const string FieldMinLength = "Bu alan en az {0} karakter olmalıdır.";

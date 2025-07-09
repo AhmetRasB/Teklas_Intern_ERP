@@ -83,7 +83,7 @@ const MaterialCardTable = () => {
 
   useEffect(() => {
     // Kategori listesini çek
-    axios.get(`${BASE_URL}/api/MaterialCategory`)
+    axios.get(`${BASE_URL}/api/categories`)
       .then(res => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
@@ -94,7 +94,7 @@ const MaterialCardTable = () => {
 
   const fetchData = () => {
     setLoading(true);
-    let url = `${BASE_URL}/api/MaterialCard`;
+    let url = `${BASE_URL}/api/materials`;
     if (selectedCategory) url += `?categoryId=${selectedCategory}`;
     axios.get(url)
       .then(res => {
@@ -111,7 +111,7 @@ const MaterialCardTable = () => {
   const fetchDeletedData = async () => {
     setRestoreLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/api/MaterialCard?deleted=true`);
+      const res = await axios.get(`${BASE_URL}/api/materials/deleted`);
       setDeletedData(res.data);
     } catch {
       setDeletedData([]);
@@ -121,13 +121,14 @@ const MaterialCardTable = () => {
   };
 
   const handleShowDeleted = () => {
-    fetchDeletedData();
+    setShowDeleted(!showDeleted);
+    if (!showDeleted) fetchDeletedData();
   };
 
   const handleRestore = async (item) => {
     setRestoreLoading(true);
     try {
-      await axios.put(`${BASE_URL}/api/MaterialCard/restore/${item.id || item.Id}`);
+      await axios.post(`${BASE_URL}/api/materials/${item.id || item.Id}/restore`);
       fetchDeletedData();
       fetchData();
       MySwal.fire({ title: 'Geri Alındı!', text: 'Kart başarıyla geri alındı.', icon: 'success' });
@@ -185,14 +186,14 @@ const MaterialCardTable = () => {
     try {
       if (editMode && form.id) {
         // GÜNCELLEME (PUT)
-        await axios.put(`${BASE_URL}/api/MaterialCard/${form.id}`, payload);
+        await axios.put(`${BASE_URL}/api/materials/${form.id}`, payload);
       } else {
         // YENİ EKLEME (POST)
-        await axios.post(`${BASE_URL}/api/MaterialCard`, payload);
+        await axios.post(`${BASE_URL}/api/materials`, payload);
       }
       setShowModal(false);
       setEditMode(false);
-      setForm(initialForm);
+      setForm(initialForm); 
       fetchData();
     } catch (err) {
       setFormError(editMode ? 'Güncelleme başarısız!' : 'Ekleme başarısız!');
@@ -228,7 +229,7 @@ const MaterialCardTable = () => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${BASE_URL}/api/MaterialCard/${item.id || item.Id}`);
+        await axios.delete(`${BASE_URL}/api/materials/${item.id || item.Id}`);
         fetchData();
         MySwal.fire({
           title: 'Silindi!',
@@ -370,14 +371,14 @@ const MaterialCardTable = () => {
               onClick={() => navigate('/material-card-trash')}
             >
               <i className="ri-delete-bin-6-line" style={{ marginRight: 6 }} />
-              Çöp Kutusu
+              Silinenleri Göster
             </button>
           </div>
         </div>
         <div className="card-body">
           <div className="table-responsive">
             <TableDataLayer
-              data={dataWithRowNumber}
+              data={showDeleted ? deletedData : dataWithRowNumber}
               columns={columns}
               onView={handleView}
               onEdit={handleEdit}
@@ -402,6 +403,7 @@ const MaterialCardTable = () => {
           loading={formLoading}
           error={formError}
           title={editMode ? 'Malzeme Kartı Düzenle' : 'Malzeme Kartı Ekle'}
+          categories={categories}
         />
         {showDetail && (
           <div

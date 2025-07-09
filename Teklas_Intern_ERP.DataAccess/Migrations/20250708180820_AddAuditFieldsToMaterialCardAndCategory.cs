@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace Teklas_Intern_ERP.DataAccess.Migrations
+namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class DecimalPrecisionUpdate : Migration
+    public partial class AddAuditFieldsToMaterialCardAndCategory : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

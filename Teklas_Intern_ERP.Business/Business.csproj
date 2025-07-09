@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Teklas_Intern_ERP.DataAccess\Teklas_Intern_ERP.DataAccess.csproj" />
-    <ProjectReference Include="..\Teklas_Intern_ERP.Entities\Teklas_Intern_ERP.Entities.csproj" />
-    <ProjectReference Include="..\Teklas_Intern_ERP.DTOs\Teklas_Intern_ERP.DTOs.csproj" />
+    <ProjectReference Include="..\Teklas_Intern_ERP.DataAccess\DataAccess.csproj" />
+    <ProjectReference Include="..\Teklas_Intern_ERP.Entities\Entities.csproj" />
+    <ProjectReference Include="..\Teklas_Intern_ERP.DTOs\DTOs.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
-	
   </ItemGroup>
 
 </Project>

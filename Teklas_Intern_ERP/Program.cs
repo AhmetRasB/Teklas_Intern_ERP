@@ -10,6 +10,7 @@ using Teklas_Intern_ERP.Business.MaterialManagement;
 using Teklas_Intern_ERP.Business.Mapping;
 using Teklas_Intern_ERP.Extensions;
 using Teklas_Intern_ERP.DTOs;
+using Teklas_Intern_ERP.DataAccess.MaterialManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,7 +63,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddAutoMapper(typeof(EntityMappingProfile).Assembly);
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
+// Register repository interfaces
+builder.Services.AddScoped<IMaterialCardRepository, MaterialCardRepository>();
+builder.Services.AddScoped<IMaterialCategoryRepository, MaterialCategoryRepository>();
+
+// Register services with proper constructors
 builder.Services.AddScoped<IMaterialCardService, MaterialCardService>();
+builder.Services.AddScoped<IMaterialCategoryService, MaterialCategoryService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddStackExchangeRedisCache(options =>

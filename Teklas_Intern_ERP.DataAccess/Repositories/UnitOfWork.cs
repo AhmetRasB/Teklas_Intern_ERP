@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 using Teklas_Intern_ERP.DataAccess;
 using Teklas_Intern_ERP.Entities.Interfaces;
 
@@ -10,21 +12,55 @@ namespace Teklas_Intern_ERP.DataAccess.Repositories
     {
         private readonly AppDbContext _context;
         private readonly Dictionary<Type, object> _repositories = new();
+        private IDbContextTransaction? _transaction;
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
         }
+
         public IRepository<T> Repository<T>() where T : class, IEntity
         {
             if (!_repositories.ContainsKey(typeof(T)))
             {
                 var repoType = typeof(BaseRepository<>).MakeGenericType(typeof(T));
                 var repoInstance = Activator.CreateInstance(repoType, _context);
-                _repositories[typeof(T)] = repoInstance;
+                _repositories[typeof(T)] = repoInstance ?? throw new InvalidOperationException($"Could not create repository for {typeof(T).Name}");
             }
             return (IRepository<T>)_repositories[typeof(T)];
         }
+
         public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
-        public void Dispose() => _context.Dispose();
+
+        public async Task BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+        {
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public async Task RollbackTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            _transaction?.Dispose();
+            _context.Dispose();
+        }
     }
 } 

@@ -11,35 +11,35 @@ using ValidationException = FluentValidation.ValidationException;
 namespace Teklas_Intern_ERP.Controllers.MaterialManagement
 {
     /// <summary>
-    /// Material Card Management API - Enterprise Resource Planning
-    /// Basic CRUD operations for material management
+    /// Material Category Management API - Enterprise Resource Planning
+    /// Basic CRUD operations for category management
     /// </summary>
     [ApiController]
-    [Route("api/materials")]
+    [Route("api/categories")]
     [ApiExplorerSettings(GroupName = "Material Management")]
     [Produces("application/json")]
-    public class MaterialCardController : ControllerBase
+    public class MaterialCategoryController : ControllerBase
     {
-        private readonly IMaterialCardService _service;
+        private readonly IMaterialCategoryService _service;
 
-        public MaterialCardController(IMaterialCardService service)
+        public MaterialCategoryController(IMaterialCategoryService service)
         {
             _service = service;
         }
 
         /// <summary>
-        /// Get all materials
+        /// Get all categories
         /// </summary>
-        /// <returns>List of materials</returns>
+        /// <returns>List of categories</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(List<MaterialCardDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<MaterialCategoryDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<MaterialCardDto>>> GetAll()
+        public async Task<ActionResult<List<MaterialCategoryDto>>> GetAll()
         {
             try
             {
-                var materials = await _service.GetAllAsync();
-                return Ok(materials);
+                var categories = await _service.GetAllAsync();
+                return Ok(categories);
             }
             catch (Exception ex)
             {
@@ -48,23 +48,23 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Get material by ID
+        /// Get category by ID
         /// </summary>
-        /// <param name="id">Material ID</param>
-        /// <returns>Material details</returns>
+        /// <param name="id">Category ID</param>
+        /// <returns>Category details</returns>
         [HttpGet("{id:long}")]
-        [ProducesResponseType(typeof(MaterialCardDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MaterialCategoryDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<MaterialCardDto>> GetById(long id)
+        public async Task<ActionResult<MaterialCategoryDto>> GetById(long id)
         {
             try
             {
-                var material = await _service.GetByIdAsync(id);
-                if (material == null) 
-                    return NotFound(new { error = "Material not found", id });
+                var category = await _service.GetByIdAsync(id);
+                if (category == null) 
+                    return NotFound(new { error = "Category not found", id });
                 
-                return Ok(material);
+                return Ok(category);
             }
             catch (Exception ex)
             {
@@ -72,21 +72,21 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
             }
         }
 
-        /// <summary>
-        /// Create a new material
+        /// <summary>   
+        /// Create a new category
         /// </summary>
-        /// <param name="dto">Material data</param>
-        /// <returns>Created material</returns>
+        /// <param name="dto">Category data</param>
+        /// <returns>Created category</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(MaterialCardDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(MaterialCategoryDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<MaterialCardDto>> Create([FromBody] MaterialCardDto dto)
+        public async Task<ActionResult<MaterialCategoryDto>> Create([FromBody] MaterialCategoryDto dto)
         {
             try
             {
-                var material = await _service.AddAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = material.Id }, material);
+                var category = await _service.AddAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
             }
             catch (ValidationException ex)
             {
@@ -103,23 +103,23 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Update an existing material
+        /// Update an existing category
         /// </summary>
-        /// <param name="id">Material ID</param>
-        /// <param name="dto">Updated material data</param>
-        /// <returns>Updated material</returns>
+        /// <param name="id">Category ID</param>
+        /// <param name="dto">Updated category data</param>
+        /// <returns>Updated category</returns>
         [HttpPut("{id:long}")]
-        [ProducesResponseType(typeof(MaterialCardDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MaterialCategoryDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<MaterialCardDto>> Update(long id, [FromBody] MaterialCardDto dto)
+        public async Task<ActionResult<MaterialCategoryDto>> Update(long id, [FromBody] MaterialCategoryDto dto)
         {
             try
             {
                 dto.Id = id;
-                var material = await _service.UpdateAsync(dto);
-                return Ok(material);
+                var category = await _service.UpdateAsync(dto);
+                return Ok(category);
             }
             catch (ValidationException ex)
             {
@@ -136,9 +136,9 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Soft delete a material
+        /// Soft delete a category
         /// </summary>
-        /// <param name="id">Material ID</param>
+        /// <param name="id">Category ID</param>
         /// <returns>Success status</returns>
         [HttpDelete("{id:long}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -150,13 +150,13 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
             {
                 var deleted = await _service.DeleteAsync(id);
                 if (!deleted) 
-                    return NotFound(new { error = "Material not found", id });
+                    return NotFound(new { error = "Category not found", id });
                 
                 return NoContent();
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(new { error = "Cannot delete material", details = ex.Message });
+                return BadRequest(new { error = "Cannot delete category", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -165,9 +165,9 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Restore a soft-deleted material
+        /// Restore a soft-deleted category
         /// </summary>
-        /// <param name="id">Material ID</param>
+        /// <param name="id">Category ID</param>
         /// <returns>Success status</returns>
         [HttpPut("{id:long}/restore")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -179,9 +179,9 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
             {
                 var restored = await _service.RestoreAsync(id);
                 if (!restored) 
-                    return NotFound(new { error = "Material not found", id });
+                    return NotFound(new { error = "Category not found", id });
                 
-                return Ok(new { message = "Material restored successfully", id });
+                return Ok(new { message = "Category restored successfully", id });
             }
             catch (Exception ex)
             {
@@ -190,9 +190,9 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Permanently delete a material
+        /// Permanently delete a category
         /// </summary>
-        /// <param name="id">Material ID</param>
+        /// <param name="id">Category ID</param>
         /// <returns>Success status</returns>
         [HttpDelete("{id:long}/permanent")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -204,13 +204,13 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
             {
                 var deleted = await _service.PermanentDeleteAsync(id);
                 if (!deleted) 
-                    return NotFound(new { error = "Material not found", id });
+                    return NotFound(new { error = "Category not found", id });
                 
                 return NoContent();
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(new { error = "Cannot permanently delete material", details = ex.Message });
+                return BadRequest(new { error = "Cannot permanently delete category", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -219,18 +219,18 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Get all deleted (soft-deleted) materials
+        /// Get all deleted (soft-deleted) categories
         /// </summary>
-        /// <returns>List of deleted materials</returns>
+        /// <returns>List of deleted categories</returns>
         [HttpGet("deleted")]
-        [ProducesResponseType(typeof(List<MaterialCardDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<MaterialCategoryDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<MaterialCardDto>>> GetDeleted()
+        public async Task<ActionResult<List<MaterialCategoryDto>>> GetDeleted()
         {
             try
             {
-                var materials = await _service.GetDeletedAsync();
-                return Ok(materials);
+                var categories = await _service.GetDeletedAsync();
+                return Ok(categories);
             }
             catch (Exception ex)
             {
