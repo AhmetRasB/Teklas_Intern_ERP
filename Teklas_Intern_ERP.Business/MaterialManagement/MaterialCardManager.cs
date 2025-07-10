@@ -55,7 +55,7 @@ namespace Teklas_Intern_ERP.Business.MaterialManagement
                 await _unitOfWork.BeginTransactionAsync();
 
                 var entity = _mapper.Map<MaterialCard>(dto);
-                entity.Status = Entities.StatusType.Active;
+                entity.Status = "Active";
                 entity.CreateUserId = 1;
                 entity.UpdateUserId = 1;
                 

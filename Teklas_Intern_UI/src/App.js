@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import HomePageOne from "./pages/HomePageOne";
 import HomePageTwo from "./pages/HomePageTwo";
 import HomePageThree from "./pages/HomePageThree";
@@ -100,138 +102,231 @@ import MaterialCardPage from "./pages/MaterialCardPage";
 import MaterialCardTrashPage from './pages/MaterialCardTrashPage';
 import MaterialCategoryPage from './pages/MaterialCategoryPage';
 import MaterialCategoryTrashPage from './pages/MaterialCategoryTrashPage';
+import MaterialMovementPage from './pages/MaterialMovementPage';
+import MaterialMovementTrashPage from './pages/MaterialMovementTrashPage';
+import CreateRolePage from './pages/CreateRolePage';
 
 function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <RouteScrollToTop />
       <Routes>
-        <Route exact path='/' element={<HomePageTen />} />
-        <Route exact path='/index-2' element={<HomePageTwo />} />
-        <Route exact path='/index-3' element={<HomePageThree />} />
-        <Route exact path='/index-4' element={<HomePageFour />} />
-        <Route exact path='/index-5' element={<HomePageFive />} />
-        <Route exact path='/index-6' element={<HomePageSix />} />
-        <Route exact path='/index-7' element={<HomePageSeven />} />
-        <Route exact path='/index-8' element={<HomePageEight />} />
-        <Route exact path='/index-9' element={<HomePageNine />} />
-        <Route exact path='/index-10' element={<HomePageTen />} />
-        <Route exact path='/index-11' element={<HomePageEleven />} />
-
-        {/* SL */}
-        <Route exact path='/add-user' element={<AddUserPage />} />
-        <Route exact path='/alert' element={<AlertPage />} />
-        <Route exact path='/assign-role' element={<AssignRolePage />} />
-        <Route exact path='/avatar' element={<AvatarPage />} />
-        <Route exact path='/badges' element={<BadgesPage />} />
-        <Route exact path='/button' element={<ButtonPage />} />
-        <Route exact path='/calendar-main' element={<CalendarMainPage />} />
-        <Route exact path='/calendar' element={<CalendarMainPage />} />
-        <Route exact path='/card' element={<CardPage />} />
-        <Route exact path='/carousel' element={<CarouselPage />} />
-        <Route exact path='/chat-empty' element={<ChatEmptyPage />} />
-        <Route exact path='/chat-message' element={<ChatMessagePage />} />
-        <Route exact path='/chat-profile' element={<ChatProfilePage />} />
-        <Route exact path='/code-generator' element={<CodeGeneratorPage />} />
+          {/* Authentication Routes */}
+          <Route 
+            path='/sign-in' 
+            element={
+              <ProtectedRoute requireAuth={false}>
+                <SignInPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Dashboard Routes - Protected */}
         <Route
-          exact
-          path='/code-generator-new'
-          element={<CodeGeneratorNewPage />}
-        />
-        <Route exact path='/colors' element={<ColorsPage />} />
-        <Route exact path='/column-chart' element={<ColumnChartPage />} />
-        <Route exact path='/company' element={<CompanyPage />} />
-        <Route exact path='/currencies' element={<CurrenciesPage />} />
-        <Route exact path='/dropdown' element={<DropdownPage />} />
-        <Route exact path='/email' element={<EmailPage />} />
-        <Route exact path='/faq' element={<FaqPage />} />
-        <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
-        <Route exact path='/form-layout' element={<FormLayoutPage />} />
-        <Route exact path='/form-validation' element={<FormValidationPage />} />
-        <Route exact path='/form' element={<FormPage />} />
-
-        <Route exact path='/gallery' element={<GalleryPage />} />
-        <Route exact path='/gallery-grid' element={<GalleryGridPage />} />
-        <Route exact path='/gallery-masonry' element={<GalleryMasonryPage />} />
-        <Route exact path='/gallery-hover' element={<GalleryHoverPage />} />
-
-        <Route exact path='/blog' element={<BlogPage />} />
-        <Route exact path='/blog-details' element={<BlogDetailsPage />} />
-        <Route exact path='/add-blog' element={<AddBlogPage />} />
-
-        <Route exact path='/testimonials' element={<TestimonialsPage />} />
-        <Route exact path='/coming-soon' element={<ComingSoonPage />} />
-        <Route exact path='/access-denied' element={<AccessDeniedPage />} />
-        <Route exact path='/maintenance' element={<MaintenancePage />} />
-        <Route exact path='/blank-page' element={<BlankPagePage />} />
-
-        <Route exact path='/image-generator' element={<ImageGeneratorPage />} />
-        <Route exact path='/image-upload' element={<ImageUploadPage />} />
-        <Route exact path='/invoice-add' element={<InvoiceAddPage />} />
-        <Route exact path='/invoice-edit' element={<InvoiceEditPage />} />
-        <Route exact path='/invoice-list' element={<InvoiceListPage />} />
-        <Route exact path='/invoice-preview' element={<InvoicePreviewPage />} />
-        <Route exact path='/kanban' element={<KanbanPage />} />
-        <Route exact path='/language' element={<LanguagePage />} />
-        <Route exact path='/line-chart' element={<LineChartPage />} />
-        <Route exact path='/list' element={<ListPage />} />
+            path='/' 
+            element={
+              <ProtectedRoute>
+                <HomePageTen />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* User Management Routes - Admin Only */}
+          <Route 
+            path='/users-list' 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <UsersListPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/add-user' 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AddUserPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/assign-role' 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AssignRolePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/create-role' 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <CreateRolePage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Profile Routes - Authenticated Users */}
+          <Route 
+            path='/view-profile' 
+            element={
+              <ProtectedRoute>
+                <ViewProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Material Management Routes - Protected */}
+          <Route 
+            path='/material-cards' 
+            element={
+              <ProtectedRoute>
+                <MaterialCardPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/material-card-trash' 
+            element={
+              <ProtectedRoute>
+                <MaterialCardTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/material-category' 
+            element={
+              <ProtectedRoute>
+                <MaterialCategoryPage />
+              </ProtectedRoute>
+            } 
+          />
         <Route
-          exact
-          path='/marketplace-details'
-          element={<MarketplaceDetailsPage />}
-        />
-        <Route exact path='/marketplace' element={<MarketplacePage />} />
+            path='/material-category-trash' 
+            element={
+              <ProtectedRoute>
+                <MaterialCategoryTrashPage />
+              </ProtectedRoute>
+            } 
+          />
         <Route
-          exact
-          path='/notification-alert'
-          element={<NotificationAlertPage />}
-        />
-        <Route exact path='/notification' element={<NotificationPage />} />
-        <Route exact path='/pagination' element={<PaginationPage />} />
-        <Route exact path='/payment-gateway' element={<PaymentGatewayPage />} />
-        <Route exact path='/pie-chart' element={<PieChartPage />} />
-        <Route exact path='/portfolio' element={<PortfolioPage />} />
-        <Route exact path='/pricing' element={<PricingPage />} />
-        <Route exact path='/progress' element={<ProgressPage />} />
-        <Route exact path='/radio' element={<RadioPage />} />
-        <Route exact path='/role-access' element={<RoleAccessPage />} />
-        <Route exact path='/sign-in' element={<SignInPage />} />
-        <Route exact path='/sign-up' element={<SignUpPage />} />
-        <Route exact path='/star-rating' element={<StarRatingPage />} />
-        <Route exact path='/starred' element={<StarredPage />} />
-        <Route exact path='/switch' element={<SwitchPage />} />
-        <Route exact path='/table-basic' element={<TableBasicPage />} />
-        <Route exact path='/table-data' element={<TableDataPage />} />
-        <Route exact path='/tabs' element={<TabsPage />} />
-        <Route exact path='/tags' element={<TagsPage />} />
-        <Route exact path='/terms-condition' element={<TermsConditionPage />} />
+            path='/material-movements' 
+            element={
+              <ProtectedRoute>
+                <MaterialMovementPage />
+              </ProtectedRoute>
+            } 
+          />
         <Route
-          exact
-          path='/text-generator-new'
-          element={<TextGeneratorNewPage />}
-        />
-        <Route exact path='/text-generator' element={<TextGeneratorPage />} />
-        <Route exact path='/theme' element={<ThemePage />} />
-        <Route exact path='/tooltip' element={<TooltipPage />} />
-        <Route exact path='/typography' element={<TypographyPage />} />
-        <Route exact path='/users-grid' element={<UsersGridPage />} />
-        <Route exact path='/users-list' element={<UsersListPage />} />
-        <Route exact path='/view-details' element={<ViewDetailsPage />} />
-        <Route exact path='/video-generator' element={<VideoGeneratorPage />} />
-        <Route exact path='/videos' element={<VideosPage />} />
-        <Route exact path='/view-profile' element={<ViewProfilePage />} />
-        <Route exact path='/voice-generator' element={<VoiceGeneratorPage />} />
-        <Route exact path='/wallet' element={<WalletPage />} />
-        <Route exact path='/widgets' element={<WidgetsPage />} />
-        <Route exact path='/wizard' element={<WizardPage />} />
-        <Route exact path='/material-cards' element={<MaterialCardPage />} />
-        <Route exact path='/material-card-trash' element={<MaterialCardTrashPage />} />
-        <Route exact path='/material-category' element={<MaterialCategoryPage />} />
-        <Route exact path='/material-category-trash' element={<MaterialCategoryTrashPage />} />
+            path='/material-movement-trash' 
+            element={
+              <ProtectedRoute>
+                <MaterialMovementTrashPage />
+              </ProtectedRoute>
+            } 
+          />
 
-        <Route exact path='*' element={<ErrorPage />} />
+          {/* Other Protected Routes */}
+          <Route path='/index-2' element={<ProtectedRoute><HomePageTwo /></ProtectedRoute>} />
+          <Route path='/index-3' element={<ProtectedRoute><HomePageThree /></ProtectedRoute>} />
+          <Route path='/index-4' element={<ProtectedRoute><HomePageFour /></ProtectedRoute>} />
+          <Route path='/index-5' element={<ProtectedRoute><HomePageFive /></ProtectedRoute>} />
+          <Route path='/index-6' element={<ProtectedRoute><HomePageSix /></ProtectedRoute>} />
+          <Route path='/index-7' element={<ProtectedRoute><HomePageSeven /></ProtectedRoute>} />
+          <Route path='/index-8' element={<ProtectedRoute><HomePageEight /></ProtectedRoute>} />
+          <Route path='/index-9' element={<ProtectedRoute><HomePageNine /></ProtectedRoute>} />
+          <Route path='/index-10' element={<ProtectedRoute><HomePageTen /></ProtectedRoute>} />
+          <Route path='/index-11' element={<ProtectedRoute><HomePageEleven /></ProtectedRoute>} />
+
+          <Route path='/alert' element={<ProtectedRoute><AlertPage /></ProtectedRoute>} />
+          <Route path='/avatar' element={<ProtectedRoute><AvatarPage /></ProtectedRoute>} />
+          <Route path='/badges' element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />
+          <Route path='/button' element={<ProtectedRoute><ButtonPage /></ProtectedRoute>} />
+          <Route path='/calendar-main' element={<ProtectedRoute><CalendarMainPage /></ProtectedRoute>} />
+          <Route path='/calendar' element={<ProtectedRoute><CalendarMainPage /></ProtectedRoute>} />
+          <Route path='/card' element={<ProtectedRoute><CardPage /></ProtectedRoute>} />
+          <Route path='/carousel' element={<ProtectedRoute><CarouselPage /></ProtectedRoute>} />
+          <Route path='/chat-empty' element={<ProtectedRoute><ChatEmptyPage /></ProtectedRoute>} />
+          <Route path='/chat-message' element={<ProtectedRoute><ChatMessagePage /></ProtectedRoute>} />
+          <Route path='/chat-profile' element={<ProtectedRoute><ChatProfilePage /></ProtectedRoute>} />
+          <Route path='/code-generator' element={<ProtectedRoute><CodeGeneratorPage /></ProtectedRoute>} />
+          <Route path='/code-generator-new' element={<ProtectedRoute><CodeGeneratorNewPage /></ProtectedRoute>} />
+          <Route path='/colors' element={<ProtectedRoute><ColorsPage /></ProtectedRoute>} />
+          <Route path='/column-chart' element={<ProtectedRoute><ColumnChartPage /></ProtectedRoute>} />
+          <Route path='/company' element={<ProtectedRoute><CompanyPage /></ProtectedRoute>} />
+          <Route path='/currencies' element={<ProtectedRoute><CurrenciesPage /></ProtectedRoute>} />
+          <Route path='/dropdown' element={<ProtectedRoute><DropdownPage /></ProtectedRoute>} />
+          <Route path='/email' element={<ProtectedRoute><EmailPage /></ProtectedRoute>} />
+          <Route path='/faq' element={<ProtectedRoute><FaqPage /></ProtectedRoute>} />
+          <Route path='/forgot-password' element={<ProtectedRoute><ForgotPasswordPage /></ProtectedRoute>} />
+          <Route path='/form-layout' element={<ProtectedRoute><FormLayoutPage /></ProtectedRoute>} />
+          <Route path='/form-validation' element={<ProtectedRoute><FormValidationPage /></ProtectedRoute>} />
+          <Route path='/form' element={<ProtectedRoute><FormPage /></ProtectedRoute>} />
+
+          <Route path='/gallery' element={<ProtectedRoute><GalleryPage /></ProtectedRoute>} />
+          <Route path='/gallery-grid' element={<ProtectedRoute><GalleryGridPage /></ProtectedRoute>} />
+          <Route path='/gallery-masonry' element={<ProtectedRoute><GalleryMasonryPage /></ProtectedRoute>} />
+          <Route path='/gallery-hover' element={<ProtectedRoute><GalleryHoverPage /></ProtectedRoute>} />
+
+          <Route path='/blog' element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
+          <Route path='/blog-details' element={<ProtectedRoute><BlogDetailsPage /></ProtectedRoute>} />
+          <Route path='/add-blog' element={<ProtectedRoute><AddBlogPage /></ProtectedRoute>} />
+
+          <Route path='/testimonials' element={<ProtectedRoute><TestimonialsPage /></ProtectedRoute>} />
+          <Route path='/coming-soon' element={<ComingSoonPage />} />
+          <Route path='/access-denied' element={<AccessDeniedPage />} />
+          <Route path='/maintenance' element={<MaintenancePage />} />
+          <Route path='/blank-page' element={<ProtectedRoute><BlankPagePage /></ProtectedRoute>} />
+
+          <Route path='/image-generator' element={<ProtectedRoute><ImageGeneratorPage /></ProtectedRoute>} />
+          <Route path='/image-upload' element={<ProtectedRoute><ImageUploadPage /></ProtectedRoute>} />
+          <Route path='/invoice-add' element={<ProtectedRoute><InvoiceAddPage /></ProtectedRoute>} />
+          <Route path='/invoice-edit' element={<ProtectedRoute><InvoiceEditPage /></ProtectedRoute>} />
+          <Route path='/invoice-list' element={<ProtectedRoute><InvoiceListPage /></ProtectedRoute>} />
+          <Route path='/invoice-preview' element={<ProtectedRoute><InvoicePreviewPage /></ProtectedRoute>} />
+          <Route path='/kanban' element={<ProtectedRoute><KanbanPage /></ProtectedRoute>} />
+          <Route path='/language' element={<ProtectedRoute><LanguagePage /></ProtectedRoute>} />
+          <Route path='/line-chart' element={<ProtectedRoute><LineChartPage /></ProtectedRoute>} />
+          <Route path='/list' element={<ProtectedRoute><ListPage /></ProtectedRoute>} />
+          <Route path='/marketplace-details' element={<ProtectedRoute><MarketplaceDetailsPage /></ProtectedRoute>} />
+          <Route path='/marketplace' element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
+          <Route path='/notification-alert' element={<ProtectedRoute><NotificationAlertPage /></ProtectedRoute>} />
+          <Route path='/notification' element={<ProtectedRoute><NotificationPage /></ProtectedRoute>} />
+          <Route path='/pagination' element={<ProtectedRoute><PaginationPage /></ProtectedRoute>} />
+          <Route path='/payment-gateway' element={<ProtectedRoute><PaymentGatewayPage /></ProtectedRoute>} />
+          <Route path='/pie-chart' element={<ProtectedRoute><PieChartPage /></ProtectedRoute>} />
+          <Route path='/portfolio' element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
+          <Route path='/pricing' element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
+          <Route path='/progress' element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
+          <Route path='/radio' element={<ProtectedRoute><RadioPage /></ProtectedRoute>} />
+          <Route path='/role-access' element={<ProtectedRoute><RoleAccessPage /></ProtectedRoute>} />
+          <Route path='/sign-up' element={<ProtectedRoute><SignUpPage /></ProtectedRoute>} />
+          <Route path='/star-rating' element={<ProtectedRoute><StarRatingPage /></ProtectedRoute>} />
+          <Route path='/starred' element={<ProtectedRoute><StarredPage /></ProtectedRoute>} />
+          <Route path='/switch' element={<ProtectedRoute><SwitchPage /></ProtectedRoute>} />
+          <Route path='/table-basic' element={<ProtectedRoute><TableBasicPage /></ProtectedRoute>} />
+          <Route path='/table-data' element={<ProtectedRoute><TableDataPage /></ProtectedRoute>} />
+          <Route path='/tabs' element={<ProtectedRoute><TabsPage /></ProtectedRoute>} />
+          <Route path='/tags' element={<ProtectedRoute><TagsPage /></ProtectedRoute>} />
+          <Route path='/terms-condition' element={<ProtectedRoute><TermsConditionPage /></ProtectedRoute>} />
+          <Route path='/text-generator-new' element={<ProtectedRoute><TextGeneratorNewPage /></ProtectedRoute>} />
+          <Route path='/text-generator' element={<ProtectedRoute><TextGeneratorPage /></ProtectedRoute>} />
+          <Route path='/theme' element={<ProtectedRoute><ThemePage /></ProtectedRoute>} />
+          <Route path='/tooltip' element={<ProtectedRoute><TooltipPage /></ProtectedRoute>} />
+          <Route path='/typography' element={<ProtectedRoute><TypographyPage /></ProtectedRoute>} />
+          <Route path='/users-grid' element={<ProtectedRoute><UsersGridPage /></ProtectedRoute>} />
+          <Route path='/view-details' element={<ProtectedRoute><ViewDetailsPage /></ProtectedRoute>} />
+          <Route path='/video-generator' element={<ProtectedRoute><VideoGeneratorPage /></ProtectedRoute>} />
+          <Route path='/videos' element={<ProtectedRoute><VideosPage /></ProtectedRoute>} />
+          <Route path='/voice-generator' element={<ProtectedRoute><VoiceGeneratorPage /></ProtectedRoute>} />
+          <Route path='/wallet' element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
+          <Route path='/widgets' element={<ProtectedRoute><WidgetsPage /></ProtectedRoute>} />
+          <Route path='/wizard' element={<ProtectedRoute><WizardPage /></ProtectedRoute>} />
+
+          <Route path='*' element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 

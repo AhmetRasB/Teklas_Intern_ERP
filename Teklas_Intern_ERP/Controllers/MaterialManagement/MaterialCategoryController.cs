@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Teklas_Intern_ERP.Business.Interfaces;
 using Teklas_Intern_ERP.DTOs;
 using System;
@@ -18,6 +19,7 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
     [Route("api/categories")]
     [ApiExplorerSettings(GroupName = "Material Management")]
     [Produces("application/json")]
+    [Authorize]
     public class MaterialCategoryController : ControllerBase
     {
         private readonly IMaterialCategoryService _service;

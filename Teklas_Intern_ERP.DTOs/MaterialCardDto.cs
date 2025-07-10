@@ -19,16 +19,21 @@ namespace Teklas_Intern_ERP.DTOs
         public decimal? MinimumStockLevel { get; set; }
         public decimal? MaximumStockLevel { get; set; }
         public decimal? ReorderLevel { get; set; }
-        public int? ShelfLife { get; set; }
+        // TODO: Uncomment after database migration
+        // public int? ShelfLife { get; set; }
         public decimal? Weight { get; set; }
         public decimal? Volume { get; set; }
         public decimal? Length { get; set; }
         public decimal? Width { get; set; }
         public decimal? Height { get; set; }
+        // TODO: Uncomment after database migration
+        /*
         public string? Color { get; set; }
         public string? OriginCountry { get; set; }
         public string? Manufacturer { get; set; }
+        */
         public string? ManufacturerPartNumber { get; set; }
+        public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         
@@ -75,8 +80,8 @@ namespace Teklas_Intern_ERP.DTOs
             RuleFor(x => x.ReorderLevel)
                 .GreaterThanOrEqualTo(0).When(x => x.ReorderLevel.HasValue).WithMessage(Error.ReorderLevelPositive);
 
-            RuleFor(x => x.ShelfLife)
-                .GreaterThanOrEqualTo(0).When(x => x.ShelfLife.HasValue).WithMessage(Error.ShelfLifePositive);
+            // RuleFor(x => x.ShelfLife)
+            //     .GreaterThanOrEqualTo(0).When(x => x.ShelfLife.HasValue).WithMessage(Error.ShelfLifePositive);
 
             RuleFor(x => x.Weight)
                 .GreaterThanOrEqualTo(0).When(x => x.Weight.HasValue).WithMessage(Error.WeightPositive);
@@ -109,17 +114,17 @@ namespace Teklas_Intern_ERP.DTOs
                 .MaximumLength(50).WithMessage(Error.ModelMaxLength)
                 .When(x => !string.IsNullOrEmpty(x.Model));
 
-            RuleFor(x => x.Color)
-                .MaximumLength(30).WithMessage(Error.ColorMaxLength)
-                .When(x => !string.IsNullOrEmpty(x.Color));
+            // RuleFor(x => x.Color)
+            //     .MaximumLength(30).WithMessage(Error.ColorMaxLength)
+            //     .When(x => !string.IsNullOrEmpty(x.Color));
 
-            RuleFor(x => x.OriginCountry)
-                .MaximumLength(50).WithMessage(Error.OriginCountryMaxLength)
-                .When(x => !string.IsNullOrEmpty(x.OriginCountry));
+            // RuleFor(x => x.OriginCountry)
+            //     .MaximumLength(50).WithMessage(Error.OriginCountryMaxLength)
+            //     .When(x => !string.IsNullOrEmpty(x.OriginCountry));
 
-            RuleFor(x => x.Manufacturer)
-                .MaximumLength(100).WithMessage(Error.ManufacturerMaxLength)
-                .When(x => !string.IsNullOrEmpty(x.Manufacturer));
+            // RuleFor(x => x.Manufacturer)
+            //     .MaximumLength(100).WithMessage(Error.ManufacturerMaxLength)
+            //     .When(x => !string.IsNullOrEmpty(x.Manufacturer));
         }
     }
 } 

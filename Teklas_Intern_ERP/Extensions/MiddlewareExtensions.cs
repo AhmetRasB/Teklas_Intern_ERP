@@ -31,6 +31,7 @@ namespace Teklas_Intern_ERP.Extensions
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/MaterialManagement/swagger.json", "Material Management");
+                    c.SwaggerEndpoint("/swagger/UserManagement/swagger.json", "User Management");
                     c.SwaggerEndpoint("/swagger/ProductionManagement/swagger.json", "Production Management");
                     c.SwaggerEndpoint("/swagger/WarehouseManagement/swagger.json", "Warehouse Management");
                     c.SwaggerEndpoint("/swagger/PurchasingManagement/swagger.json", "Purchasing Management");

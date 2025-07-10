@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Teklas_Intern_ERP.Business.Interfaces;
 using Teklas_Intern_ERP.DTOs;
 using System;
@@ -18,6 +19,7 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
     [Route("api/materials")]
     [ApiExplorerSettings(GroupName = "Material Management")]
     [Produces("application/json")]
+    [Authorize]
     public class MaterialCardController : ControllerBase
     {
         private readonly IMaterialCardService _service;
@@ -183,6 +185,10 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
                 
                 return Ok(new { message = "Material restored successfully", id });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = "Cannot restore material", details = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Internal server error", details = ex.Message });
@@ -210,7 +216,7 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(new { error = "Cannot permanently delete material", details = ex.Message });
+                return BadRequest(new { error = "Cannot delete material", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -219,7 +225,7 @@ namespace Teklas_Intern_ERP.Controllers.MaterialManagement
         }
 
         /// <summary>
-        /// Get all deleted (soft-deleted) materials
+        /// Get soft-deleted materials
         /// </summary>
         /// <returns>List of deleted materials</returns>
         [HttpGet("deleted")]

@@ -27,9 +27,9 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         public async Task<List<MaterialCard>> GetMaterialsByCategoryAsync(long categoryId)
         {
             return await _dbSet
-                .Where(m => !m.IsDeleted && m.CategoryId == categoryId)
-                .Include(m => m.Category)
-                .OrderBy(m => m.Name)
+                .Where(m => !m.IsDeleted && m.MaterialCategoryId == categoryId)
+                .Include(m => m.MaterialCategory)
+                .OrderBy(m => m.CardName)
                 .ToListAsync();
         }
 
@@ -37,8 +37,8 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             return await _dbSet
                 .Where(m => !m.IsDeleted)
-                .Include(m => m.Category)
-                .OrderBy(m => m.Name)
+                .Include(m => m.MaterialCategory)
+                .OrderBy(m => m.CardName)
                 .ToListAsync();
         }
 
@@ -50,19 +50,19 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             return await _dbSet
                 .Where(m => !m.IsDeleted && (
-                    m.Code.Contains(searchTerm) ||
-                    m.Name.Contains(searchTerm) ||
+                    m.CardCode.Contains(searchTerm) ||
+                    m.CardName.Contains(searchTerm) ||
                     (m.Description != null && m.Description.Contains(searchTerm)) ||
                     (m.Brand != null && m.Brand.Contains(searchTerm))
                 ))
-                .Include(m => m.Category)
-                .OrderBy(m => m.Name)
+                .Include(m => m.MaterialCategory)
+                .OrderBy(m => m.CardName)
                 .ToListAsync();
         }
 
         public async Task<bool> IsMaterialCodeUniqueAsync(string code, long? excludeId = null)
         {
-            var query = _dbSet.Where(m => m.Code == code);
+            var query = _dbSet.Where(m => m.CardCode == code);
             
             if (excludeId.HasValue)
                 query = query.Where(m => m.Id != excludeId.Value);
@@ -74,7 +74,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             return await _dbSet
                 .Where(m => !m.IsDeleted && m.Barcode == barcode)
-                .Include(m => m.Category)
+                .Include(m => m.MaterialCategory)
                 .FirstOrDefaultAsync();
         }
 

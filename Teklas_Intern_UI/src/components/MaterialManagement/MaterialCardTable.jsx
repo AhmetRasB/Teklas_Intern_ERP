@@ -8,6 +8,7 @@ import PaginationLayer from '../PaginationLayer';
 import TableDataLayer from '../TableDataLayer';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
+import useModulePermissions from '../../hooks/useModulePermissions';
 
 const BASE_URL = 'https://localhost:7178';
 
@@ -80,6 +81,9 @@ const MaterialCardTable = () => {
   const [restoreLoading, setRestoreLoading] = useState(false);
 
   const navigate = useNavigate();
+  
+  // Module permissions hook
+  const { canWrite, isAdmin } = useModulePermissions();
 
   useEffect(() => {
     // Kategori listesini çek
@@ -128,7 +132,7 @@ const MaterialCardTable = () => {
   const handleRestore = async (item) => {
     setRestoreLoading(true);
     try {
-      await axios.post(`${BASE_URL}/api/materials/${item.id || item.Id}/restore`);
+      await axios.put(`${BASE_URL}/api/materials/${item.id || item.Id}/restore`);
       fetchDeletedData();
       fetchData();
       MySwal.fire({ title: 'Geri Alındı!', text: 'Kart başarıyla geri alındı.', icon: 'success' });
@@ -149,6 +153,18 @@ const MaterialCardTable = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Permission check: Prevent read-only users from creating/editing (Admin bypass included)
+    if (!canWrite('materialManagement')) {
+      MySwal.fire({
+        title: 'Erişim Engellendi',
+        text: 'Bu modül için yalnızca görüntüleme izniniz var. Düzenleme yapamaz veya yeni kayıt ekleyemezsiniz.',
+        icon: 'warning',
+        confirmButtonText: 'Tamam'
+      });
+      return;
+    }
+    
     setFormLoading(true);
     setFormError(null);
     const now = new Date().toISOString();
@@ -203,6 +219,17 @@ const MaterialCardTable = () => {
   };
 
   const handleDelete = async (item) => {
+    // Permission check: Prevent read-only users from deleting
+    if (!canWrite('materialManagement')) {
+      MySwal.fire({
+        title: 'Erişim Engellendi',
+        text: 'Bu modül için yalnızca görüntüleme izniniz var. Silme işlemi yapamazsınız.',
+        icon: 'warning',
+        confirmButtonText: 'Tamam'
+      });
+      return;
+    }
+
     // Dark mode algılama (ör: body'de dark class varsa)
     const isDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark');
     // SweetAlert2 popup'ı açmadan önce stil ekle
@@ -249,6 +276,17 @@ const MaterialCardTable = () => {
   };
 
   const handleEdit = (row) => {
+    // Permission check: Prevent read-only users from editing
+    if (!canWrite('materialManagement')) {
+      MySwal.fire({
+        title: 'Erişim Engellendi',
+        text: 'Bu modül için yalnızca görüntüleme izniniz var. Düzenleme yapamazsınız.',
+        icon: 'warning',
+        confirmButtonText: 'Tamam'
+      });
+      return;
+    }
+
     setForm({
       ...row,
       Code: row.code || '',
@@ -361,9 +399,23 @@ const MaterialCardTable = () => {
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="card-title mb-0">Malzeme Kartları</h5>
           <div className="d-flex gap-2 align-items-center">
-            <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => setShowModal(true)}>
-              <i className="ri-add-line"></i> Yeni Ekle
-            </button>
+            {canWrite('materialManagement') && (
+              <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => {
+                // Double-check permission before opening modal
+                if (!canWrite('materialManagement')) {
+                  MySwal.fire({
+                    title: 'Erişim Engellendi',
+                    text: 'Bu modül için yalnızca görüntüleme izniniz var. Yeni kayıt ekleyemezsiniz.',
+                    icon: 'warning',
+                    confirmButtonText: 'Tamam'
+                  });
+                  return;
+                }
+                setShowModal(true);
+              }}>
+                <i className="ri-add-line"></i> Yeni Ekle
+              </button>
+            )}
             <button
               className="btn rounded-pill btn-soft-danger text-danger px-20 py-11"
               style={{ fontWeight: 600 }}
@@ -383,6 +435,7 @@ const MaterialCardTable = () => {
               onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDeleteRow}
+              actions={canWrite('materialManagement') ? ['view', 'edit', 'delete'] : ['view']}
               categories={categories}
               selectedCategory={selectedCategory}
               onCategoryChange={val => { setSelectedCategory(val); setPage(1); }}
@@ -486,8 +539,12 @@ const MaterialCardTable = () => {
                   </div>
                 </div>
                 <div className="modal-footer d-flex justify-content-end gap-2" style={{background: 'transparent', borderTop: 'none', boxShadow: 'none', padding: 0}}>
-                  <button className="btn btn-soft-primary" onClick={() => handleEdit(selectedCard)}>Düzenle</button>
-                  <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedCard)}>Sil</button>
+                  {canWrite('materialManagement') && (
+                    <button className="btn btn-soft-primary" onClick={() => handleEdit(selectedCard)}>Düzenle</button>
+                  )}
+                  {canWrite('materialManagement') && (
+                    <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedCard)}>Sil</button>
+                  )}
                   <button className="btn btn-secondary" onClick={() => { setShowDetail(false); setSelectedCard(null); }}>Kapat</button>
                 </div>
               </div>

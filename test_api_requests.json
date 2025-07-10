@@ -1,0 +1,73 @@
+{
+  "materialCard": {
+    "cardCode": "LAPTOP-001",
+    "cardName": "Gaming Laptop Pro",
+    "cardType": "FINISHED_PRODUCT",
+    "unit": "EACH",
+    "materialCategoryId": 1,
+    "purchasePrice": 800.00,
+    "salesPrice": 1200.00,
+    "currentStock": 0,
+    "description": "High-performance gaming laptop"
+  },
+  "materialCard2": {
+    "cardCode": "CPU-001",
+    "cardName": "Intel i7 Processor",
+    "cardType": "COMPONENT",
+    "unit": "EACH",
+    "materialCategoryId": 2,
+    "purchasePrice": 200.00,
+    "salesPrice": 250.00,
+    "currentStock": 100,
+    "description": "High-performance processor"
+  },
+  "billOfMaterial": {
+    "bomCode": "BOM-LAPTOP-001",
+    "bomName": "Gaming Laptop Assembly",
+    "version": "v1.0",
+    "productMaterialCardId": 1,
+    "baseQuantity": 1.00,
+    "unit": "EACH",
+    "bomType": "ASSEMBLY",
+    "description": "Gaming laptop production BOM",
+    "approvalStatus": "APPROVED",
+    "isActive": true
+  },
+  "workOrder": {
+    "workOrderNumber": "WO-2024-001",
+    "billOfMaterialId": 1,
+    "productMaterialCardId": 1,
+    "plannedQuantity": 10.00,
+    "completedQuantity": 0.00,
+    "scrapQuantity": 0.00,
+    "unit": "EACH",
+    "status": "CREATED",
+    "priority": 1,
+    "plannedStartDate": "2024-07-10T08:00:00",
+    "plannedEndDate": "2024-07-12T17:00:00",
+    "description": "Test gaming laptop production",
+    "workCenter": "ASSEMBLY_LINE_1",
+    "workOrderType": "PRODUCTION",
+    "completionPercentage": 0.00,
+    "requiresQualityCheck": true,
+    "qualityStatus": "NOT_REQUIRED"
+  },
+  "productionConfirmation": {
+    "confirmationNumber": "PC-2024-001",
+    "workOrderId": 1,
+    "confirmedQuantity": 5.00,
+    "scrapQuantity": 0.00,
+    "reworkQuantity": 0.00,
+    "unit": "EACH",
+    "confirmationDate": "2024-07-09T14:30:00",
+    "workCenter": "ASSEMBLY_LINE_1",
+    "status": "CONFIRMED",
+    "confirmationType": "PARTIAL",
+    "operatorUserId": 1,
+    "notes": "First production batch completed successfully",
+    "qualityStatus": "PASSED",
+    "activityType": "ASSEMBLY",
+    "requiresQualityCheck": false,
+    "materialConsumed": true
+  }
+} 

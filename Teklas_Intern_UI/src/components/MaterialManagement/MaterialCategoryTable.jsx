@@ -89,7 +89,7 @@ const MaterialCategoryTable = () => {
   const handleRestore = async (item) => {
     setRestoreLoading(true);
     try {
-      await axios.put(`${BASE_URL}/api/categories/restore/${item.id || item.Id}`);
+      await axios.put(`${BASE_URL}/api/categories/${item.id || item.Id}/restore`);
       fetchDeletedData();
       fetchCategories();
       MySwal.fire({ title: 'Geri Alındı!', text: 'Kategori başarıyla geri alındı.', icon: 'success' });
@@ -171,7 +171,7 @@ const MaterialCategoryTable = () => {
   const handlePermanentDelete = async (item) => {
     if (!window.confirm('Bu kategoriyi kalıcı olarak silmek istediğinize emin misiniz?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/categories/permanent/${item.id}`);
+      await axios.delete(`${BASE_URL}/api/categories/${item.id}/permanent`);
       fetchDeletedData();
     } catch {
       MySwal.fire({ title: 'Hata', text: 'Kalıcı silme başarısız!', icon: 'error' });

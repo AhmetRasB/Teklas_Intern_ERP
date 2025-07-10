@@ -39,8 +39,8 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             return await _dbSet
                 .Where(c => !c.IsDeleted && c.ParentCategoryId == null)
-                .Include(c => c.SubCategories.Where(sc => !sc.IsDeleted))
-                .OrderBy(c => c.Name)
+                .Include(c => c.ChildCategories.Where(sc => !sc.IsDeleted))
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
 
@@ -48,8 +48,8 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             return await _dbSet
                 .Where(c => !c.IsDeleted && c.ParentCategoryId == parentId)
-                .Include(c => c.SubCategories.Where(sc => !sc.IsDeleted))
-                .OrderBy(c => c.Name)
+                .Include(c => c.ChildCategories.Where(sc => !sc.IsDeleted))
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
 
@@ -71,9 +71,9 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         {
             return await _dbSet
                 .Where(c => !c.IsDeleted)
-                .Include(c => c.SubCategories.Where(sc => !sc.IsDeleted))
+                .Include(c => c.ChildCategories.Where(sc => !sc.IsDeleted))
                 .Include(c => c.MaterialCards.Where(m => !m.IsDeleted))
-                .OrderBy(c => c.Name)
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
 
@@ -82,7 +82,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             return await _dbSet
                 .Where(c => !c.IsDeleted && c.Id == categoryId)
                 .Include(c => c.MaterialCards.Where(m => !m.IsDeleted))
-                .Include(c => c.SubCategories.Where(sc => !sc.IsDeleted))
+                .Include(c => c.ChildCategories.Where(sc => !sc.IsDeleted))
                 .FirstOrDefaultAsync();
         }
 
@@ -103,7 +103,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             return await _dbSet
                 .Where(c => !c.IsDeleted && 
                            !c.MaterialCards.Any(m => !m.IsDeleted) &&
-                           !c.SubCategories.Any(sc => !sc.IsDeleted))
+                           !c.ChildCategories.Any(sc => !sc.IsDeleted))
                 .ToListAsync();
         }
 
@@ -133,14 +133,14 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             var category = await _dbSet
                 .Where(c => c.Id == categoryId && !c.IsDeleted)
                 .Include(c => c.MaterialCards)
-                .Include(c => c.SubCategories)
+                .Include(c => c.ChildCategories)
                 .FirstOrDefaultAsync();
 
             if (category == null) return false;
 
             // Cannot delete if has active materials or subcategories
             return !category.MaterialCards.Any(m => !m.IsDeleted) && 
-                   !category.SubCategories.Any(sc => !sc.IsDeleted);
+                   !category.ChildCategories.Any(sc => !sc.IsDeleted);
         }
 
         public async Task<List<MaterialCategory>> GetCategoriesByManagerAsync(string managerName)
@@ -148,7 +148,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             return await _dbSet
                 .Where(c => !c.IsDeleted)
                 .Include(c => c.MaterialCards.Where(m => !m.IsDeleted))
-                .OrderBy(c => c.Name)
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
 
@@ -157,15 +157,15 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             return await _dbSet
                 .Where(c => !c.IsDeleted)
                 .Include(c => c.MaterialCards.Where(m => !m.IsDeleted))
-                .OrderBy(c => c.Name)
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
 
         public async Task<List<MaterialCategory>> GetActiveCategoriesAsync()
         {
             return await _dbSet
-                .Where(c => !c.IsDeleted && c.Status == Entities.StatusType.Active)
-                .OrderBy(c => c.Name)
+                .Where(c => !c.IsDeleted && c.Status == "Active")
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
         }
 
