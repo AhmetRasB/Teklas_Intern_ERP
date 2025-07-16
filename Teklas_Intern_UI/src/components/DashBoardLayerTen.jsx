@@ -1,39 +1,24 @@
 import React from "react";
-import UnitCountSeven from "./child/UnitCountSeven";
-import IncomeVsExpense from "./child/IncomeVsExpense";
-import UsersChart from "./child/UsersChart";
-import TopSuppliers from "./child/TopSuppliers";
-import TopCustomer from "./child/TopCustomer";
-import OverallReport from "./child/OverallReport";
-import PurchaseAndSales from "./child/PurchaseAndSales";
-import RecentTransactions from "./child/RecentTransactions";
+import TotalUsersWidget from "./dashboard/TotalUsersWidget";
+import TotalWarehousesWidget from "./dashboard/TotalWarehousesWidget";
+import TotalCustomersWidget from "./dashboard/TotalCustomersWidget";
+import TotalSuppliersWidget from "./dashboard/TotalSuppliersWidget";
+import TotalStockEntriesWidget from "./dashboard/TotalStockEntriesWidget";
+import RecentStockEntriesWidget from "./dashboard/RecentStockEntriesWidget";
+import RecentCustomersWidget from "./dashboard/RecentCustomersWidget";
+import RecentSuppliersWidget from "./dashboard/RecentSuppliersWidget";
 
 const DashBoardLayerTen = () => {
   return (
     <div className='row gy-4'>
-      {/* UnitCountSeven */}
-      <UnitCountSeven />
-
-      {/* IncomeVsExpense */}
-      <IncomeVsExpense />
-
-      {/* UsersChart */}
-      <UsersChart />
-
-      {/* TopSuppliers */}
-      <TopSuppliers />
-
-      {/* TopCustomer */}
-      <TopCustomer />
-
-      {/* OverallReport */}
-      <OverallReport />
-
-      {/* PurchaseAndSales */}
-      <PurchaseAndSales />
-
-      {/* RecentTransactions */}
-      <RecentTransactions />
+      <TotalUsersWidget />
+      <TotalWarehousesWidget />
+      <TotalCustomersWidget />
+      <TotalSuppliersWidget />
+      <TotalStockEntriesWidget />
+      <RecentStockEntriesWidget />
+      <RecentCustomersWidget />
+      <RecentSuppliersWidget />
     </div>
   );
 };
