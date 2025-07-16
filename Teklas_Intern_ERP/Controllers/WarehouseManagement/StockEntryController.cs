@@ -16,7 +16,7 @@ namespace Teklas_Intern_ERP.Controllers.WarehouseManagement
     /// Basic CRUD operations for stock entry management
     /// </summary>
     [ApiController]
-    [Route("api/stock-entries")]
+    [Route("api/stockentries")]
     [ApiExplorerSettings(GroupName = "Warehouse Management")]
     [Produces("application/json")]
     [Authorize]

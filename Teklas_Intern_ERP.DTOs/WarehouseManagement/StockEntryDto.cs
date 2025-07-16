@@ -30,7 +30,9 @@ namespace Teklas_Intern_ERP.DTOs.WarehouseManagement
         
         // Navigation properties
         public string? WarehouseName { get; set; }
+        public string? WarehouseCode { get; set; }
         public string? LocationName { get; set; }
+        public string? LocationCode { get; set; }
         public string? MaterialName { get; set; }
         public string? MaterialCode { get; set; }
     }

@@ -26,8 +26,9 @@ namespace Teklas_Intern_ERP.DTOs.WarehouseManagement
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         
-        // Navigation property
+        // Navigation properties for display
         public string? WarehouseName { get; set; }
+        public string? WarehouseCode { get; set; }
     }
 
     public sealed class LocationDtoValidator : AbstractValidator<LocationDto>

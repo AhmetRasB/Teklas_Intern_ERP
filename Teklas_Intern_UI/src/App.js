@@ -119,6 +119,8 @@ import ProductionConfirmationPage from './pages/ProductionConfirmationPage';
 import ProductionConfirmationTrashPage from './pages/ProductionConfirmationTrashPage';
 import LocationPage from './pages/LocationPage';
 import LocationTrashPage from './pages/LocationTrashPage';
+import StockEntryPage from './pages/StockEntryPage';
+import StockEntryTrashPage from './pages/StockEntryTrashPage';
 
 function App() {
   return (
@@ -348,6 +350,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <LocationTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/stock-entries' 
+            element={
+              <ProtectedRoute>
+                <StockEntryPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/stock-entry-trash' 
+            element={
+              <ProtectedRoute>
+                <StockEntryTrashPage />
               </ProtectedRoute>
             } 
           />

@@ -12,6 +12,15 @@ namespace Teklas_Intern_ERP.DataAccess.WarehouseManagement
     {
         public LocationRepository(AppDbContext context) : base(context) { }
 
+        public override async Task<List<Location>> GetAllAsync()
+        {
+            return await _dbSet
+                .Where(l => !l.IsDeleted)
+                .Include(l => l.Warehouse)
+                .OrderBy(l => l.LocationName)
+                .ToListAsync();
+        }
+
         #region Warehouse Related Methods
 
         public async Task<List<Location>> GetLocationsByWarehouseAsync(long warehouseId)

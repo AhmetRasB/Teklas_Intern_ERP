@@ -12,6 +12,17 @@ namespace Teklas_Intern_ERP.DataAccess.WarehouseManagement
     {
         public StockEntryRepository(AppDbContext context) : base(context) { }
 
+        public override async Task<List<StockEntry>> GetAllAsync()
+        {
+            return await _dbSet
+                .Where(s => !s.IsDeleted)
+                .Include(s => s.Warehouse)
+                .Include(s => s.Location)
+                .Include(s => s.Material)
+                .OrderByDescending(s => s.EntryDate)
+                .ToListAsync();
+        }
+
         #region Related Entity Methods
 
         public async Task<List<StockEntry>> GetStockEntriesByWarehouseAsync(long warehouseId)
