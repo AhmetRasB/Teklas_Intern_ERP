@@ -10,10 +10,7 @@ using ValidationException = FluentValidation.ValidationException;
 
 namespace Teklas_Intern_ERP.Controllers.UserManagement
 {
-    /// <summary>
-    /// Authentication Management API - Enterprise Resource Planning
-    /// Login, Register, Token management operations
-    /// </summary>
+   
     [ApiController]
     [Route("api/auth")]
     [ApiExplorerSettings(GroupName = "User Management")]
@@ -27,11 +24,7 @@ namespace Teklas_Intern_ERP.Controllers.UserManagement
             _authService = authService;
         }
 
-        /// <summary>
-        /// User login
-        /// </summary>
-        /// <param name="loginDto">Login credentials</param>
-        /// <returns>JWT token and user information</returns>
+       
         [HttpPost("login")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

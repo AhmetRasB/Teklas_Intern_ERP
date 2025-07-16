@@ -10,10 +10,18 @@ using Teklas_Intern_ERP.DataAccess.Repositories;
 using Teklas_Intern_ERP.Business.Interfaces;
 using Teklas_Intern_ERP.Business.MaterialManagement;
 using Teklas_Intern_ERP.Business.UserManagement;
+using Teklas_Intern_ERP.Business.WarehouseManagement;
+using Teklas_Intern_ERP.Business.PurchasingManagement;
+using Teklas_Intern_ERP.Business.SalesManagement;
 using Teklas_Intern_ERP.DataAccess.MaterialManagement;
 using Teklas_Intern_ERP.DataAccess.UserManagement;
+using Teklas_Intern_ERP.DataAccess.WarehouseManagement;
+using Teklas_Intern_ERP.DataAccess.PurchasingManagement;
+using Teklas_Intern_ERP.DataAccess.SalesManagement;
 using Teklas_Intern_ERP.Business.Mapping;
 using Teklas_Intern_ERP.Business.Helpers;
+using Teklas_Intern_ERP.Business.ProductionManagement;
+using Teklas_Intern_ERP.DataAccess.ProductionManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +35,9 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("MaterialManagement", new OpenApiInfo { Title = "Material Management", Version = "v1" });
     c.SwaggerDoc("UserManagement", new OpenApiInfo { Title = "User Management", Version = "v1" });
     c.SwaggerDoc("ProductionManagement", new OpenApiInfo { Title = "Production Management", Version = "v1" });
+    c.SwaggerDoc("WarehouseManagement", new OpenApiInfo { Title = "Warehouse Management", Version = "v1" });
+    c.SwaggerDoc("PurchasingManagement", new OpenApiInfo { Title = "Purchasing Management", Version = "v1" });
+    c.SwaggerDoc("SalesManagement", new OpenApiInfo { Title = "Sales Management", Version = "v1" });
     
     // JWT Bearer Authentication for Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -85,11 +96,16 @@ builder.Services.AddScoped<IMaterialCategoryRepository, MaterialCategoryReposito
 builder.Services.AddScoped<IMaterialMovementRepository, MaterialMovementRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
-// Production Management Repositories
-builder.Services.AddScoped<Teklas_Intern_ERP.DataAccess.ProductionManagement.IBillOfMaterialRepository, Teklas_Intern_ERP.DataAccess.ProductionManagement.BillOfMaterialRepository>();
-builder.Services.AddScoped<Teklas_Intern_ERP.DataAccess.ProductionManagement.IWorkOrderRepository, Teklas_Intern_ERP.DataAccess.ProductionManagement.WorkOrderRepository>();
-builder.Services.AddScoped<Teklas_Intern_ERP.DataAccess.ProductionManagement.IProductionConfirmationRepository, Teklas_Intern_ERP.DataAccess.ProductionManagement.ProductionConfirmationRepository>();
+builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<IStockEntryRepository, StockEntryRepository>();
+builder.Services.AddScoped<ISupplierTypeRepository, SupplierTypeRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerOrderRepository, CustomerOrderRepository>();
+builder.Services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
+builder.Services.AddScoped<IProductionConfirmationRepository, ProductionConfirmationRepository>();
 
 // Add Services - Interface to Implementation mappings for proper DI
 builder.Services.AddScoped<IMaterialCardService, MaterialCardService>();
@@ -98,11 +114,17 @@ builder.Services.AddScoped<IMaterialMovementService, MaterialMovementService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-// Production Management Services - Direct concrete classes for Monolithic Architecture
-builder.Services.AddScoped<Teklas_Intern_ERP.Business.ProductionManagement.BillOfMaterialService>();
-builder.Services.AddScoped<Teklas_Intern_ERP.Business.ProductionManagement.WorkOrderService>();
-builder.Services.AddScoped<Teklas_Intern_ERP.Business.ProductionManagement.ProductionConfirmationService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IStockEntryService, StockEntryService>();
+builder.Services.AddScoped<ISupplierTypeService, SupplierTypeService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ICustomerOrderService, CustomerOrderService>();
+builder.Services.AddScoped<IBillOfMaterialService, BillOfMaterialService>();
+builder.Services.AddScoped<IWorkOrderService, WorkOrderService>();
+builder.Services.AddScoped<IProductionConfirmationService, ProductionConfirmationService>();
 
 // Add JWT Helper
 builder.Services.AddScoped<JwtHelper>();
@@ -150,6 +172,9 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/MaterialManagement/swagger.json", "Material Management");
         c.SwaggerEndpoint("/swagger/UserManagement/swagger.json", "User Management");
         c.SwaggerEndpoint("/swagger/ProductionManagement/swagger.json", "Production Management");
+        c.SwaggerEndpoint("/swagger/WarehouseManagement/swagger.json", "Warehouse Management");
+        c.SwaggerEndpoint("/swagger/PurchasingManagement/swagger.json", "Purchasing Management");
+        c.SwaggerEndpoint("/swagger/SalesManagement/swagger.json", "Sales Management");
     });
     
     // Global Exception Handler for Development - Show detailed errors
