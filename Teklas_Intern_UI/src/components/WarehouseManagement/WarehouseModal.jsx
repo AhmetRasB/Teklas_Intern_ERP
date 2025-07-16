@@ -80,10 +80,11 @@ const getInputStyles = () => {
 // ---------------------------------------------------
 
 const validationSchema = yup.object().shape({
-  Code: yup.string().required('Depo kodu zorunludur.').max(50, 'Depo kodu en fazla 50 karakter olabilir.'),
-  Name: yup.string().required('Depo adı zorunludur.').max(100, 'Depo adı en fazla 100 karakter olabilir.'),
-  Description: yup.string().max(500, 'Açıklama en fazla 500 karakter olabilir.'),
-  Status: yup.number().oneOf([0, 1], 'Durum 0 (Pasif) veya 1 (Aktif) olmalı.'),
+  Code: yup.string().required('Depo kodu zorunludur.').min(2, 'Depo kodu en az 2 karakter olmalı.').max(20, 'Depo kodu en fazla 20 karakter olabilir.'),
+  Name: yup.string().required('Depo adı zorunludur.').min(2, 'Depo adı en az 2 karakter olmalı.').max(200, 'Depo adı en fazla 200 karakter olabilir.'),
+  WarehouseType: yup.string().required('Depo tipi zorunludur.').max(50, 'Depo tipi en fazla 50 karakter olabilir.'),
+  Description: yup.string().max(1000, 'Açıklama en fazla 1000 karakter olabilir.'),
+  IsActive: yup.boolean(),
 });
 
 const WarehouseModal = ({
@@ -150,12 +151,24 @@ const WarehouseModal = ({
             </div>
             <div>
               <Form.Group className="mb-3">
-                <Form.Label>Durum</Form.Label>
-                <Form.Select name="Status" value={form.Status || 1} onChange={onChange} required isInvalid={!!validationErrors.Status} style={inputStyles}>
-                  <option value={1}>Aktif</option>
-                  <option value={0}>Pasif</option>
+                <Form.Label>Depo Tipi *</Form.Label>
+                <Form.Select name="WarehouseType" value={form.WarehouseType || ''} onChange={onChange} required isInvalid={!!validationErrors.WarehouseType} style={inputStyles}>
+                  <option value="">Depo tipi seçin</option>
+                  <option value="Ana Depo">Ana Depo</option>
+                  <option value="Şube Depo">Şube Depo</option>
+                  <option value="Dış Depo">Dış Depo</option>
+                  <option value="Soğuk Hava Deposu">Soğuk Hava Deposu</option>
+                  <option value="Tehlikeli Madde Deposu">Tehlikeli Madde Deposu</option>
                 </Form.Select>
-                {validationErrors.Status && <Form.Control.Feedback type="invalid">{validationErrors.Status}</Form.Control.Feedback>}
+                {validationErrors.WarehouseType && <Form.Control.Feedback type="invalid">{validationErrors.WarehouseType}</Form.Control.Feedback>}
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Durum</Form.Label>
+                <Form.Select name="IsActive" value={form.IsActive ? 'true' : 'false'} onChange={onChange} required isInvalid={!!validationErrors.IsActive} style={inputStyles}>
+                  <option value="true">Aktif</option>
+                  <option value="false">Pasif</option>
+                </Form.Select>
+                {validationErrors.IsActive && <Form.Control.Feedback type="invalid">{validationErrors.IsActive}</Form.Control.Feedback>}
               </Form.Group>
             </div>
           </div>

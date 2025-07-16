@@ -24,7 +24,7 @@ const swalDarkStyles = `
   }
 `;
 
-const WarehouseTrashPage = () => {
+const LocationTrashPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [restoreLoading, setRestoreLoading] = useState(false);
@@ -37,11 +37,11 @@ const WarehouseTrashPage = () => {
   const fetchDeletedData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/api/warehouses/deleted`);
-      console.log('Deleted Warehouse data:', res.data); // Debug log
+      const res = await axios.get(`${BASE_URL}/api/locations/deleted`);
+      console.log('Deleted Location data:', res.data); // Debug log
       setData(res.data);
     } catch (err) {
-      console.error('Error fetching deleted Warehouse data:', err); // Debug log
+      console.error('Error fetching deleted Location data:', err); // Debug log
       setData([]);
     } finally {
       setLoading(false);
@@ -60,7 +60,7 @@ const WarehouseTrashPage = () => {
 
     const result = await MySwal.fire({
       title: 'Geri Yükleme Onayı',
-      text: `Bu depoyu geri yüklemek istediğinizden emin misiniz?`,
+      text: `Bu lokasyonu geri yüklemek istediğinizden emin misiniz?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Evet, Geri Yükle',
@@ -77,11 +77,11 @@ const WarehouseTrashPage = () => {
     if (result.isConfirmed) {
       setRestoreLoading(true);
       try {
-        await axios.put(`${BASE_URL}/api/warehouses/${item.id}/restore`);
+        await axios.put(`${BASE_URL}/api/locations/${item.id}/restore`);
         await fetchDeletedData();
         MySwal.fire({
           title: 'Geri Yüklendi!',
-          text: 'Depo başarıyla geri yüklendi.',
+          text: 'Lokasyon başarıyla geri yüklendi.',
           icon: 'success',
           customClass: { popup: isDark ? 'swal2-dark' : '' },
         });
@@ -111,7 +111,7 @@ const WarehouseTrashPage = () => {
 
     const result = await MySwal.fire({
       title: 'Kalıcı Silme Onayı',
-      text: 'Bu depoyu kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!',
+      text: 'Bu lokasyonu kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Evet, Kalıcı Sil',
@@ -129,11 +129,11 @@ const WarehouseTrashPage = () => {
     if (result.isConfirmed) {
       setRestoreLoading(true);
       try {
-        await axios.delete(`${BASE_URL}/api/warehouses/${item.id}/permanent`);
+        await axios.delete(`${BASE_URL}/api/locations/${item.id}/permanent`);
         await fetchDeletedData();
         MySwal.fire({
           title: 'Kalıcı Olarak Silindi!',
-          text: 'Depo kalıcı olarak silindi.',
+          text: 'Lokasyon kalıcı olarak silindi.',
           icon: 'success',
           customClass: { popup: isDark ? 'swal2-dark' : '' },
         });
@@ -153,10 +153,10 @@ const WarehouseTrashPage = () => {
 
   const columns = [
     { header: '#', accessor: 'rowNumber' },
-    { header: 'Depo Kodu', accessor: 'code' },
-    { header: 'Depo Adı', accessor: 'name' },
-    { header: 'Adres', accessor: 'address' },
-    { header: 'Telefon', accessor: 'phone' },
+    { header: 'Lokasyon Kodu', accessor: 'code' },
+    { header: 'Lokasyon Adı', accessor: 'name' },
+    { header: 'Depo', accessor: 'warehouseName' },
+    { header: 'Tip', accessor: 'locationType' },
     { header: 'Silinme Tarihi', accessor: 'deleteDate', render: val => val ? new Date(val).toLocaleString('tr-TR') : '' },
   ];
 
@@ -165,8 +165,8 @@ const WarehouseTrashPage = () => {
     rowNumber: idx + 1,
     code: item.code || 'N/A',
     name: item.name || 'N/A',
-    address: item.address || 'Adres yok',
-    phone: item.phone || 'Telefon yok',
+    warehouseName: item.warehouseName || 'Depo bilgisi yok',
+    locationType: item.locationType || 'Tip bilgisi yok',
     deleteDate: item.deleteDate || item.updateDate || 'Tarih bilgisi yok'
   }));
 
@@ -175,7 +175,7 @@ const WarehouseTrashPage = () => {
       <div className="col-lg-12">
         <div className="card h-100">
           <div className="card-header d-flex justify-content-between align-items-center">
-            <h5 className="card-title mb-0">Silinen Depolar</h5>
+            <h5 className="card-title mb-0">Silinen Lokasyonlar</h5>
             <button className="btn btn-secondary" onClick={() => navigate(-1)}>
               <i className="ri-arrow-go-back-line"></i> Geri
             </button>
@@ -197,4 +197,4 @@ const WarehouseTrashPage = () => {
   );
 };
 
-export default WarehouseTrashPage; 
+export default LocationTrashPage; 

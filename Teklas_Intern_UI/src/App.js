@@ -117,6 +117,8 @@ import WorkOrderPage from './pages/WorkOrderPage';
 import WorkOrderTrashPage from './pages/WorkOrderTrashPage';
 import ProductionConfirmationPage from './pages/ProductionConfirmationPage';
 import ProductionConfirmationTrashPage from './pages/ProductionConfirmationTrashPage';
+import LocationPage from './pages/LocationPage';
+import LocationTrashPage from './pages/LocationTrashPage';
 
 function App() {
   return (
@@ -330,6 +332,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductionConfirmationTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/locations' 
+            element={
+              <ProtectedRoute>
+                <LocationPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/location-trash' 
+            element={
+              <ProtectedRoute>
+                <LocationTrashPage />
               </ProtectedRoute>
             } 
           />

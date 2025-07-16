@@ -3,8 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import TableDataLayer from '../TableDataLayer';
-import WarehouseModal from './WarehouseModal';
-
+import LocationModal from './LocationModal';
 
 const BASE_URL = 'https://localhost:7178';
 
@@ -16,7 +15,7 @@ const MySwal = Swal.mixin({
   buttonsStyling: false
 });
 
-const WarehouseTable = () => {
+const LocationTable = () => {
   const [data, setData] = useState([]);
   const [deletedData, setDeletedData] = useState([]);
   const [showDeleted, setShowDeleted] = useState(false);
@@ -26,7 +25,7 @@ const WarehouseTable = () => {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
-  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [detailFade, setDetailFade] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -40,7 +39,19 @@ const WarehouseTable = () => {
   const initialForm = {
     Code: '',
     Name: '',
-    WarehouseType: '',
+    WarehouseId: '',
+    LocationType: '',
+    Aisle: '',
+    Rack: '',
+    Level: '',
+    Position: '',
+    Capacity: '',
+    Length: '',
+    Width: '',
+    Height: '',
+    WeightCapacity: '',
+    Temperature: '',
+    Humidity: '',
     Description: '',
     IsActive: true
   };
@@ -59,13 +70,13 @@ const WarehouseTable = () => {
       search: searchTerm
     });
 
-    axios.get(`${BASE_URL}/api/warehouses?${params}`)
+    axios.get(`${BASE_URL}/api/locations?${params}`)
       .then(res => {
         setData(res.data.items || res.data);
         setTotalCount(res.data.totalCount || res.data.length);
       })
       .catch(err => {
-        console.error('Error fetching warehouses:', err);
+        console.error('Error fetching locations:', err);
         setData([]);
       })
       .finally(() => setLoading(false));
@@ -73,7 +84,7 @@ const WarehouseTable = () => {
 
   const fetchDeletedData = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/warehouses/deleted`);
+      const res = await axios.get(`${BASE_URL}/api/locations/deleted`);
       setDeletedData(res.data);
     } catch (err) {
       setDeletedData([]);
@@ -89,12 +100,12 @@ const WarehouseTable = () => {
 
   const handleRestore = async (item) => {
     try {
-      await axios.put(`${BASE_URL}/api/warehouses/${item.id || item.Id}/restore`);
+      await axios.put(`${BASE_URL}/api/locations/${item.id || item.Id}/restore`);
       fetchDeletedData();
       fetchData();
       MySwal.fire({
         title: 'Başarılı!',
-        text: 'Depo başarıyla geri alındı.',
+        text: 'Lokasyon başarıyla geri alındı.',
         icon: 'success',
         confirmButtonText: 'Tamam'
       });
@@ -110,9 +121,11 @@ const WarehouseTable = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
-    setForm(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? e.target.checked : value 
+    setForm(prev => ({
+      ...prev,
+      [name]: name === 'IsActive'
+        ? value === 'true'
+        : (type === 'checkbox' ? e.target.checked : value)
     }));
   };
 
@@ -123,18 +136,18 @@ const WarehouseTable = () => {
 
     try {
       if (editMode) {
-        await axios.put(`${BASE_URL}/api/warehouses/${form.id}`, form);
+        await axios.put(`${BASE_URL}/api/locations/${form.id}`, form);
         MySwal.fire({
           title: 'Başarılı!',
-          text: 'Depo başarıyla güncellendi.',
+          text: 'Lokasyon başarıyla güncellendi.',
           icon: 'success',
           confirmButtonText: 'Tamam'
         });
       } else {
-        await axios.post(`${BASE_URL}/api/warehouses`, form);
+        await axios.post(`${BASE_URL}/api/locations`, form);
         MySwal.fire({
           title: 'Başarılı!',
-          text: 'Depo başarıyla eklendi.',
+          text: 'Lokasyon başarıyla eklendi.',
           icon: 'success',
           confirmButtonText: 'Tamam'
         });
@@ -162,7 +175,7 @@ const WarehouseTable = () => {
   const handleDelete = async (item) => {
     const result = await MySwal.fire({
       title: 'Emin misiniz?',
-      text: `"${item.name || item.Name}" adlı depoyu silmek istediğinize emin misiniz?`,
+      text: `"${item.name || item.Name}" adlı lokasyonu silmek istediğinize emin misiniz?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Evet, Sil',
@@ -171,11 +184,11 @@ const WarehouseTable = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${BASE_URL}/api/warehouses/${item.id || item.Id}`);
+        await axios.delete(`${BASE_URL}/api/locations/${item.id || item.Id}`);
         fetchData();
         MySwal.fire({
           title: 'Başarılı!',
-          text: 'Depo başarıyla silindi.',
+          text: 'Lokasyon başarıyla silindi.',
           icon: 'success',
           confirmButtonText: 'Tamam'
         });
@@ -195,7 +208,19 @@ const WarehouseTable = () => {
       id: row.id || row.Id,
       Code: row.code || row.Code || '',
       Name: row.name || row.Name || '',
-      WarehouseType: row.warehouseType || row.WarehouseType || '',
+      WarehouseId: row.warehouseId || row.WarehouseId || '',
+      LocationType: row.locationType || row.LocationType || '',
+      Aisle: row.aisle || row.Aisle || '',
+      Rack: row.rack || row.Rack || '',
+      Level: row.level || row.Level || '',
+      Position: row.position || row.Position || '',
+      Capacity: row.capacity || row.Capacity || '',
+      Length: row.length || row.Length || '',
+      Width: row.width || row.Width || '',
+      Height: row.height || row.Height || '',
+      WeightCapacity: row.weightCapacity || row.WeightCapacity || '',
+      Temperature: row.temperature || row.Temperature || '',
+      Humidity: row.humidity || row.Humidity || '',
       Description: row.description || row.Description || '',
       IsActive: row.isActive !== undefined ? row.isActive : (row.status === 'Active')
     });
@@ -213,7 +238,7 @@ const WarehouseTable = () => {
   };
 
   const handleView = (row) => {
-    setSelectedWarehouse(row);
+    setSelectedLocation(row);
     setShowDetail(true);
     setDetailFade(true);
   };
@@ -227,9 +252,12 @@ const WarehouseTable = () => {
     { header: "#", accessor: "rowNumber" },
     { header: "Kod", accessor: "code" },
     { header: "Ad", accessor: "name" },
-    { header: "Açıklama", accessor: "description" },
+    { header: "Depo", accessor: "warehouseName" },
+    { header: "Tip", accessor: "locationType" },
+    { header: "Kapasite", accessor: "capacity" },
     { header: "Aktif mi?", accessor: "isActive" }
   ];
+  
   // Sıra numarası ekle
   const dataWithRowNumber = data.map((item, idx) => ({
     ...item,
@@ -263,7 +291,7 @@ const WarehouseTable = () => {
     <div className="col-lg-12">
       <div className="card h-100">
         <div className="card-header d-flex justify-content-between align-items-center">
-          <h5 className="card-title mb-0">Depolar</h5>
+          <h5 className="card-title mb-0">Lokasyonlar</h5>
           <div className="d-flex gap-2 align-items-center">
             <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => {
               setShowModal(true);
@@ -274,7 +302,7 @@ const WarehouseTable = () => {
               className="btn rounded-pill btn-soft-danger text-danger px-20 py-11"
               style={{ fontWeight: 600 }}
               title="Silinenleri Göster"
-              onClick={() => navigate('/warehouse-trash')}
+              onClick={() => navigate('/location-trash')}
             >
               <i className="ri-delete-bin-6-line" style={{ marginRight: 6 }} />
               Silinenleri Göster
@@ -301,7 +329,7 @@ const WarehouseTable = () => {
             />
           </div>
         </div>
-        <WarehouseModal
+        <LocationModal
           open={showModal}
           onClose={() => { setShowModal(false); setEditMode(false); setForm(initialForm); }}
           onSubmit={handleSubmit}
@@ -309,7 +337,7 @@ const WarehouseTable = () => {
           onChange={handleInputChange}
           loading={formLoading}
           error={formError}
-          title={editMode ? 'Depo Düzenle' : 'Depo Ekle'}
+          title={editMode ? 'Lokasyon Düzenle' : 'Lokasyon Ekle'}
           categories={categories}
         />
         {showDetail && (
@@ -324,7 +352,7 @@ const WarehouseTable = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onClick={() => { setShowDetail(false); setSelectedWarehouse(null); }}
+            onClick={() => { setShowDetail(false); setSelectedLocation(null); }}
           >
             <style>{`
               .modal.fade .modal-dialog { opacity: 0; transform: scale(0.96); transition: all 0.25s cubic-bezier(.4,0,.2,1); }
@@ -346,22 +374,33 @@ const WarehouseTable = () => {
             >
               <div className="modal-content" style={{ borderRadius: 16, padding: '24px' }}>
                 <div className="modal-header">
-                  <h5 className="modal-title">Depo Detay</h5>
-                  <button type="button" className="btn-close" onClick={() => { setShowDetail(false); setSelectedWarehouse(null); }}></button>
+                  <h5 className="modal-title">Lokasyon Detay</h5>
+                  <button type="button" className="btn-close" onClick={() => { setShowDetail(false); setSelectedLocation(null); }}></button>
                 </div>
                 <div className="modal-body" style={{padding: '16px 8px 8px 8px'}}>
                   <div style={{maxHeight: '70vh', overflowY: 'auto', padding: 0}}>
-                    {selectedWarehouse && (
+                    {selectedLocation && (
                       <div>
                         {[
-                          ['Kod', selectedWarehouse.code],
-                          ['Ad', selectedWarehouse.name],
-                          ['Açıklama', selectedWarehouse.description],
-                          ['Aktif mi?', selectedWarehouse.isActive ? 'Aktif' : 'Pasif'],
-                          ['Oluşturulma', formatDateTime(selectedWarehouse.createdDate)],
-                          ['Güncellenme', formatDateTime(selectedWarehouse.updatedDate)],
-                          ['Oluşturan', selectedWarehouse.createdBy],
-                          ['Güncelleyen', selectedWarehouse.updatedBy],
+                          ['Kod', selectedLocation.code],
+                          ['Ad', selectedLocation.name],
+                          ['Depo', selectedLocation.warehouseName],
+                          ['Tip', selectedLocation.locationType],
+                          ['Koridor', selectedLocation.aisle],
+                          ['Raf', selectedLocation.rack],
+                          ['Seviye', selectedLocation.level],
+                          ['Pozisyon', selectedLocation.position],
+                          ['Kapasite', selectedLocation.capacity],
+                          ['Uzunluk', selectedLocation.length],
+                          ['Genişlik', selectedLocation.width],
+                          ['Yükseklik', selectedLocation.height],
+                          ['Ağırlık Kapasitesi', selectedLocation.weightCapacity],
+                          ['Sıcaklık', selectedLocation.temperature],
+                          ['Nem', selectedLocation.humidity],
+                          ['Açıklama', selectedLocation.description],
+                          ['Aktif mi?', selectedLocation.isActive ? 'Aktif' : 'Pasif'],
+                          ['Oluşturulma', formatDateTime(selectedLocation.createdDate)],
+                          ['Güncellenme', formatDateTime(selectedLocation.updatedDate)],
                         ].map(([label, value], i) => (
                           <div key={label} className="d-flex align-items-center px-4 py-3 mb-2" style={{background: 'transparent', borderRadius: 8}}>
                             <span className="fw-bold text-secondary-light flex-shrink-0" style={{minWidth: 140}}>{label}</span>
@@ -373,9 +412,9 @@ const WarehouseTable = () => {
                   </div>
                 </div>
                 <div className="modal-footer d-flex justify-content-end gap-2" style={{background: 'transparent', borderTop: 'none', boxShadow: 'none', padding: 0}}>
-                  <button className="btn btn-soft-primary" onClick={() => handleEdit(selectedWarehouse)}>Düzenle</button>
-                  <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedWarehouse)}>Sil</button>
-                  <button className="btn btn-secondary" onClick={() => { setShowDetail(false); setSelectedWarehouse(null); }}>Kapat</button>
+                  <button className="btn btn-soft-primary" onClick={() => handleEdit(selectedLocation)}>Düzenle</button>
+                  <button className="btn btn-soft-danger" onClick={() => handleDelete(selectedLocation)}>Sil</button>
+                  <button className="btn btn-secondary" onClick={() => { setShowDetail(false); setSelectedLocation(null); }}>Kapat</button>
                 </div>
               </div>
             </div>
@@ -386,4 +425,4 @@ const WarehouseTable = () => {
   );
 };
 
-export default WarehouseTable; 
+export default LocationTable; 
