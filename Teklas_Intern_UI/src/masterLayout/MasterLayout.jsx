@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import PermissionGuard from "../components/PermissionGuard";
-import { usePermissions } from "../hooks/usePermissions";
-import { PERMISSIONS } from "../utils/permissions";
 import ThemeToggleButton from "../helper/ThemeToggleButton";
 import Swal from 'sweetalert2';
 
@@ -16,7 +13,6 @@ const MasterLayout = ({ children }) => {
   
   // Auth context
   const { user, logout, isAuthenticated } = useAuth();
-  const permissions = usePermissions();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -183,7 +179,6 @@ const MasterLayout = ({ children }) => {
             </li>
 
             {/* Malzeme Yönetimi */}
-            <PermissionGuard permission={PERMISSIONS.MATERIALS_VIEW}>
             <li className='dropdown'>
               <a href='#'>
                 <Icon icon='mdi:package-variant' className='menu-icon' />
@@ -197,182 +192,166 @@ const MasterLayout = ({ children }) => {
                 </li>
                 <li>
                   <NavLink to='/material-category' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                    <span>Kategori Tanımlama</span>
+                    <span>Malzeme Sınıfları</span>
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to='/material-movements' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                  <NavLink to='/material-movement' className={(navData) => navData.isActive ? 'active-page' : ''}>
                     <span>Malzeme Hareketleri</span>
                   </NavLink>
                 </li>
-                  <PermissionGuard permission={PERMISSIONS.MATERIALS_VIEW}>
-                    <li>
-                      <NavLink to='/material-card-trash' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                        <span>Malzeme Kartları (Çöp Kutusu)</span>
-                      </NavLink>
-                    </li>
-                  </PermissionGuard>
-                  <PermissionGuard permission={PERMISSIONS.CATEGORIES_VIEW}>
-                    <li>
-                      <NavLink to='/material-category-trash' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                        <span>Kategori (Çöp Kutusu)</span>
-                      </NavLink>
-                    </li>
-                  </PermissionGuard>
-                  <PermissionGuard permission={PERMISSIONS.MOVEMENTS_VIEW}>
-                    <li>
-                      <NavLink to='/material-movement-trash' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                        <span>Malzeme Hareketleri (Çöp Kutusu)</span>
-                      </NavLink>
-                    </li>
-                  </PermissionGuard>
               </ul>
             </li>
-            </PermissionGuard>
 
             {/* Üretim Yönetimi */}
-            <PermissionGuard permission={PERMISSIONS.PRODUCTION_VIEW}>
             <li className='dropdown'>
               <a href='#'>
                 <Icon icon='mdi:factory' className='menu-icon' />
                 <span>Üretim Yönetimi</span>
               </a>
               <ul className='sidebar-submenu'>
-                  <li>
-                    <NavLink to='/work-orders' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>İş Emirleri</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to='/production-confirmations' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Üretim Onayları</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to='/bill-of-materials' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Reçeteler</span>
-                    </NavLink>
-                  </li>
-              </ul>
-            </li>
-            </PermissionGuard>
-
-            {/* Satınalma Yönetimi - Placeholder */}
-            <li className='dropdown'>
-              <a href='#'>
-                <Icon icon='mdi:cart-outline' className='menu-icon' />
-                <span>Satınalma Yönetimi</span>
-              </a>
-              <ul className='sidebar-submenu'>
                 <li>
-                  <span className='px-3 py-2 text-muted'>Yakında...</span>
+                  <NavLink to='/bill-of-materials' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Ürün Ağaçları</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/work-orders' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>İş Emirleri</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/production-confirmations' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Üretim Teyitleri</span>
+                  </NavLink>
                 </li>
               </ul>
             </li>
 
-            {/* Satış Yönetimi - Placeholder */}
-            <li className='dropdown'>
-              <a href='#'>
-                <Icon icon='mdi:account-group-outline' className='menu-icon' />
-                <span>Satış Yönetimi</span>
-              </a>
-              <ul className='sidebar-submenu'>
-                <li>
-                  <span className='px-3 py-2 text-muted'>Yakında...</span>
-                </li>
-              </ul>
-            </li>
-
-            {/* Depo/Stok Yönetimi - Placeholder */}
+            {/* Depo Yönetimi */}
             <li className='dropdown'>
               <a href='#'>
                 <Icon icon='mdi:warehouse' className='menu-icon' />
-                <span>Depo/Stok Yönetimi</span>
+                <span>Depo Yönetimi</span>
               </a>
               <ul className='sidebar-submenu'>
                 <li>
-                  <span className='px-3 py-2 text-muted'>Yakında...</span>
+                  <NavLink to='/warehouse' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Ambar Tanımları</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/locations' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Lokasyon / Raf Tanımı</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/stock-entries' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Sipariş Stok Girişleri</span>
+                  </NavLink>
+                </li>
+              </ul>
+            </li>
+
+            {/* Satın Alma Yönetimi */}
+            <li className='dropdown'>
+              <a href='#'>
+                <Icon icon='mdi:shopping' className='menu-icon' />
+                <span>Satın Alma Yönetimi</span>
+              </a>
+              <ul className='sidebar-submenu'>
+                <li>
+                  <NavLink to='/purchase-orders' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Satın Alma Siparişleri</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/supplier' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Tedarikçi Tanımları</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/supplier-types' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Tedarikçi Tipleri</span>
+                  </NavLink>
+                </li>
+              </ul>
+            </li>
+
+            {/* Satış ve Sipariş Yönetimi */}
+            <li className='dropdown'>
+              <a href='#'>
+                <Icon icon='mdi:cart' className='menu-icon' />
+                <span>Satış ve Sipariş Yönetimi</span>
+              </a>
+              <ul className='sidebar-submenu'>
+                <li>
+                  <NavLink to='/customer-orders' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Müşteri Siparişleri</span>
+                  </NavLink>
                 </li>
               </ul>
             </li>
 
             {/* Raporlar */}
-            <PermissionGuard permission={PERMISSIONS.REPORTS_VIEW}>
-              <li className='dropdown'>
-                <a href='#'>
-                  <Icon icon='mdi:chart-line' className='menu-icon' />
-                  <span>Raporlar</span>
-                </a>
-                <ul className='sidebar-submenu'>
-                  <li>
-                    <NavLink to='/reports/materials' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Malzeme Raporları</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to='/reports/production' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Üretim Raporları</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to='/reports/movements' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Hareket Raporları</span>
-                    </NavLink>
-                  </li>
-                </ul>
-              </li>
-            </PermissionGuard>
+            <li className='dropdown'>
+              <a href='#'>
+                <Icon icon='mdi:chart-line' className='menu-icon' />
+                <span>Raporlar</span>
+              </a>
+              <ul className='sidebar-submenu'>
+                <li>
+                  <NavLink to='/reports' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Genel Raporlar</span>
+                  </NavLink>
+                </li>
+              </ul>
+            </li>
 
-            {/* Kullanıcı Yönetimi - Sadece Admin */}
-            <PermissionGuard adminOnly={true}>
-              <li className='dropdown'>
-                <a href='#'>
-                  <Icon icon='mdi:account-group' className='menu-icon' />
-                  <span>Kullanıcı Yönetimi</span>
-                </a>
-                <ul className='sidebar-submenu'>
-                  <li>
-                    <NavLink to='/users-list' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Kullanıcılar</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to='/add-user' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Kullanıcı Ekle</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to='/assign-role' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Rol Atama</span>
-                    </NavLink>
-                  </li>
-                </ul>
-              </li>
-            </PermissionGuard>
+            {/* Kullanıcı Yönetimi */}
+            <li className='dropdown'>
+              <a href='#'>
+                <Icon icon='mdi:account-group' className='menu-icon' />
+                <span>Kullanıcı Yönetimi</span>
+              </a>
+              <ul className='sidebar-submenu'>
+                <li>
+                  <NavLink to='/users-list' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Kullanıcı Listesi</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/add-user' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Kullanıcı Ekle</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/assign-role' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Rol Ata</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to='/create-role' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Rol Oluştur</span>
+                  </NavLink>
+                </li>
+              </ul>
+            </li>
 
-            {/* Sistem Ayarları */}
-            <PermissionGuard permission={PERMISSIONS.SETTINGS_VIEW}>
-              <li className='dropdown'>
-                <a href='#'>
-                  <Icon icon='mdi:cog' className='menu-icon' />
-                  <span>Sistem Ayarları</span>
-                </a>
-                <ul className='sidebar-submenu'>
-                  <li>
-                    <NavLink to='/settings' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                      <span>Genel Ayarlar</span>
-                    </NavLink>
-                  </li>
-                  <PermissionGuard adminOnly={true}>
-                    <li>
-                      <NavLink to='/settings/system' className={(navData) => navData.isActive ? 'active-page' : ''}>
-                        <span>Sistem Ayarları</span>
-                      </NavLink>
-                    </li>
-                  </PermissionGuard>
-                </ul>
-              </li>
-            </PermissionGuard>
+            {/* Ayarlar */}
+            <li className='dropdown'>
+              <a href='#'>
+                <Icon icon='mdi:cog' className='menu-icon' />
+                <span>Ayarlar</span>
+              </a>
+              <ul className='sidebar-submenu'>
+                <li>
+                  <NavLink to='/view-profile' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                    <span>Profil</span>
+                  </NavLink>
+                </li>
+              </ul>
+            </li>
           </ul>
         </div>
       </aside>
@@ -473,7 +452,6 @@ const MasterLayout = ({ children }) => {
                           Profilim
                         </Link>
                       </li>
-                      <PermissionGuard adminOnly={true}>
                       <li>
                         <Link
                           className='dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3'
@@ -486,7 +464,6 @@ const MasterLayout = ({ children }) => {
                             Kullanıcı Yönetimi
                         </Link>
                       </li>
-                      </PermissionGuard>
                       <li>
                         <Link
                           className='dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3'

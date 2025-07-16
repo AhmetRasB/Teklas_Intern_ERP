@@ -209,11 +209,9 @@ namespace Teklas_Intern_ERP.Business.UserManagement
                 var user = await _userRepository.GetByIdAsync(userId);
                 if (user == null) return false;
 
-                // Verify current password
                 if (!VerifyPassword(currentPassword, user.PasswordHash))
                     return false;
 
-                // Update password
                 var newPasswordHash = HashPassword(newPassword);
                 await _userRepository.UpdatePasswordAsync(userId, newPasswordHash);
 
@@ -232,14 +230,12 @@ namespace Teklas_Intern_ERP.Business.UserManagement
                 var user = await _userRepository.GetByEmailAsync(email);
                 if (user == null) return false;
 
-                // Generate reset token
                 var resetToken = GenerateRandomToken();
                 user.PasswordResetToken = resetToken;
                 user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(24);
 
                 await _userRepository.UpdateAsync(user);
 
-                // TODO: Send email with reset token
                 return true;
             }
             catch

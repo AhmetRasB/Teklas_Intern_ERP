@@ -311,42 +311,149 @@ namespace DataAccess.Migrations
                     b.ToTable("MaterialMovements");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterial", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.BOMHeader", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("BOMHeaderId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BOMHeaderId"));
 
-                    b.Property<DateTime?>("ApprovalDate")
+                    b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ApprovalStatus")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long?>("MaterialCardId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("ParentMaterialCardId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("StandardCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Version")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<long?>("ApprovedByUserId")
+                    b.HasKey("BOMHeaderId");
+
+                    b.HasIndex("MaterialCardId");
+
+                    b.HasIndex("ParentMaterialCardId");
+
+                    b.ToTable("BOMHeaders");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.BOMItem", b =>
+                {
+                    b.Property<long>("BOMItemId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<string>("BOMCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BOMItemId"));
 
-                    b.Property<string>("BOMName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<long>("BOMHeaderId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("BOMType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<long>("ComponentMaterialCardId")
+                        .HasColumnType("bigint");
 
-                    b.Property<decimal>("BaseQuantity")
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long?>("MaterialCardId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("ScrapRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("BOMItemId");
+
+                    b.HasIndex("BOMHeaderId");
+
+                    b.HasIndex("ComponentMaterialCardId");
+
+                    b.HasIndex("MaterialCardId");
+
+                    b.ToTable("BOMItems");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.MaterialConsumption", b =>
+                {
+                    b.Property<long>("ConsumptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ConsumptionId"));
+
+                    b.Property<string>("BatchNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<long>("ConfirmationId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -364,10 +471,267 @@ namespace DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("EffectiveFrom")
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("MaterialCardId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("MaterialCardId1")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("QuantityUsed")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("EffectiveTo")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ConsumptionId");
+
+                    b.HasIndex("ConfirmationId");
+
+                    b.HasIndex("MaterialCardId");
+
+                    b.HasIndex("MaterialCardId1");
+
+                    b.ToTable("MaterialConsumptions");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.ProductionConfirmation", b =>
+                {
+                    b.Property<long>("ConfirmationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ConfirmationId"));
+
+                    b.Property<DateTime>("ConfirmationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("LaborHoursUsed")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long?>("MaterialCardId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PerformedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("QuantityProduced")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("QuantityScrapped")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("WorkOrderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ConfirmationId");
+
+                    b.HasIndex("MaterialCardId");
+
+                    b.HasIndex("WorkOrderId");
+
+                    b.ToTable("ProductionConfirmations");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder", b =>
+                {
+                    b.Property<long>("WorkOrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("WorkOrderId"));
+
+                    b.Property<long>("BOMHeaderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("MaterialCardId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("MaterialCardId1")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("PlannedEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PlannedQuantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PlannedStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("WorkOrderId");
+
+                    b.HasIndex("BOMHeaderId");
+
+                    b.HasIndex("MaterialCardId");
+
+                    b.HasIndex("MaterialCardId1");
+
+                    b.ToTable("WorkOrders");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrderOperation", b =>
+                {
+                    b.Property<long>("OperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("OperationId"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OperationName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("PlannedHours")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Resource")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("WorkOrderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("OperationId");
+
+                    b.HasIndex("WorkOrderId");
+
+                    b.ToTable("WorkOrderOperations");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.PurchasingManagement.PurchaseOrder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ExpectedDeliveryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
@@ -376,26 +740,24 @@ namespace DataAccess.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long>("ProductMaterialCardId")
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<long>("SupplierId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("RouteCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal?>("SetupTime")
+                    b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("StandardTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -403,22 +765,17 @@ namespace DataAccess.Migrations
                     b.Property<long?>("UpdateUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Version")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("BOMCode")
+                    b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.HasIndex("ProductMaterialCardId");
+                    b.HasIndex("SupplierId");
 
-                    b.ToTable("BillOfMaterials");
+                    b.ToTable("PurchaseOrders");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterialItem", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.PurchasingManagement.Supplier", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -426,16 +783,78 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("BillOfMaterialId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ComponentType")
-                        .IsRequired()
+                    b.Property<string>("ContactPerson")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal?>("CostAllocation")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SupplierTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TaxNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierTypeId");
+
+                    b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.PurchasingManagement.SupplierType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -453,48 +872,19 @@ namespace DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsOptional")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPhantom")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("IssueMethod")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int?>("LeadTimeOffset")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LineNumber")
-                        .HasColumnType("int");
-
-                    b.Property<long>("MaterialCardId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("OperationSequence")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ScrapFactor")
-                        .HasColumnType("decimal(18,2)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<long?>("SupplierMaterialCardId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -502,24 +892,15 @@ namespace DataAccess.Migrations
                     b.Property<long?>("UpdateUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("ValidFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ValidTo")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("BillOfMaterialId");
+                    b.HasIndex("Name")
+                        .IsUnique();
 
-                    b.HasIndex("MaterialCardId");
-
-                    b.HasIndex("SupplierMaterialCardId");
-
-                    b.ToTable("BillOfMaterialItems");
+                    b.ToTable("SupplierTypes");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.ProductionConfirmation", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.SalesManagement.Customer", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -527,38 +908,11 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ActivityType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("BatchNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("ConfirmationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ConfirmationNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ConfirmationType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<long?>("ConfirmedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ConfirmedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("ConfirmedQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("CostCenter")
+                    b.Property<string>("ContactPerson")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -574,103 +928,31 @@ namespace DataAccess.Migrations
                     b.Property<long?>("DeleteUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal?>("DownTime")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("DownTimeReason")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("MaterialConsumed")
-                        .HasColumnType("bit");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("OperationSequence")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<long?>("OperatorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("PostedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("PostedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("QualityCheckResult")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("QualityNotes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("QualityStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("RequiresQualityCheck")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("RequiresStockPosting")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ReversalReason")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("ReworkQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RunTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ScrapQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("SerialNumberFrom")
+                    b.Property<string>("TaxNumber")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("SerialNumberTo")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal?>("SetupTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Shift")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("StockPosted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("StockPostingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -678,31 +960,15 @@ namespace DataAccess.Migrations
                     b.Property<long?>("UpdateUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal?>("WaitTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("WorkCenter")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<long>("WorkOrderId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ConfirmationNumber")
+                    b.HasIndex("Name")
                         .IsUnique();
 
-                    b.HasIndex("ConfirmedByUserId");
-
-                    b.HasIndex("OperatorUserId");
-
-                    b.HasIndex("WorkOrderId");
-
-                    b.ToTable("ProductionConfirmations");
+                    b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.WorkOrder", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.SalesManagement.CustomerOrder", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -710,36 +976,14 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime?>("ActualEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("ActualRunTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("ActualSetupTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("ActualStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("BillOfMaterialId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("CompletedQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("CompletionPercentage")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
                     b.Property<long>("CreateUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("CustomerOrderReference")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("datetime2");
@@ -751,58 +995,20 @@ namespace DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("DueDate")
+                    b.Property<DateTime?>("ExpectedDeliveryDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PlannedEndDate")
+                    b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("PlannedQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("PlannedRunTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("PlannedSetupTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("PlannedStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ProductMaterialCardId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("QualityStatus")
+                    b.Property<string>("OrderNumber")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<long?>("ReleasedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ReleasedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("RequiresQualityCheck")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("ScrapQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Shift")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<long?>("SourceReferenceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("SourceType")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -811,13 +1017,8 @@ namespace DataAccess.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<long?>("SupervisorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -825,34 +1026,14 @@ namespace DataAccess.Migrations
                     b.Property<long?>("UpdateUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("WorkCenter")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("WorkOrderNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("WorkOrderType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("BillOfMaterialId");
+                    b.HasIndex("CustomerId");
 
-                    b.HasIndex("ProductMaterialCardId");
-
-                    b.HasIndex("ReleasedByUserId");
-
-                    b.HasIndex("SupervisorUserId");
-
-                    b.HasIndex("WorkOrderNumber")
+                    b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.ToTable("WorkOrders");
+                    b.ToTable("CustomerOrders");
                 });
 
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.UserManagement.Role", b =>
@@ -1118,6 +1299,330 @@ namespace DataAccess.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.Location", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Aisle")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal?>("Capacity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("Height")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Humidity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("Length")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Level")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("LocationCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("LocationType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("OccupiedCapacity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Position")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Rack")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("Temperature")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("WarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("WeightCapacity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Width")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationCode")
+                        .IsUnique();
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.StockEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BatchNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EntryNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("EntryReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("EntryType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("LocationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("MaterialId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("ProductionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("QualityStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ReferenceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ResponsiblePerson")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SerialNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("TotalValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("WarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntryNumber")
+                        .IsUnique();
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("StockEntries");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.Warehouse", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("Capacity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("Humidity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ManagerEmail")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ManagerName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ManagerPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("Temperature")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("WarehouseCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("WarehouseName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("WarehouseType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseCode")
+                        .IsUnique();
+
+                    b.ToTable("Warehouses");
+                });
+
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", b =>
                 {
                     b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCategory", "MaterialCategory")
@@ -1149,22 +1654,49 @@ namespace DataAccess.Migrations
                     b.Navigation("MaterialCard");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterial", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.BOMHeader", b =>
                 {
-                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "ProductMaterialCard")
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", null)
+                        .WithMany("BOMHeaders")
+                        .HasForeignKey("MaterialCardId");
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "ParentMaterialCard")
                         .WithMany()
-                        .HasForeignKey("ProductMaterialCardId")
+                        .HasForeignKey("ParentMaterialCardId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ProductMaterialCard");
+                    b.Navigation("ParentMaterialCard");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterialItem", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.BOMItem", b =>
                 {
-                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterial", "BillOfMaterial")
+                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagment.BOMHeader", "BOMHeader")
                         .WithMany("BOMItems")
-                        .HasForeignKey("BillOfMaterialId")
+                        .HasForeignKey("BOMHeaderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "ComponentMaterialCard")
+                        .WithMany()
+                        .HasForeignKey("ComponentMaterialCardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", null)
+                        .WithMany("BOMItems")
+                        .HasForeignKey("MaterialCardId");
+
+                    b.Navigation("BOMHeader");
+
+                    b.Navigation("ComponentMaterialCard");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.MaterialConsumption", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagment.ProductionConfirmation", "ProductionConfirmation")
+                        .WithMany("Consumptions")
+                        .HasForeignKey("ConfirmationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1174,74 +1706,95 @@ namespace DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "SupplierMaterialCard")
-                        .WithMany()
-                        .HasForeignKey("SupplierMaterialCardId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("BillOfMaterial");
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", null)
+                        .WithMany("MaterialConsumptions")
+                        .HasForeignKey("MaterialCardId1");
 
                     b.Navigation("MaterialCard");
 
-                    b.Navigation("SupplierMaterialCard");
+                    b.Navigation("ProductionConfirmation");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.ProductionConfirmation", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.ProductionConfirmation", b =>
                 {
-                    b.HasOne("Teklas_Intern_ERP.Entities.UserManagement.User", "ConfirmedByUser")
-                        .WithMany()
-                        .HasForeignKey("ConfirmedByUserId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Teklas_Intern_ERP.Entities.UserManagement.User", "OperatorUser")
-                        .WithMany()
-                        .HasForeignKey("OperatorUserId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagement.WorkOrder", "WorkOrder")
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", null)
                         .WithMany("ProductionConfirmations")
+                        .HasForeignKey("MaterialCardId");
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder", "WorkOrder")
+                        .WithMany()
                         .HasForeignKey("WorkOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("ConfirmedByUser");
-
-                    b.Navigation("OperatorUser");
 
                     b.Navigation("WorkOrder");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.WorkOrder", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder", b =>
                 {
-                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterial", "BillOfMaterial")
+                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagment.BOMHeader", "BOMHeader")
+                        .WithMany()
+                        .HasForeignKey("BOMHeaderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "MaterialCard")
+                        .WithMany()
+                        .HasForeignKey("MaterialCardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", null)
                         .WithMany("WorkOrders")
-                        .HasForeignKey("BillOfMaterialId")
+                        .HasForeignKey("MaterialCardId1");
+
+                    b.Navigation("BOMHeader");
+
+                    b.Navigation("MaterialCard");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrderOperation", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder", "WorkOrder")
+                        .WithMany("Operations")
+                        .HasForeignKey("WorkOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.PurchasingManagement.PurchaseOrder", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.PurchasingManagement.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "ProductMaterialCard")
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.PurchasingManagement.Supplier", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.PurchasingManagement.SupplierType", "SupplierType")
                         .WithMany()
-                        .HasForeignKey("ProductMaterialCardId")
+                        .HasForeignKey("SupplierTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Teklas_Intern_ERP.Entities.UserManagement.User", "ReleasedByUser")
+                    b.Navigation("SupplierType");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.SalesManagement.CustomerOrder", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.SalesManagement.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("ReleasedByUserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("Teklas_Intern_ERP.Entities.UserManagement.User", "SupervisorUser")
-                        .WithMany()
-                        .HasForeignKey("SupervisorUserId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("BillOfMaterial");
-
-                    b.Navigation("ProductMaterialCard");
-
-                    b.Navigation("ReleasedByUser");
-
-                    b.Navigation("SupervisorUser");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.UserManagement.UserRole", b =>
@@ -1263,9 +1816,57 @@ namespace DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.Location", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.WarehouseManagement.Warehouse", "Warehouse")
+                        .WithMany("Locations")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.StockEntry", b =>
+                {
+                    b.HasOne("Teklas_Intern_ERP.Entities.WarehouseManagement.Location", "Location")
+                        .WithMany("StockEntries")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Teklas_Intern_ERP.Entities.WarehouseManagement.Warehouse", "Warehouse")
+                        .WithMany("StockEntries")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Material");
+
+                    b.Navigation("Warehouse");
+                });
+
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCard", b =>
                 {
+                    b.Navigation("BOMHeaders");
+
+                    b.Navigation("BOMItems");
+
+                    b.Navigation("MaterialConsumptions");
+
                     b.Navigation("MaterialMovements");
+
+                    b.Navigation("ProductionConfirmations");
+
+                    b.Navigation("WorkOrders");
                 });
 
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.MaterialManagement.MaterialCategory", b =>
@@ -1275,16 +1876,19 @@ namespace DataAccess.Migrations
                     b.Navigation("MaterialCards");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.BillOfMaterial", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.BOMHeader", b =>
                 {
                     b.Navigation("BOMItems");
-
-                    b.Navigation("WorkOrders");
                 });
 
-            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagement.WorkOrder", b =>
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.ProductionConfirmation", b =>
                 {
-                    b.Navigation("ProductionConfirmations");
+                    b.Navigation("Consumptions");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder", b =>
+                {
+                    b.Navigation("Operations");
                 });
 
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.UserManagement.Role", b =>
@@ -1295,6 +1899,18 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Teklas_Intern_ERP.Entities.UserManagement.User", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.Location", b =>
+                {
+                    b.Navigation("StockEntries");
+                });
+
+            modelBuilder.Entity("Teklas_Intern_ERP.Entities.WarehouseManagement.Warehouse", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("StockEntries");
                 });
 #pragma warning restore 612, 618
         }

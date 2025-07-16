@@ -25,9 +25,9 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         Task<List<MaterialMovement>> GetMovementsWithMaterialCardAsync();
         
         // Soft Delete Methods
-        Task<List<MaterialMovement>> GetDeletedAsync();
-        Task<bool> RestoreAsync(long id);
-        Task<bool> PermanentDeleteAsync(long id);
+        new Task<List<MaterialMovement>> GetDeletedAsync();
+        new Task<bool> RestoreAsync(long id);
+        new Task<bool> PermanentDeleteAsync(long id);
     }
 
     public class MaterialMovementRepository : BaseRepository<MaterialMovement>, IMaterialMovementRepository
@@ -184,7 +184,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
         #endregion
 
         // Soft Delete Methods
-        public async Task<List<MaterialMovement>> GetDeletedAsync()
+        public new async Task<List<MaterialMovement>> GetDeletedAsync()
         {
             return await _dbSet
                 .IgnoreQueryFilters()
@@ -194,7 +194,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
                 .ToListAsync();
         }
 
-        public async Task<bool> RestoreAsync(long id)
+        public new async Task<bool> RestoreAsync(long id)
         {
             var movement = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(m => m.Id == id);
             if (movement == null) return false;
@@ -206,7 +206,7 @@ namespace Teklas_Intern_ERP.DataAccess.MaterialManagement
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> PermanentDeleteAsync(long id)
+        public new async Task<bool> PermanentDeleteAsync(long id)
         {
             var movement = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(m => m.Id == id);
             if (movement == null) return false;

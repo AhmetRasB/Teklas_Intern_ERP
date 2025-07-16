@@ -1,8 +1,21 @@
 using AutoMapper;
 using Teklas_Intern_ERP.Entities.MaterialManagement;
 using Teklas_Intern_ERP.Entities.UserManagement;
-using Teklas_Intern_ERP.Entities.ProductionManagement;
+using Teklas_Intern_ERP.Entities.WarehouseManagement;
+using Teklas_Intern_ERP.Entities.PurchasingManagement;
+using Teklas_Intern_ERP.Entities.SalesManagement;
 using Teklas_Intern_ERP.DTOs;
+using Teklas_Intern_ERP.DTOs.WarehouseManagement;
+using Teklas_Intern_ERP.DTOs.PurchasingManagement;
+using Teklas_Intern_ERP.DTOs.SalesManagement;
+using Teklas_Intern_ERP.Entities.ProductionManagment;
+using EntityMaterialConsumption = Teklas_Intern_ERP.Entities.ProductionManagment.MaterialConsumption;
+using DtoMaterialConsumption = Teklas_Intern_ERP.DTOs.MaterialConsumptionDto;
+using EntityBOMHeader = Teklas_Intern_ERP.Entities.ProductionManagment.BOMHeader;
+using EntityBOMItem = Teklas_Intern_ERP.Entities.ProductionManagment.BOMItem;
+using EntityWorkOrder = Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder;
+using EntityWorkOrderOperation = Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrderOperation;
+using EntityProductionConfirmation = Teklas_Intern_ERP.Entities.ProductionManagment.ProductionConfirmation;
 
 namespace Teklas_Intern_ERP.Business.Mapping
 {
@@ -10,7 +23,6 @@ namespace Teklas_Intern_ERP.Business.Mapping
     {
         public EntityMappingProfile()
         {
-            // MaterialManagement Mappings
             CreateMap<MaterialCard, MaterialCardDto>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CardCode))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.CardName))
@@ -69,92 +81,140 @@ namespace Teklas_Intern_ERP.Business.Mapping
                 .ForMember(dest => dest.MaterialCard, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.Condition(src => src.Id > 0));
 
-            // ProductionManagement Mappings
+            // Production Management Mappings
+            CreateMap<EntityBOMHeader, BOMHeaderDto>()
+                .ForMember(dest => dest.ParentMaterialCardName, opt => opt.MapFrom(src => src.ParentMaterialCard.CardName))
+                .ForMember(dest => dest.BOMItems, opt => opt.MapFrom(src => src.BOMItems))
+                .ReverseMap();
+            CreateMap<CreateBOMHeaderDto, EntityBOMHeader>()
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version ?? "1.0"))
+                .ReverseMap();
+            CreateMap<UpdateBOMHeaderDto, EntityBOMHeader>().ReverseMap();
 
-            // BillOfMaterial mappings
-            CreateMap<BillOfMaterial, BillOfMaterialDto>()
-                .ForMember(dto => dto.ProductMaterialCardName, opt => opt.MapFrom(src => src.ProductMaterialCard != null ? src.ProductMaterialCard.CardName : null))
-                .ForMember(dto => dto.ProductMaterialCardCode, opt => opt.MapFrom(src => src.ProductMaterialCard != null ? src.ProductMaterialCard.CardCode : null))
-                .ForMember(dto => dto.ApprovedByUserName, opt => opt.Ignore()) // Will be set by service layer
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dto => dto.UpdatedAt, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dto => dto.CreatedByUserId, opt => opt.MapFrom(src => src.CreateUserId))
-                .ForMember(dto => dto.UpdatedByUserId, opt => opt.MapFrom(src => src.UpdateUserId))
-                .ForMember(dto => dto.CreatedByUserName, opt => opt.Ignore()) // Will be set by service layer
-                .ForMember(dto => dto.UpdatedByUserName, opt => opt.Ignore()); // Will be set by service layer
+            CreateMap<EntityBOMItem, BOMItemDto>()
+                .ForMember(dest => dest.ComponentMaterialCardName, opt => opt.MapFrom(src => src.ComponentMaterialCard.CardName))
+                .ReverseMap();
+            CreateMap<CreateBOMItemDto, EntityBOMItem>().ReverseMap();
+            CreateMap<UpdateBOMItemDto, EntityBOMItem>().ReverseMap();
 
-            CreateMap<BillOfMaterialDto, BillOfMaterial>()
-                .ForMember(entity => entity.ProductMaterialCard, opt => opt.Ignore())
-                .ForMember(entity => entity.BOMItems, opt => opt.Ignore())
-                .ForMember(entity => entity.WorkOrders, opt => opt.Ignore())
-                .ForMember(entity => entity.CreateDate, opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(entity => entity.UpdateDate, opt => opt.MapFrom(src => src.UpdatedAt))
-                .ForMember(entity => entity.CreateUserId, opt => opt.MapFrom(src => src.CreatedByUserId))
-                .ForMember(entity => entity.UpdateUserId, opt => opt.MapFrom(src => src.UpdatedByUserId));
+            CreateMap<EntityWorkOrder, WorkOrderDto>()
+                .ForMember(dest => dest.BOMName, opt => opt.MapFrom(src => src.BOMHeader.Version))
+                .ForMember(dest => dest.MaterialCardName, opt => opt.MapFrom(src => src.MaterialCard.CardName))
+                .ForMember(dest => dest.Operations, opt => opt.MapFrom(src => src.Operations))
+                .ReverseMap();
+            CreateMap<CreateWorkOrderDto, EntityWorkOrder>().ReverseMap();
+            CreateMap<UpdateWorkOrderDto, EntityWorkOrder>().ReverseMap();
 
-            // BillOfMaterialItem mappings
-            CreateMap<BillOfMaterialItem, BillOfMaterialItemDto>()
-                .ForMember(dto => dto.MaterialCardName, opt => opt.MapFrom(src => src.MaterialCard != null ? src.MaterialCard.CardName : null))
-                .ForMember(dto => dto.MaterialCardCode, opt => opt.MapFrom(src => src.MaterialCard != null ? src.MaterialCard.CardCode : null))
-                .ForMember(dto => dto.SupplierMaterialCardName, opt => opt.MapFrom(src => src.SupplierMaterialCard != null ? src.SupplierMaterialCard.CardName : null))
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dto => dto.UpdatedAt, opt => opt.MapFrom(src => src.UpdateDate));
+            CreateMap<EntityWorkOrderOperation, WorkOrderOperationDto>().ReverseMap();
+            CreateMap<CreateWorkOrderOperationDto, EntityWorkOrderOperation>().ReverseMap();
+            CreateMap<UpdateWorkOrderOperationDto, EntityWorkOrderOperation>().ReverseMap();
 
-            CreateMap<BillOfMaterialItemDto, BillOfMaterialItem>()
-                .ForMember(entity => entity.BillOfMaterial, opt => opt.Ignore())
-                .ForMember(entity => entity.MaterialCard, opt => opt.Ignore())
-                .ForMember(entity => entity.SupplierMaterialCard, opt => opt.Ignore())
-                .ForMember(entity => entity.CreateDate, opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(entity => entity.UpdateDate, opt => opt.MapFrom(src => src.UpdatedAt));
+            CreateMap<EntityProductionConfirmation, ProductionConfirmationDto>()
+                .ForMember(dest => dest.Consumptions, opt => opt.MapFrom(src => src.Consumptions))
+                .ReverseMap();
+            CreateMap<CreateProductionConfirmationDto, EntityProductionConfirmation>().ReverseMap();
+            CreateMap<UpdateProductionConfirmationDto, EntityProductionConfirmation>().ReverseMap();
 
-            // WorkOrder mappings
-            CreateMap<WorkOrder, WorkOrderDto>()
-                .ForMember(dto => dto.BOMCode, opt => opt.MapFrom(src => src.BillOfMaterial != null ? src.BillOfMaterial.BOMCode : null))
-                .ForMember(dto => dto.BOMName, opt => opt.MapFrom(src => src.BillOfMaterial != null ? src.BillOfMaterial.BOMName : null))
-                .ForMember(dto => dto.ProductMaterialCardName, opt => opt.MapFrom(src => src.ProductMaterialCard != null ? src.ProductMaterialCard.CardName : null))
-                .ForMember(dto => dto.ProductMaterialCardCode, opt => opt.MapFrom(src => src.ProductMaterialCard != null ? src.ProductMaterialCard.CardCode : null))
-                .ForMember(dto => dto.SupervisorUserName, opt => opt.MapFrom(src => src.SupervisorUser != null ? src.SupervisorUser.Username : null))
-                .ForMember(dto => dto.ReleasedByUserName, opt => opt.MapFrom(src => src.ReleasedByUser != null ? src.ReleasedByUser.Username : null))
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dto => dto.UpdatedAt, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dto => dto.CreatedByUserId, opt => opt.MapFrom(src => src.CreateUserId))
-                .ForMember(dto => dto.UpdatedByUserId, opt => opt.MapFrom(src => src.UpdateUserId))
-                .ForMember(dto => dto.CreatedByUserName, opt => opt.Ignore()) // Will be set by service layer
-                .ForMember(dto => dto.UpdatedByUserName, opt => opt.Ignore()); // Will be set by service layer
+            CreateMap<EntityMaterialConsumption, DtoMaterialConsumption>()
+                .ForMember(dest => dest.MaterialCardName, opt => opt.MapFrom(src => src.MaterialCard.CardName))
+                .ReverseMap();
+            CreateMap<CreateMaterialConsumptionDto, EntityMaterialConsumption>().ReverseMap();
+            CreateMap<UpdateMaterialConsumptionDto, EntityMaterialConsumption>().ReverseMap();
 
-            CreateMap<WorkOrderDto, WorkOrder>()
-                .ForMember(entity => entity.BillOfMaterial, opt => opt.Ignore())
-                .ForMember(entity => entity.ProductMaterialCard, opt => opt.Ignore())
-                .ForMember(entity => entity.SupervisorUser, opt => opt.Ignore())
-                .ForMember(entity => entity.ReleasedByUser, opt => opt.Ignore())
-                .ForMember(entity => entity.ProductionConfirmations, opt => opt.Ignore())
-                .ForMember(entity => entity.CreateDate, opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(entity => entity.UpdateDate, opt => opt.MapFrom(src => src.UpdatedAt))
-                .ForMember(entity => entity.CreateUserId, opt => opt.MapFrom(src => src.CreatedByUserId))
-                .ForMember(entity => entity.UpdateUserId, opt => opt.MapFrom(src => src.UpdatedByUserId));
+            // Warehouse Management Mappings
+            CreateMap<Warehouse, WarehouseDto>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.WarehouseCode))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.WarehouseName))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status == "Active"))
+                .ReverseMap()
+                .ForMember(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive ? "Active" : "Inactive"))
+                .ForMember(dest => dest.Locations, opt => opt.Ignore())
+                .ForMember(dest => dest.StockEntries, opt => opt.Ignore());
 
-            // ProductionConfirmation mappings
-            CreateMap<ProductionConfirmation, ProductionConfirmationDto>()
-                .ForMember(dto => dto.WorkOrderNumber, opt => opt.MapFrom(src => src.WorkOrder != null ? src.WorkOrder.WorkOrderNumber : null))
-                .ForMember(dto => dto.ProductMaterialCardName, opt => opt.MapFrom(src => src.WorkOrder != null && src.WorkOrder.ProductMaterialCard != null ? src.WorkOrder.ProductMaterialCard.CardName : null))
-                .ForMember(dto => dto.ProductMaterialCardCode, opt => opt.MapFrom(src => src.WorkOrder != null && src.WorkOrder.ProductMaterialCard != null ? src.WorkOrder.ProductMaterialCard.CardCode : null))
-                .ForMember(dto => dto.OperatorUserName, opt => opt.MapFrom(src => src.OperatorUser != null ? src.OperatorUser.Username : null))
-                .ForMember(dto => dto.ConfirmedByUserName, opt => opt.MapFrom(src => src.ConfirmedByUser != null ? src.ConfirmedByUser.Username : null))
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dto => dto.UpdatedAt, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dto => dto.CreatedByUserId, opt => opt.MapFrom(src => src.CreateUserId))
-                .ForMember(dto => dto.UpdatedByUserId, opt => opt.MapFrom(src => src.UpdateUserId))
-                .ForMember(dto => dto.CreatedByUserName, opt => opt.Ignore()) // Will be set by service layer
-                .ForMember(dto => dto.UpdatedByUserName, opt => opt.Ignore()); // Will be set by service layer
+            CreateMap<Location, LocationDto>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LocationCode))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LocationName))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status == "Active"))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.WarehouseName : null))
+                .ReverseMap()
+                .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive ? "Active" : "Inactive"))
+                .ForMember(dest => dest.Warehouse, opt => opt.Ignore())
+                .ForMember(dest => dest.StockEntries, opt => opt.Ignore());
 
-            CreateMap<ProductionConfirmationDto, ProductionConfirmation>()
-                .ForMember(entity => entity.WorkOrder, opt => opt.Ignore())
-                .ForMember(entity => entity.OperatorUser, opt => opt.Ignore())
-                .ForMember(entity => entity.ConfirmedByUser, opt => opt.Ignore())
-                .ForMember(entity => entity.CreateDate, opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(entity => entity.UpdateDate, opt => opt.MapFrom(src => src.UpdatedAt))
-                .ForMember(entity => entity.CreateUserId, opt => opt.MapFrom(src => src.CreatedByUserId))
-                .ForMember(entity => entity.UpdateUserId, opt => opt.MapFrom(src => src.UpdatedByUserId));
+            CreateMap<StockEntry, StockEntryDto>()
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status == "Active"))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.WarehouseName : null))
+                .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Location != null ? src.Location.LocationName : null))
+                .ForMember(dest => dest.MaterialName, opt => opt.MapFrom(src => src.Material != null ? src.Material.CardName : null))
+                .ForMember(dest => dest.MaterialCode, opt => opt.MapFrom(src => src.Material != null ? src.Material.CardCode : null))
+                .ReverseMap()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive ? "Active" : "Inactive"))
+                .ForMember(dest => dest.Warehouse, opt => opt.Ignore())
+                .ForMember(dest => dest.Location, opt => opt.Ignore())
+                .ForMember(dest => dest.Material, opt => opt.Ignore());
+
+            // Purchasing Management Mappings
+            CreateMap<SupplierType, SupplierTypeDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ReverseMap();
+
+            CreateMap<Supplier, SupplierDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
+                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src => src.ContactPerson))
+                .ForMember(dest => dest.SupplierTypeId, opt => opt.MapFrom(src => src.SupplierTypeId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.SupplierTypeName, opt => opt.MapFrom(src => src.SupplierType != null ? src.SupplierType.Name : null))
+                .ReverseMap()
+                .ForMember(dest => dest.SupplierType, opt => opt.Ignore());
+
+            CreateMap<PurchaseOrder, PurchaseOrderDto>()
+                .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => src.OrderNumber))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
+                .ForMember(dest => dest.ExpectedDeliveryDate, opt => opt.MapFrom(src => src.ExpectedDeliveryDate))
+                .ForMember(dest => dest.SupplierId, opt => opt.MapFrom(src => src.SupplierId))
+                .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null))
+                .ReverseMap()
+                .ForMember(dest => dest.Supplier, opt => opt.Ignore());
+
+            // Sales Management Mappings
+            CreateMap<Customer, CustomerDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
+                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src => src.ContactPerson))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ReverseMap();
+
+            CreateMap<CustomerOrder, CustomerOrderDto>()
+                .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => src.OrderNumber))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
+                .ForMember(dest => dest.ExpectedDeliveryDate, opt => opt.MapFrom(src => src.ExpectedDeliveryDate))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
+                .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : null))
+                .ReverseMap()
+                .ForMember(dest => dest.Customer, opt => opt.Ignore());
         }
 
         #region Helper Methods

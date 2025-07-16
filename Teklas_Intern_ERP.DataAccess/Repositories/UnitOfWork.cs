@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
 using Teklas_Intern_ERP.DataAccess;
 using Teklas_Intern_ERP.Entities.Interfaces;
+using Teklas_Intern_ERP.DataAccess.Repositories;
+using Teklas_Intern_ERP.DataAccess.ProductionManagement;
 
 namespace Teklas_Intern_ERP.DataAccess.Repositories
 {
@@ -14,9 +16,21 @@ namespace Teklas_Intern_ERP.DataAccess.Repositories
         private readonly Dictionary<Type, object> _repositories = new();
         private IDbContextTransaction? _transaction;
 
+        // Production Management Repositories
+        public IBillOfMaterialRepository BillOfMaterialRepository { get; }
+        public IWorkOrderRepository WorkOrderRepository { get; }
+        public IProductionConfirmationRepository ProductionConfirmationRepository { get; }
+        public IWorkOrderOperationRepository WorkOrderOperationRepository { get; }
+        public IMaterialConsumptionRepository MaterialConsumptionRepository { get; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
+            BillOfMaterialRepository = new BillOfMaterialRepository(_context);
+            WorkOrderRepository = new WorkOrderRepository(_context);
+            ProductionConfirmationRepository = new ProductionConfirmationRepository(_context);
+            WorkOrderOperationRepository = new WorkOrderOperationRepository(_context);
+            MaterialConsumptionRepository = new MaterialConsumptionRepository(_context);
         }
 
         public IRepository<T> Repository<T>() where T : class, IEntity

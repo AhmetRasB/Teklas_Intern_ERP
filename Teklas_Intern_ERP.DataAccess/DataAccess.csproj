@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Teklas_Intern_ERP.Entities\Entities.csproj" />
     <ProjectReference Include="..\Teklas_Intern_ERP.DTOs\DTOs.csproj" />
+    <!-- <ProjectReference Include="..\Teklas_Intern_ERP.Business\Business.csproj" /> -->
   </ItemGroup>
 
   <ItemGroup>

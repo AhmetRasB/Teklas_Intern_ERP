@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Teklas_Intern_ERP.Entities.ProductionManagment;
 
 namespace Teklas_Intern_ERP.Entities.MaterialManagement
 {
@@ -12,6 +13,11 @@ namespace Teklas_Intern_ERP.Entities.MaterialManagement
         public MaterialCard()
         {
             MaterialMovements = new HashSet<MaterialMovement>();
+            BOMHeaders = new HashSet<BOMHeader>();
+            BOMItems = new HashSet<BOMItem>();
+            WorkOrders = new HashSet<WorkOrder>();
+            ProductionConfirmations = new HashSet<ProductionConfirmation>();
+            MaterialConsumptions = new HashSet<MaterialConsumption>();
         }
 
         /// <summary>
@@ -173,6 +179,31 @@ namespace Teklas_Intern_ERP.Entities.MaterialManagement
         /// Material movements collection
         /// </summary>
         public virtual ICollection<MaterialMovement> MaterialMovements { get; set; }
+
+        /// <summary>
+        /// BOM headers where this material is the product
+        /// </summary>
+        public virtual ICollection<BOMHeader> BOMHeaders { get; set; }
+
+        /// <summary>
+        /// BOM items where this material is a component
+        /// </summary>
+        public virtual ICollection<BOMItem> BOMItems { get; set; }
+
+        /// <summary>
+        /// Work orders where this material is the product
+        /// </summary>
+        public virtual ICollection<WorkOrder> WorkOrders { get; set; }
+
+        /// <summary>
+        /// Production confirmations where this material is the product
+        /// </summary>
+        public virtual ICollection<ProductionConfirmation> ProductionConfirmations { get; set; }
+
+        /// <summary>
+        /// Material consumptions for this material
+        /// </summary>
+        public virtual ICollection<MaterialConsumption> MaterialConsumptions { get; set; }
 
         #endregion
     }

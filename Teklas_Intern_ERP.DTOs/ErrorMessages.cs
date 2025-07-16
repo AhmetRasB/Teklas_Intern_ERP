@@ -99,95 +99,26 @@ namespace Teklas_Intern_ERP.DTOs
         public const string StatusMaxLength = "Durum en fazla 50 karakter olabilir.";
         public const string StatusInvalid = "Geçerli bir durum seçiniz. (PENDING, CONFIRMED, CANCELLED, COMPLETED)";
 
-        // Bill of Material Error Messages
-        public const string BOMCodeRequired = "Reçete kodu zorunludur.";
-        public const string BOMCodeMaxLength = "Reçete kodu en fazla 50 karakter olabilir.";
-        public const string BOMNameRequired = "Reçete adı zorunludur.";
-        public const string BOMNameMaxLength = "Reçete adı en fazla 200 karakter olabilir.";
-        public const string ProductMaterialCardRequired = "Ürün malzeme kartı seçimi zorunludur.";
-        public const string BOMVersionMaxLength = "Reçete versiyon en fazla 20 karakter olabilir.";
-        public const string BaseQuantityMustBePositive = "Temel miktar pozitif olmalıdır.";
-        public const string UnitRequired = "Birim zorunludur.";
-        public const string UnitMaxLength = "Birim en fazla 10 karakter olabilir.";
-        public const string BOMTypeRequired = "Reçete tipi zorunludur.";
-        public const string InvalidBOMType = "Geçerli bir reçete tipi seçiniz. (PRODUCTION, ASSEMBLY, DISASSEMBLY, PACKAGING)";
-        public const string EffectiveToMustBeAfterEffectiveFrom = "Bitiş tarihi başlangıç tarihinden sonra olmalıdır.";
-        public const string RouteCodeMaxLength = "Rota kodu en fazla 100 karakter olabilir.";
-        public const string StandardTimeMustBeNonNegative = "Standart süre negatif olamaz.";
-        public const string SetupTimeMustBeNonNegative = "Hazırlık süresi negatif olamaz.";
-        public const string ApprovalStatusRequired = "Onay durumu zorunludur.";
-        public const string InvalidApprovalStatus = "Geçerli bir onay durumu seçiniz. (DRAFT, APPROVED, OBSOLETE, PENDING)";
-        public const string BOMItemsRequired = "Onaylanmış reçeteler için en az bir kalem gereklidir.";
-
-        // Bill of Material Item Error Messages
-        public const string LineNumberMustBePositive = "Satır numarası pozitif olmalıdır.";
+        // Production Management Error Messages
+        public const string BOMHeaderIdRequired = "BOM (Ürün Ağacı) seçimi zorunludur.";
+        public const string BOMItemIdRequired = "BOM kalemi seçimi zorunludur.";
+        public const string WorkOrderIdRequired = "İş emri seçimi zorunludur.";
+        public const string ConfirmationIdRequired = "Üretim teyit kaydı seçimi zorunludur.";
+        public const string MaterialCardIdRequired = "Malzeme kartı seçimi zorunludur.";
+        public const string VersionMaxLength = "Versiyon en fazla 20 karakter olabilir.";
+        public const string NotesMaxLength = "Açıklama en fazla 1000 karakter olabilir.";
         public const string QuantityMustBePositive = "Miktar pozitif olmalıdır.";
-        public const string ScrapFactorMustBeNonNegative = "Fire oranı negatif olamaz.";
-        public const string ScrapFactorMaxValue = "Fire oranı 100'den büyük olamaz.";
-        public const string ComponentTypeRequired = "Komponent tipi zorunludur.";
-        public const string InvalidComponentType = "Geçerli bir komponent tipi seçiniz. (RAW_MATERIAL, SEMI_FINISHED, FINISHED_GOOD, PACKAGING, CONSUMABLE)";
-        public const string IssueMethodRequired = "Çıkış yöntemi zorunludur.";
-        public const string InvalidIssueMethod = "Geçerli bir çıkış yöntemi seçiniz. (MANUAL, AUTOMATIC, BACKFLUSH)";
-        public const string OperationSequenceMustBePositive = "Operasyon sırası pozitif olmalıdır.";
-        public const string ValidToMustBeAfterValidFrom = "Bitiş tarihi başlangıç tarihinden sonra olmalıdır.";
-        public const string CostAllocationMustBeNonNegative = "Maliyet tahsisi negatif olamaz.";
-        public const string CostAllocationMaxValue = "Maliyet tahsisi 100'den büyük olamaz.";
-        public const string LeadTimeOffsetMustBeNonNegative = "Teslim süresi farkı negatif olamaz.";
-
-        // Work Order Error Messages
-        public const string WorkOrderNumberRequired = "İş emri numarası zorunludur.";
-        public const string WorkOrderNumberMaxLength = "İş emri numarası en fazla 50 karakter olabilir.";
-        public const string BillOfMaterialRequired = "Reçete seçimi zorunludur.";
-        public const string PlannedQuantityMustBePositive = "Planlanan miktar pozitif olmalıdır.";
-        public const string CompletedQuantityMustBeNonNegative = "Tamamlanan miktar negatif olamaz.";
-        public const string CompletedQuantityCannotExceedPlanned = "Tamamlanan miktar planlanan miktarı aşamaz.";
-        public const string ScrapQuantityMustBeNonNegative = "Hurda miktar negatif olamaz.";
-        public const string StatusRequired = "Durum zorunludur.";
-        public const string InvalidWorkOrderStatus = "Geçerli bir iş emri durumu seçiniz. (CREATED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD)";
-        public const string PriorityMustBeBetween1And5 = "Öncelik 1-5 arasında olmalıdır.";
-        public const string PlannedEndDateMustBeAfterStartDate = "Planlanan bitiş tarihi başlangıç tarihinden sonra olmalıdır.";
-        public const string ActualEndDateMustBeAfterStartDate = "Gerçekleşen bitiş tarihi başlangıç tarihinden sonra olmalıdır.";
-        public const string DueDateMustBeAfterPlannedStartDate = "Teslim tarihi planlanan başlangıç tarihinden sonra olmalıdır.";
-        public const string CustomerOrderReferenceMaxLength = "Müşteri sipariş referansı en fazla 100 karakter olabilir.";
-        public const string WorkCenterMaxLength = "İş merkezi en fazla 100 karakter olabilir.";
-        public const string ShiftMaxLength = "Vardiya en fazla 50 karakter olabilir.";
-        public const string PlannedSetupTimeMustBeNonNegative = "Planlanan hazırlık süresi negatif olamaz.";
-        public const string PlannedRunTimeMustBeNonNegative = "Planlanan çalışma süresi negatif olamaz.";
-        public const string ActualSetupTimeMustBeNonNegative = "Gerçekleşen hazırlık süresi negatif olamaz.";
-        public const string ActualRunTimeMustBeNonNegative = "Gerçekleşen çalışma süresi negatif olamaz.";
-        public const string WorkOrderTypeRequired = "İş emri tipi zorunludur.";
-        public const string InvalidWorkOrderType = "Geçerli bir iş emri tipi seçiniz. (PRODUCTION, ASSEMBLY, REWORK, MAINTENANCE, QUALITY_CHECK)";
-        public const string InvalidSourceType = "Geçerli bir kaynak tipi seçiniz. (MANUAL, SALES_ORDER, FORECAST, STOCK_REPLENISHMENT, PLANNING)";
-        public const string CompletionPercentageMustBeBetween0And100 = "Tamamlanma yüzdesi 0-100 arasında olmalıdır.";
-        public const string QualityStatusRequired = "Kalite durumu zorunludur.";
-        public const string InvalidQualityStatus = "Geçerli bir kalite durumu seçiniz. (NOT_REQUIRED, PENDING, PASSED, FAILED, IN_PROGRESS)";
-        public const string ActualStartDateRequiredForInProgressOrCompleted = "Devam eden veya tamamlanan iş emirleri için gerçek başlangıç tarihi gereklidir.";
-        public const string ActualEndDateRequiredForCompleted = "Tamamlanan iş emirleri için gerçek bitiş tarihi gereklidir.";
-        public const string TotalCompletedCannotExceedPlanned = "Toplam tamamlanan miktar planlanan miktarı aşamaz.";
-
-        // Production Confirmation Error Messages
-        public const string WorkOrderRequired = "İş emri seçimi zorunludur.";
-        public const string ConfirmationNumberRequired = "Onay numarası zorunludur.";
-        public const string ConfirmationNumberMaxLength = "Onay numarası en fazla 50 karakter olabilir.";
-        public const string ConfirmationDateRequired = "Onay tarihi zorunludur.";
-        public const string ConfirmationDateCannotBeFuture = "Onay tarihi gelecek tarih olamaz.";
-        public const string ConfirmedQuantityMustBeNonNegative = "Onaylanan miktar negatif olamaz.";
-        public const string ReworkQuantityMustBeNonNegative = "Yeniden işleme miktarı negatif olamaz.";
-        public const string InvalidConfirmationStatus = "Geçerli bir onay durumu seçiniz. (DRAFT, CONFIRMED, CANCELLED, POSTED)";
-        public const string ConfirmationTypeRequired = "Onay tipi zorunludur.";
-        public const string InvalidConfirmationType = "Geçerli bir onay tipi seçiniz. (GOOD, SCRAP, REWORK, SETUP, MAINTENANCE, QUALITY_CHECK)";
-        public const string RunTimeMustBeNonNegative = "Çalışma süresi negatif olamaz.";
-        public const string DownTimeMustBeNonNegative = "Duruş süresi negatif olamaz.";
-        public const string DownTimeReasonRequiredWhenDownTimeExists = "Duruş süresi girildiğinde duruş nedeni zorunludur.";
-        public const string DownTimeReasonMaxLength = "Duruş nedeni en fazla 200 karakter olabilir.";
-        public const string NotesMaxLength = "Notlar en fazla 500 karakter olabilir.";
-        public const string QualityNotesMaxLength = "Kalite notları en fazla 500 karakter olabilir.";
-        public const string SerialNumberToMustBeGreaterThanFrom = "Bitiş seri numarası başlangıç seri numarasından büyük olmalıdır.";
-        public const string CostCenterMaxLength = "Masraf merkezi en fazla 50 karakter olabilir.";
-        public const string TotalQuantityMustBeGreaterThanZero = "Toplam miktar sıfırdan büyük olmalıdır.";
-        public const string OperatorRequiredForConfirmedProduction = "Onaylanmış üretim için operatör seçimi zorunludur.";
-        public const string ConfirmedByUserRequiredForConfirmedProduction = "Onaylanmış üretim için onaylayan kullanıcı seçimi zorunludur.";
-        public const string ConfirmedDateRequiredForConfirmedProduction = "Onaylanmış üretim için onay tarihi zorunludur.";
-        public const string QualityNotesRequiredForFailedQuality = "Başarısız kalite kontrolü için kalite notları zorunludur.";
+        public const string QuantityMustBeNonNegative = "Miktar negatif olamaz.";
+        public const string ScrapRateMustBeNonNegative = "Fire oranı negatif olamaz.";
+        public const string LaborHoursMustBeNonNegative = "İşçilik saati negatif olamaz.";
+        public const string PerformedByMaxLength = "Yapan kişi en fazla 100 karakter olabilir.";
+        public const string ConfirmationDateRequired = "Teyit tarihi zorunludur.";
+        public const string PlannedStartDateRequired = "Planlanan başlama tarihi zorunludur.";
+        public const string OperationIdRequired = "Operasyon seçimi zorunludur.";
+        public const string OperationNameRequired = "Operasyon adı zorunludur.";
+        public const string OperationNameMaxLength = "Operasyon adı en fazla 100 karakter olabilir.";
+        public const string SequenceMustBePositive = "Operasyon sırası pozitif olmalıdır.";
+        public const string PlannedHoursMustBeNonNegative = "Planlanan saat negatif olamaz.";
+        public const string ResourceMaxLength = "Kaynak en fazla 100 karakter olabilir.";
     }
 } 

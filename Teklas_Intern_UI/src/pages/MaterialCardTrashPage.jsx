@@ -3,8 +3,26 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import MasterLayout from '../masterLayout/MasterLayout';
 import TableDataLayer from '../components/TableDataLayer';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 const BASE_URL = 'https://localhost:7178';
+const MySwal = withReactContent(Swal);
+
+const swalDarkStyles = `
+  .swal2-popup.swal2-dark {
+    background: #23272f !important;
+    color: #f1f1f1 !important;
+  }
+  .swal2-popup.swal2-dark .swal2-title,
+  .swal2-popup.swal2-dark .swal2-html-container {
+    color: #f1f1f1 !important;
+  }
+  .swal2-popup.swal2-dark .swal2-actions .btn {
+    margin: 0 8px;
+  }
+`;
 
 const MaterialCardTrashPage = () => {
   const [data, setData] = useState([]);
@@ -20,8 +38,10 @@ const MaterialCardTrashPage = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/api/materials/deleted`);
+      console.log('Deleted Material Card data:', res.data); // Debug log
       setData(res.data);
     } catch (err) {
+      console.error('Error fetching deleted Material Card data:', err); // Debug log
       setData([]);
     } finally {
       setLoading(false);
@@ -29,40 +49,124 @@ const MaterialCardTrashPage = () => {
   };
 
   const handleRestore = async (item) => {
-    setRestoreLoading(true);
-    try {
-      await axios.put(`${BASE_URL}/api/materials/${item.id || item.Id}/restore`);
-      fetchDeletedData();
-    } catch {
-      alert('Geri alma başarısız!');
-    } finally {
-      setRestoreLoading(false);
+    // Dark mode detection
+    const isDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark');
+    if (isDark && !document.getElementById('swal-dark-style')) {
+      const style = document.createElement('style');
+      style.id = 'swal-dark-style';
+      style.innerHTML = swalDarkStyles;
+      document.head.appendChild(style);
+    }
+
+    const result = await MySwal.fire({
+      title: 'Geri Yükleme Onayı',
+      text: `Bu malzeme kartını geri yüklemek istediğinizden emin misiniz?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Evet, Geri Yükle',
+      cancelButtonText: 'İptal',
+      reverseButtons: true,
+      customClass: {
+        popup: isDark ? 'swal2-dark' : '',
+        confirmButton: 'btn btn-success mx-2',
+        cancelButton: 'btn btn-secondary mx-2',
+      },
+      buttonsStyling: false,
+    });
+
+    if (result.isConfirmed) {
+      setRestoreLoading(true);
+      try {
+        await axios.put(`${BASE_URL}/api/materials/${item.id}/restore`);
+        await fetchDeletedData();
+        MySwal.fire({
+          title: 'Geri Yüklendi!',
+          text: 'Malzeme kartı başarıyla geri yüklendi.',
+          icon: 'success',
+          customClass: { popup: isDark ? 'swal2-dark' : '' },
+        });
+      } catch (err) {
+        console.error('Restore error:', err);
+        MySwal.fire({
+          title: 'Hata',
+          text: 'Geri yükleme başarısız!',
+          icon: 'error',
+          customClass: { popup: isDark ? 'swal2-dark' : '' },
+        });
+      } finally {
+        setRestoreLoading(false);
+      }
     }
   };
 
   const handlePermanentDelete = async (item) => {
-    if (!window.confirm('Bu kartı kalıcı olarak silmek istediğinize emin misiniz?')) return;
-    setRestoreLoading(true);
-    try {
-      await axios.delete(`${BASE_URL}/api/materials/${item.id || item.Id}/permanent`);
-      fetchDeletedData();
-    } catch {
-      alert('Kalıcı silme başarısız!');
-    } finally {
-      setRestoreLoading(false);
+    // Dark mode detection
+    const isDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark');
+    if (isDark && !document.getElementById('swal-dark-style')) {
+      const style = document.createElement('style');
+      style.id = 'swal-dark-style';
+      style.innerHTML = swalDarkStyles;
+      document.head.appendChild(style);
+    }
+
+    const result = await MySwal.fire({
+      title: 'Kalıcı Silme Onayı',
+      text: 'Bu malzeme kartını kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Evet, Kalıcı Sil',
+      cancelButtonText: 'İptal',
+      reverseButtons: true,
+      confirmButtonColor: '#dc3545',
+      customClass: {
+        popup: isDark ? 'swal2-dark' : '',
+        confirmButton: 'btn btn-danger mx-2',
+        cancelButton: 'btn btn-secondary mx-2',
+      },
+      buttonsStyling: false,
+    });
+
+    if (result.isConfirmed) {
+      setRestoreLoading(true);
+      try {
+        await axios.delete(`${BASE_URL}/api/materials/${item.id}/permanent`);
+        await fetchDeletedData();
+        MySwal.fire({
+          title: 'Kalıcı Olarak Silindi!',
+          text: 'Malzeme kartı kalıcı olarak silindi.',
+          icon: 'success',
+          customClass: { popup: isDark ? 'swal2-dark' : '' },
+        });
+      } catch (err) {
+        console.error('Permanent delete error:', err);
+        MySwal.fire({
+          title: 'Hata',
+          text: 'Kalıcı silme başarısız!',
+          icon: 'error',
+          customClass: { popup: isDark ? 'swal2-dark' : '' },
+        });
+      } finally {
+        setRestoreLoading(false);
+      }
     }
   };
 
   const columns = [
     { header: '#', accessor: 'rowNumber' },
-    { header: 'Kod', accessor: 'code' },
-    { header: 'Ad', accessor: 'name' },
-    { header: 'Tip', accessor: 'materialType' },
-    { header: 'Birim', accessor: 'unitOfMeasure' },
-    { header: 'Silinme Tarihi', accessor: 'updatedDate', render: val => val ? new Date(val).toLocaleString('tr-TR') : '' },
+    { header: 'Kart Kodu', accessor: 'code' },
+    { header: 'Kart Adı', accessor: 'name' },
+    { header: 'Kategori', accessor: 'categoryName' },
+    { header: 'Silinme Tarihi', accessor: 'deleteDate', render: val => val ? new Date(val).toLocaleString('tr-TR') : '' },
   ];
 
-  const dataWithRowNumber = data.map((item, idx) => ({ ...item, rowNumber: idx + 1 }));
+  const dataWithRowNumber = data.map((item, idx) => ({ 
+    ...item, 
+    rowNumber: idx + 1,
+    code: item.code || 'N/A',
+    name: item.name || 'N/A',
+    categoryName: item.categoryName || 'Kategori yok',
+    deleteDate: item.deleteDate || item.updateDate || 'Tarih bilgisi yok'
+  }));
 
   return (
     <MasterLayout>

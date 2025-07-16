@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Teklas_Intern_ERP.Entities.MaterialManagement;
-using Teklas_Intern_ERP.Entities.UserManagement;
-using Teklas_Intern_ERP.Entities.ProductionManagement;
 using Teklas_Intern_ERP.Entities;
+using Teklas_Intern_ERP.Entities.MaterialManagement;
+using Teklas_Intern_ERP.Entities.ProductionManagment;
+using Teklas_Intern_ERP.Entities.PurchasingManagement;
+using Teklas_Intern_ERP.Entities.SalesManagement;
+using Teklas_Intern_ERP.Entities.UserManagement;
+using Teklas_Intern_ERP.Entities.WarehouseManagement;
 
 namespace Teklas_Intern_ERP.DataAccess
 {
@@ -10,34 +13,51 @@ namespace Teklas_Intern_ERP.DataAccess
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        // Material Management DbSets
+        // Material Management
         public DbSet<MaterialCard> MaterialCards { get; set; }
         public DbSet<MaterialCategory> MaterialCategories { get; set; }
         public DbSet<MaterialMovement> MaterialMovements { get; set; }
 
-        // User Management DbSets
+        // User Management
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
-        // Production Management DbSets
-        public DbSet<BillOfMaterial> BillOfMaterials { get; set; }
-        public DbSet<BillOfMaterialItem> BillOfMaterialItems { get; set; }
+        // Production Management
+        public DbSet<BOMHeader> BOMHeaders { get; set; }
+        public DbSet<BOMItem> BOMItems { get; set; }
         public DbSet<WorkOrder> WorkOrders { get; set; }
+        public DbSet<WorkOrderOperation> WorkOrderOperations { get; set; }
         public DbSet<ProductionConfirmation> ProductionConfirmations { get; set; }
+        public DbSet<MaterialConsumption> MaterialConsumptions { get; set; }
+
+        // Warehouse Management
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<StockEntry> StockEntries { get; set; }
+
+        // Purchasing Management
+        public DbSet<SupplierType> SupplierTypes { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+
+        // Sales Management
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<CustomerOrder> CustomerOrders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Material Management Configurations
+            base.OnModelCreating(modelBuilder);
+
+            // Configure each module
             ConfigureMaterialManagement(modelBuilder);
-            
-            // User Management Configurations
             ConfigureUserManagement(modelBuilder);
-
-            // Production Management Configurations
             ConfigureProductionManagement(modelBuilder);
+            ConfigureWarehouseManagement(modelBuilder);
+            ConfigurePurchasingManagement(modelBuilder);
+            ConfigureSalesManagement(modelBuilder);
 
-            // Global query filters for soft delete
+            // Configure global query filters
             ConfigureGlobalQueryFilters(modelBuilder);
         }
 
@@ -53,6 +73,7 @@ namespace Teklas_Intern_ERP.DataAccess
                 entity.Property(e => e.Unit).HasMaxLength(10);
                 entity.Property(e => e.PurchasePrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.SalesPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.CurrentStock).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.MinimumStockLevel).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.MaximumStockLevel).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.ReorderLevel).HasColumnType("decimal(18,2)");
@@ -61,7 +82,13 @@ namespace Teklas_Intern_ERP.DataAccess
                 entity.Property(e => e.Length).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Width).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Height).HasColumnType("decimal(18,2)");
-                
+                entity.Property(e => e.Barcode).HasMaxLength(100);
+                entity.Property(e => e.Brand).HasMaxLength(100);
+                entity.Property(e => e.Model).HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(1000);
+                entity.Property(e => e.StorageLocation).HasMaxLength(100);
+                entity.Property(e => e.MaterialCategoryId).IsRequired();
+
                 // Foreign key to MaterialCategory
                 entity.HasOne(mc => mc.MaterialCategory)
                       .WithMany(cat => cat.MaterialCards)
@@ -156,159 +183,292 @@ namespace Teklas_Intern_ERP.DataAccess
 
         private void ConfigureProductionManagement(ModelBuilder modelBuilder)
         {
-            // BillOfMaterial Configuration
-            modelBuilder.Entity<BillOfMaterial>(entity =>
+            // BOMHeader
+            modelBuilder.Entity<BOMHeader>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.BOMCode).HasMaxLength(50).IsRequired();
-                entity.Property(e => e.BOMName).HasMaxLength(200).IsRequired();
+                entity.HasKey(e => e.BOMHeaderId);
                 entity.Property(e => e.Version).HasMaxLength(20);
-                entity.Property(e => e.BaseQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Unit).HasMaxLength(10);
-                entity.Property(e => e.BOMType).HasMaxLength(50);
-                entity.Property(e => e.Description).HasMaxLength(500);
-                entity.Property(e => e.RouteCode).HasMaxLength(100);
-                entity.Property(e => e.StandardTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.SetupTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ApprovalStatus).HasMaxLength(20);
-
-                // Foreign key to ProductMaterialCard
-                entity.HasOne(bom => bom.ProductMaterialCard)
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+                entity.HasOne(e => e.ParentMaterialCard)
                       .WithMany()
-                      .HasForeignKey(bom => bom.ProductMaterialCardId)
+                      .HasForeignKey(e => e.ParentMaterialCardId)
                       .OnDelete(DeleteBehavior.Restrict);
-
-                // Unique constraint
-                entity.HasIndex(e => e.BOMCode).IsUnique();
             });
 
-            // BillOfMaterialItem Configuration
-            modelBuilder.Entity<BillOfMaterialItem>(entity =>
+            // BOMItem
+            modelBuilder.Entity<BOMItem>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.BOMItemId);
                 entity.Property(e => e.Quantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Unit).HasMaxLength(10);
-                entity.Property(e => e.ScrapFactor).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ComponentType).HasMaxLength(50);
-                entity.Property(e => e.IssueMethod).HasMaxLength(20);
-                entity.Property(e => e.Description).HasMaxLength(500);
-                entity.Property(e => e.CostAllocation).HasColumnType("decimal(18,2)");
-
-                // Foreign key to BillOfMaterial
-                entity.HasOne(item => item.BillOfMaterial)
-                      .WithMany(bom => bom.BOMItems)
-                      .HasForeignKey(item => item.BillOfMaterialId)
+                entity.Property(e => e.ScrapRate).HasColumnType("decimal(18,2)");
+                entity.HasOne(e => e.BOMHeader)
+                      .WithMany(bh => bh.BOMItems)
+                      .HasForeignKey(e => e.BOMHeaderId)
                       .OnDelete(DeleteBehavior.Cascade);
-
-                // Foreign key to MaterialCard
-                entity.HasOne(item => item.MaterialCard)
+                entity.HasOne(e => e.ComponentMaterialCard)
                       .WithMany()
-                      .HasForeignKey(item => item.MaterialCardId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                // Foreign key to SupplierMaterialCard (optional)
-                entity.HasOne(item => item.SupplierMaterialCard)
-                      .WithMany()
-                      .HasForeignKey(item => item.SupplierMaterialCardId)
+                      .HasForeignKey(e => e.ComponentMaterialCardId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // WorkOrder Configuration
+            // WorkOrder
             modelBuilder.Entity<WorkOrder>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.WorkOrderNumber).HasMaxLength(50).IsRequired();
-                entity.Property(e => e.PlannedQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.CompletedQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ScrapQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Unit).HasMaxLength(10);
-                entity.Property(e => e.Status).HasMaxLength(20);
-                entity.Property(e => e.Description).HasMaxLength(500);
-                entity.Property(e => e.CustomerOrderReference).HasMaxLength(100);
-                entity.Property(e => e.WorkCenter).HasMaxLength(100);
-                entity.Property(e => e.Shift).HasMaxLength(50);
-                entity.Property(e => e.PlannedSetupTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.PlannedRunTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ActualSetupTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ActualRunTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.WorkOrderType).HasMaxLength(50);
-                entity.Property(e => e.SourceType).HasMaxLength(50);
-                entity.Property(e => e.CompletionPercentage).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.QualityStatus).HasMaxLength(20);
-
-                // Foreign key to BillOfMaterial
-                entity.HasOne(wo => wo.BillOfMaterial)
-                      .WithMany(bom => bom.WorkOrders)
-                      .HasForeignKey(wo => wo.BillOfMaterialId)
+                entity.HasKey(e => e.WorkOrderId);
+                entity.Property(e => e.Status).HasMaxLength(30);
+                entity.HasOne(e => e.BOMHeader)
+                      .WithMany()
+                      .HasForeignKey(e => e.BOMHeaderId)
                       .OnDelete(DeleteBehavior.Restrict);
-
-                // Foreign key to ProductMaterialCard
-                entity.HasOne(wo => wo.ProductMaterialCard)
+                entity.HasOne(e => e.MaterialCard)
                       .WithMany()
-                      .HasForeignKey(wo => wo.ProductMaterialCardId)
+                      .HasForeignKey(e => e.MaterialCardId)
                       .OnDelete(DeleteBehavior.Restrict);
-
-                // Foreign key to SupervisorUser (optional)
-                entity.HasOne(wo => wo.SupervisorUser)
-                      .WithMany()
-                      .HasForeignKey(wo => wo.SupervisorUserId)
-                      .OnDelete(DeleteBehavior.NoAction);
-
-                // Foreign key to ReleasedByUser (optional)
-                entity.HasOne(wo => wo.ReleasedByUser)
-                      .WithMany()
-                      .HasForeignKey(wo => wo.ReleasedByUserId)
-                      .OnDelete(DeleteBehavior.NoAction);
-
-                // Unique constraint
-                entity.HasIndex(e => e.WorkOrderNumber).IsUnique();
             });
 
-            // ProductionConfirmation Configuration
+            // WorkOrderOperation
+            modelBuilder.Entity<WorkOrderOperation>(entity =>
+            {
+                entity.HasKey(e => e.OperationId);
+                entity.Property(e => e.OperationName).HasMaxLength(100);
+                entity.Property(e => e.Resource).HasMaxLength(100);
+                entity.HasOne(e => e.WorkOrder)
+                      .WithMany(w => w.Operations)
+                      .HasForeignKey(e => e.WorkOrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ProductionConfirmation
             modelBuilder.Entity<ProductionConfirmation>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.ConfirmationNumber).HasMaxLength(50).IsRequired();
-                entity.Property(e => e.ConfirmedQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ScrapQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.ReworkQuantity).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Unit).HasMaxLength(10);
-                entity.Property(e => e.WorkCenter).HasMaxLength(100);
-                entity.Property(e => e.Status).HasMaxLength(20);
-                entity.Property(e => e.ConfirmationType).HasMaxLength(20);
-                entity.Property(e => e.SetupTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.RunTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.DownTime).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.DownTimeReason).HasMaxLength(200);
-                entity.Property(e => e.Shift).HasMaxLength(50);
-                entity.Property(e => e.Notes).HasMaxLength(500);
-                entity.Property(e => e.QualityStatus).HasMaxLength(20);
-                entity.Property(e => e.QualityNotes).HasMaxLength(500);
-                entity.Property(e => e.BatchNumber).HasMaxLength(50);
-                entity.Property(e => e.SerialNumberFrom).HasMaxLength(50);
-                entity.Property(e => e.SerialNumberTo).HasMaxLength(50);
-                entity.Property(e => e.CostCenter).HasMaxLength(50);
+                entity.HasKey(e => e.ConfirmationId);
+                entity.Property(e => e.PerformedBy).HasMaxLength(100);
+                entity.HasOne(e => e.WorkOrder)
+                      .WithMany()
+                      .HasForeignKey(e => e.WorkOrderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
-                // Foreign key to WorkOrder
-                entity.HasOne(pc => pc.WorkOrder)
-                      .WithMany(wo => wo.ProductionConfirmations)
-                      .HasForeignKey(pc => pc.WorkOrderId)
+            // MaterialConsumption
+            modelBuilder.Entity<MaterialConsumption>(entity =>
+            {
+                entity.HasKey(e => e.ConsumptionId);
+                entity.Property(e => e.QuantityUsed).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.BatchNumber).HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.HasOne(e => e.ProductionConfirmation)
+                      .WithMany(pc => pc.Consumptions)
+                      .HasForeignKey(e => e.ConfirmationId)
                       .OnDelete(DeleteBehavior.Cascade);
-
-                // Foreign key to OperatorUser (optional)
-                entity.HasOne(pc => pc.OperatorUser)
+                entity.HasOne(e => e.MaterialCard)
                       .WithMany()
-                      .HasForeignKey(pc => pc.OperatorUserId)
-                      .OnDelete(DeleteBehavior.NoAction);
+                      .HasForeignKey(e => e.MaterialCardId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+        }
 
-                // Foreign key to ConfirmedByUser (optional)
-                entity.HasOne(pc => pc.ConfirmedByUser)
-                      .WithMany()
-                      .HasForeignKey(pc => pc.ConfirmedByUserId)
-                      .OnDelete(DeleteBehavior.NoAction);
+        private void ConfigureWarehouseManagement(ModelBuilder modelBuilder)
+        {
+            // Warehouse Configuration
+            modelBuilder.Entity<Warehouse>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.WarehouseCode).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.WarehouseName).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.WarehouseType).HasMaxLength(50);
+                entity.Property(e => e.Address).HasMaxLength(500);
+                entity.Property(e => e.City).HasMaxLength(100);
+                entity.Property(e => e.Country).HasMaxLength(100);
+                entity.Property(e => e.PostalCode).HasMaxLength(20);
+                entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.Email).HasMaxLength(100);
+                entity.Property(e => e.ManagerName).HasMaxLength(100);
+                entity.Property(e => e.ManagerPhone).HasMaxLength(20);
+                entity.Property(e => e.ManagerEmail).HasMaxLength(100);
+                entity.Property(e => e.Capacity).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Temperature).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Humidity).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Description).HasMaxLength(1000);
 
                 // Unique constraint
-                entity.HasIndex(e => e.ConfirmationNumber).IsUnique();
+                entity.HasIndex(e => e.WarehouseCode).IsUnique();
+            });
+
+            // Location Configuration
+            modelBuilder.Entity<Location>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.LocationCode).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.LocationName).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.LocationType).HasMaxLength(50);
+                entity.Property(e => e.Aisle).HasMaxLength(10);
+                entity.Property(e => e.Rack).HasMaxLength(10);
+                entity.Property(e => e.Level).HasMaxLength(10);
+                entity.Property(e => e.Position).HasMaxLength(10);
+                entity.Property(e => e.Capacity).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.OccupiedCapacity).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Length).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Width).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Height).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.WeightCapacity).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Temperature).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Humidity).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Description).HasMaxLength(1000);
+
+                // Foreign key to Warehouse
+                entity.HasOne(l => l.Warehouse)
+                      .WithMany(w => w.Locations)
+                      .HasForeignKey(l => l.WarehouseId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint
+                entity.HasIndex(e => e.LocationCode).IsUnique();
+            });
+
+            // StockEntry Configuration
+            modelBuilder.Entity<StockEntry>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EntryNumber).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.EntryDate).IsRequired();
+                entity.Property(e => e.EntryType).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.ReferenceNumber).HasMaxLength(50);
+                entity.Property(e => e.ReferenceType).HasMaxLength(50);
+                entity.Property(e => e.Quantity).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.TotalValue).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.BatchNumber).HasMaxLength(50);
+                entity.Property(e => e.SerialNumber).HasMaxLength(50);
+                entity.Property(e => e.QualityStatus).HasMaxLength(50);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+                entity.Property(e => e.EntryReason).HasMaxLength(200);
+                entity.Property(e => e.ResponsiblePerson).HasMaxLength(100);
+
+                // Foreign key to Warehouse
+                entity.HasOne(se => se.Warehouse)
+                      .WithMany(w => w.StockEntries)
+                      .HasForeignKey(se => se.WarehouseId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Foreign key to Location
+                entity.HasOne(se => se.Location)
+                      .WithMany(l => l.StockEntries)
+                      .HasForeignKey(se => se.LocationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Foreign key to MaterialCard
+                entity.HasOne(se => se.Material)
+                      .WithMany()
+                      .HasForeignKey(se => se.MaterialId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint
+                entity.HasIndex(e => e.EntryNumber).IsUnique();
+            });
+        }
+
+        private void ConfigurePurchasingManagement(ModelBuilder modelBuilder)
+        {
+            // SupplierType Configuration
+            modelBuilder.Entity<SupplierType>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.IsActive).IsRequired();
+
+                // Unique constraint
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // Supplier Configuration
+            modelBuilder.Entity<Supplier>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Address).HasMaxLength(200);
+                entity.Property(e => e.Phone).HasMaxLength(50);
+                entity.Property(e => e.Email).HasMaxLength(100);
+                entity.Property(e => e.TaxNumber).HasMaxLength(50);
+                entity.Property(e => e.ContactPerson).HasMaxLength(50);
+                entity.Property(e => e.SupplierTypeId).IsRequired();
+                entity.Property(e => e.IsActive).IsRequired();
+
+                // Foreign key to SupplierType
+                entity.HasOne(s => s.SupplierType)
+                      .WithMany()
+                      .HasForeignKey(s => s.SupplierTypeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // PurchaseOrder Configuration
+            modelBuilder.Entity<PurchaseOrder>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.OrderNumber).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.OrderDate).IsRequired();
+                entity.Property(e => e.ExpectedDeliveryDate);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.SupplierId).IsRequired();
+                entity.Property(e => e.IsActive).IsRequired();
+
+                // Foreign key to Supplier
+                entity.HasOne(po => po.Supplier)
+                      .WithMany()
+                      .HasForeignKey(po => po.SupplierId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint
+                entity.HasIndex(e => e.OrderNumber).IsUnique();
+            });
+        }
+
+        private void ConfigureSalesManagement(ModelBuilder modelBuilder)
+        {
+            // Customer Configuration
+            modelBuilder.Entity<Customer>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Address).HasMaxLength(200);
+                entity.Property(e => e.Phone).HasMaxLength(50);
+                entity.Property(e => e.Email).HasMaxLength(100);
+                entity.Property(e => e.TaxNumber).HasMaxLength(50);
+                entity.Property(e => e.ContactPerson).HasMaxLength(50);
+                entity.Property(e => e.IsActive).IsRequired();
+
+                // Unique constraint
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // CustomerOrder Configuration
+            modelBuilder.Entity<CustomerOrder>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.OrderNumber).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.OrderDate).IsRequired();
+                entity.Property(e => e.ExpectedDeliveryDate);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.CustomerId).IsRequired();
+                entity.Property(e => e.IsActive).IsRequired();
+
+                // Foreign key to Customer
+                entity.HasOne(co => co.Customer)
+                      .WithMany()
+                      .HasForeignKey(co => co.CustomerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint
+                entity.HasIndex(e => e.OrderNumber).IsUnique();
             });
         }
 
@@ -325,10 +485,26 @@ namespace Teklas_Intern_ERP.DataAccess
             modelBuilder.Entity<UserRole>().HasQueryFilter(x => !x.IsDeleted);
 
             // Production Management soft delete filters
-            modelBuilder.Entity<BillOfMaterial>().HasQueryFilter(x => !x.IsDeleted);
-            modelBuilder.Entity<BillOfMaterialItem>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<BOMHeader>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<BOMItem>().HasQueryFilter(x => !x.IsDeleted);
             modelBuilder.Entity<WorkOrder>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<WorkOrderOperation>().HasQueryFilter(x => !x.IsDeleted);
             modelBuilder.Entity<ProductionConfirmation>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<MaterialConsumption>().HasQueryFilter(x => !x.IsDeleted);
+
+            // Warehouse Management soft delete filters
+            modelBuilder.Entity<Warehouse>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<Location>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<StockEntry>().HasQueryFilter(x => !x.IsDeleted);
+
+            // Purchasing Management soft delete filters
+            modelBuilder.Entity<SupplierType>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<Supplier>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<PurchaseOrder>().HasQueryFilter(x => !x.IsDeleted);
+
+            // Sales Management soft delete filters
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<CustomerOrder>().HasQueryFilter(x => !x.IsDeleted);
         }
     }
 } 

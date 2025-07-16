@@ -8,10 +8,8 @@ import withReactContent from 'sweetalert2-react-content';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 const BASE_URL = 'https://localhost:7178';
-
 const MySwal = withReactContent(Swal);
 
-// SweetAlert2 dark mode custom CSS
 const swalDarkStyles = `
   .swal2-popup.swal2-dark {
     background: #23272f !important;
@@ -40,8 +38,10 @@ const MaterialMovementTrashPage = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/api/MaterialMovement/deleted`);
+      console.log('Deleted Material Movement data:', res.data); // Debug log
       setData(res.data);
     } catch (err) {
+      console.error('Error fetching deleted Material Movement data:', err); // Debug log
       setData([]);
     } finally {
       setLoading(false);
@@ -57,14 +57,14 @@ const MaterialMovementTrashPage = () => {
       style.innerHTML = swalDarkStyles;
       document.head.appendChild(style);
     }
-    
+
     const result = await MySwal.fire({
-      title: 'Geri Alma Onayı',
-      text: 'Bu malzeme hareketini geri almak istediğinize emin misiniz?',
+      title: 'Geri Yükleme Onayı',
+      text: `Bu malzeme hareketini geri yüklemek istediğinizden emin misiniz?`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Evet, Geri Al',
-      cancelButtonText: 'Vazgeç',
+      confirmButtonText: 'Evet, Geri Yükle',
+      cancelButtonText: 'İptal',
       reverseButtons: true,
       customClass: {
         popup: isDark ? 'swal2-dark' : '',
@@ -73,22 +73,23 @@ const MaterialMovementTrashPage = () => {
       },
       buttonsStyling: false,
     });
-    
+
     if (result.isConfirmed) {
       setRestoreLoading(true);
       try {
-        await axios.post(`${BASE_URL}/api/MaterialMovement/${item.id || item.Id}/restore`);
-        fetchDeletedData();
+        await axios.put(`${BASE_URL}/api/MaterialMovement/${item.id}/restore`);
+        await fetchDeletedData();
         MySwal.fire({
-          title: 'Geri Alındı!',
-          text: 'Malzeme hareketi başarıyla geri alındı.',
+          title: 'Geri Yüklendi!',
+          text: 'Malzeme hareketi başarıyla geri yüklendi.',
           icon: 'success',
           customClass: { popup: isDark ? 'swal2-dark' : '' },
         });
       } catch (err) {
+        console.error('Restore error:', err);
         MySwal.fire({
           title: 'Hata',
-          text: 'Geri alma işlemi başarısız!',
+          text: 'Geri yükleme başarısız!',
           icon: 'error',
           customClass: { popup: isDark ? 'swal2-dark' : '' },
         });
@@ -107,15 +108,16 @@ const MaterialMovementTrashPage = () => {
       style.innerHTML = swalDarkStyles;
       document.head.appendChild(style);
     }
-    
+
     const result = await MySwal.fire({
       title: 'Kalıcı Silme Onayı',
-      text: 'Bu malzeme hareketini kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz!',
+      text: 'Bu malzeme hareketini kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Evet, Kalıcı Sil',
-      cancelButtonText: 'Vazgeç',
+      cancelButtonText: 'İptal',
       reverseButtons: true,
+      confirmButtonColor: '#dc3545',
       customClass: {
         popup: isDark ? 'swal2-dark' : '',
         confirmButton: 'btn btn-danger mx-2',
@@ -123,22 +125,23 @@ const MaterialMovementTrashPage = () => {
       },
       buttonsStyling: false,
     });
-    
+
     if (result.isConfirmed) {
       setRestoreLoading(true);
       try {
-        await axios.delete(`${BASE_URL}/api/MaterialMovement/${item.id || item.Id}/permanent`);
-        fetchDeletedData();
+        await axios.delete(`${BASE_URL}/api/MaterialMovement/${item.id}/permanent`);
+        await fetchDeletedData();
         MySwal.fire({
-          title: 'Kalıcı Silindi!',
+          title: 'Kalıcı Olarak Silindi!',
           text: 'Malzeme hareketi kalıcı olarak silindi.',
           icon: 'success',
           customClass: { popup: isDark ? 'swal2-dark' : '' },
         });
       } catch (err) {
+        console.error('Permanent delete error:', err);
         MySwal.fire({
           title: 'Hata',
-          text: 'Kalıcı silme işlemi başarısız!',
+          text: 'Kalıcı silme başarısız!',
           icon: 'error',
           customClass: { popup: isDark ? 'swal2-dark' : '' },
         });
@@ -150,19 +153,26 @@ const MaterialMovementTrashPage = () => {
 
   const columns = [
     { header: '#', accessor: 'rowNumber' },
+    { header: 'Hareket Kodu', accessor: 'movementCode' },
     { header: 'Malzeme', accessor: 'materialCardName' },
-    { header: 'Hareket Tipi', accessor: 'movementType' },
     { header: 'Miktar', accessor: 'quantity' },
-    { header: 'Tarih', accessor: 'movementDate', render: val => val ? new Date(val).toLocaleString('tr-TR') : '' },
-    { header: 'Silinme Tarihi', accessor: 'updatedDate', render: val => val ? new Date(val).toLocaleString('tr-TR') : '' },
+    { header: 'Hareket Tipi', accessor: 'movementType' },
+    { header: 'Silinme Tarihi', accessor: 'deleteDate', render: val => val ? new Date(val).toLocaleString('tr-TR') : '' },
   ];
 
-  const dataWithRowNumber = data.map((item, idx) => ({ ...item, rowNumber: idx + 1 }));
+  const dataWithRowNumber = data.map((item, idx) => ({ 
+    ...item, 
+    rowNumber: idx + 1,
+    movementCode: item.movementCode || 'N/A',
+    materialCardName: item.materialCardName || `Malzeme ID: ${item.materialCardId}`,
+    quantity: item.quantity || 'N/A',
+    movementType: item.movementType || 'N/A',
+    deleteDate: item.deleteDate || item.updateDate || 'Tarih bilgisi yok'
+  }));
 
   return (
     <MasterLayout>
       <div className="col-lg-12">
-        <style>{swalDarkStyles}</style>
         <div className="card h-100">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h5 className="card-title mb-0">Silinen Malzeme Hareketleri</h5>

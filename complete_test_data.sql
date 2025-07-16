@@ -6,8 +6,8 @@
 DELETE FROM ProductionConfirmations;
 DELETE FROM MaterialMovements;
 DELETE FROM WorkOrders;
-DELETE FROM BillOfMaterialItems;
-DELETE FROM BillOfMaterials;
+DELETE FROM BOMItems;
+DELETE FROM BOMHeaders;
 DELETE FROM UserRoles;
 DELETE FROM MaterialCards;
 DELETE FROM MaterialCategories;
@@ -31,25 +31,25 @@ INSERT INTO MaterialCategories (
 -- 2. USERS (5 records)
 -- ===================================================================
 INSERT INTO Users (
-    Username, Email, PasswordHash, FirstName, LastName, CreateDate, CreateUserId, IsDeleted, Status
+    Username, Email, PasswordHash, PasswordSalt, FirstName, LastName, IsActive, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
-('admin', 'admin@teklas.com', 'hashedpassword1', 'Admin', 'User', GETDATE(), 1, 0, 1),
-('operator1', 'operator1@teklas.com', 'hashedpassword2', 'John', 'Doe', GETDATE(), 1, 0, 1),
-('operator2', 'operator2@teklas.com', 'hashedpassword3', 'Jane', 'Smith', GETDATE(), 1, 0, 1),
-('supervisor', 'supervisor@teklas.com', 'hashedpassword4', 'Bob', 'Wilson', GETDATE(), 1, 0, 1),
-('quality', 'quality@teklas.com', 'hashedpassword5', 'Alice', 'Johnson', GETDATE(), 1, 0, 1);
+('admin', 'admin@teklas.com', 'hashedpassword1', 'salt1', 'Admin', 'User', 1, GETDATE(), 1, 0, 1),
+('operator1', 'operator1@teklas.com', 'hashedpassword2', 'salt2', 'John', 'Doe', 1, GETDATE(), 1, 0, 1),
+('operator2', 'operator2@teklas.com', 'hashedpassword3', 'salt3', 'Jane', 'Smith', 1, GETDATE(), 1, 0, 1),
+('supervisor', 'supervisor@teklas.com', 'hashedpassword4', 'salt4', 'Bob', 'Wilson', 1, GETDATE(), 1, 0, 1),
+('quality', 'quality@teklas.com', 'hashedpassword5', 'salt5', 'Alice', 'Johnson', 1, GETDATE(), 1, 0, 1);
 
 -- ===================================================================
 -- 3. ROLES (5 records)
 -- ===================================================================
 INSERT INTO Roles (
-    RoleName, Description, CreateDate, CreateUserId, IsDeleted, Status
+    Name, DisplayName, Description, IsSystemRole, Priority, IsActive, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
-('Admin', 'System Administrator', GETDATE(), 1, 0, 1),
-('ProductionOperator', 'Production Line Operator', GETDATE(), 1, 0, 1),
-('Supervisor', 'Production Supervisor', GETDATE(), 1, 0, 1),
-('QualityControl', 'Quality Control Inspector', GETDATE(), 1, 0, 1),
-('Manager', 'Production Manager', GETDATE(), 1, 0, 1);
+('Admin', 'System Administrator', 'Full system access and control', 1, 100, 1, GETDATE(), 1, 0, 1),
+('ProductionOperator', 'Production Line Operator', 'Production line operations', 0, 10, 1, GETDATE(), 1, 0, 1),
+('Supervisor', 'Production Supervisor', 'Production supervision and management', 0, 50, 1, GETDATE(), 1, 0, 1),
+('QualityControl', 'Quality Control Inspector', 'Quality control and inspection', 0, 30, 1, GETDATE(), 1, 0, 1),
+('Manager', 'Production Manager', 'Production management and planning', 0, 80, 1, GETDATE(), 1, 0, 1);
 
 -- ===================================================================
 -- 4. MATERIAL CARDS (5 records)
@@ -69,94 +69,81 @@ INSERT INTO MaterialCards (
 -- 5. USER ROLES (5 records)
 -- ===================================================================
 INSERT INTO UserRoles (
-    UserId, RoleId, CreateDate, CreateUserId, IsDeleted, Status
+    UserId, RoleId, AssignedDate, IsActive, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
-(1, 1, GETDATE(), 1, 0, 1), -- admin -> Admin
-(2, 2, GETDATE(), 1, 0, 1), -- operator1 -> ProductionOperator
-(3, 2, GETDATE(), 1, 0, 1), -- operator2 -> ProductionOperator
-(4, 3, GETDATE(), 1, 0, 1), -- supervisor -> Supervisor
-(5, 4, GETDATE(), 1, 0, 1); -- quality -> QualityControl
+(1, 1, GETDATE(), 1, GETDATE(), 1, 0, 1), -- admin -> Admin
+(2, 2, GETDATE(), 1, GETDATE(), 1, 0, 1), -- operator1 -> ProductionOperator
+(3, 2, GETDATE(), 1, GETDATE(), 1, 0, 1), -- operator2 -> ProductionOperator
+(4, 3, GETDATE(), 1, GETDATE(), 1, 0, 1), -- supervisor -> Supervisor
+(5, 4, GETDATE(), 1, GETDATE(), 1, 0, 1); -- quality -> QualityControl
 
 -- ===================================================================
 -- 6. BILL OF MATERIALS (5 records)
 -- ===================================================================
-INSERT INTO BillOfMaterials (
-    BOMCode, BOMName, Version, ProductMaterialCardId, BaseQuantity, Unit,
-    BOMType, Description, ApprovalStatus, IsActive,
-    CreateDate, CreateUserId, IsDeleted, Status
+INSERT INTO BOMHeaders (
+    ParentMaterialCardId, Version, ValidFrom, StandardCost, Notes, MaterialCardId, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
-('BOM-LAPTOP-001', 'Gaming Laptop Assembly', 'v1.0', 1, 1.00, 'EACH', 'ASSEMBLY', 'Gaming laptop production', 'APPROVED', 1, GETDATE(), 1, 0, 1),
-('BOM-LAPTOP-002', 'Business Laptop Assembly', 'v1.0', 1, 1.00, 'EACH', 'ASSEMBLY', 'Business laptop production', 'APPROVED', 1, GETDATE(), 1, 0, 1),
-('BOM-LAPTOP-003', 'Student Laptop Assembly', 'v1.0', 1, 1.00, 'EACH', 'ASSEMBLY', 'Student laptop production', 'PENDING', 1, GETDATE(), 1, 0, 1),
-('BOM-LAPTOP-004', 'Gaming Pro Max Assembly', 'v2.0', 1, 1.00, 'EACH', 'ASSEMBLY', 'High-end gaming laptop', 'APPROVED', 1, GETDATE(), 1, 0, 1),
-('BOM-LAPTOP-005', 'Ultra Thin Assembly', 'v1.0', 1, 1.00, 'EACH', 'ASSEMBLY', 'Ultra thin laptop production', 'DRAFT', 0, GETDATE(), 1, 0, 1);
+(1, 'v1.0', GETDATE(), 1200.00, 'Gaming laptop production', 1, GETDATE(), 1, 0, 1),
+(1, 'v1.0', GETDATE(), 1000.00, 'Business laptop production', 1, GETDATE(), 1, 0, 1),
+(1, 'v1.0', GETDATE(), 800.00, 'Student laptop production', 1, GETDATE(), 1, 0, 1),
+(1, 'v2.0', GETDATE(), 1500.00, 'High-end gaming laptop', 1, GETDATE(), 1, 0, 1),
+(1, 'v1.0', GETDATE(), 900.00, 'Ultra thin laptop production', 1, GETDATE(), 1, 0, 1);
 
 -- ===================================================================
 -- 7. BILL OF MATERIAL ITEMS (5 records per BOM = 25 total)
 -- ===================================================================
-INSERT INTO BillOfMaterialItems (
-    BillOfMaterialId, MaterialCardId, LineNumber, Quantity, Unit, ScrapFactor, 
-    ComponentType, IssueMethod, Description, IsOptional,
-    CreateDate, CreateUserId, IsDeleted, Status
+INSERT INTO BOMItems (
+    BOMHeaderId, ComponentMaterialCardId, Quantity, ScrapRate, MaterialCardId, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
 -- BOM 1 Items
-(1, 2, 1, 1.00, 'EACH', 2.0, 'COMPONENT', 'PICK_LIST', 'Processor', 0, GETDATE(), 1, 0, 1),
-(1, 3, 2, 1.00, 'EACH', 1.0, 'COMPONENT', 'PICK_LIST', 'Graphics Card', 0, GETDATE(), 1, 0, 1),
-(1, 4, 3, 16.00, 'GB', 1.0, 'COMPONENT', 'PICK_LIST', 'Memory', 0, GETDATE(), 1, 0, 1),
-(1, 5, 4, 1.00, 'EACH', 1.0, 'COMPONENT', 'PICK_LIST', 'Storage', 0, GETDATE(), 1, 0, 1),
-(1, 2, 5, 0.50, 'EACH', 5.0, 'COMPONENT', 'PICK_LIST', 'Backup CPU', 1, GETDATE(), 1, 0, 1),
+(1, 2, 1.00, 2.0, 2, GETDATE(), 1, 0, 1),
+(1, 3, 1.00, 1.0, 3, GETDATE(), 1, 0, 1),
+(1, 4, 16.00, 1.0, 4, GETDATE(), 1, 0, 1),
+(1, 5, 1.00, 1.0, 5, GETDATE(), 1, 0, 1),
+(1, 2, 0.50, 5.0, 2, GETDATE(), 1, 0, 1),
 
 -- BOM 2 Items
-(2, 2, 1, 1.00, 'EACH', 2.0, 'COMPONENT', 'PICK_LIST', 'Business Processor', 0, GETDATE(), 1, 0, 1),
-(2, 4, 2, 8.00, 'GB', 1.0, 'COMPONENT', 'PICK_LIST', 'Business Memory', 0, GETDATE(), 1, 0, 1),
-(2, 5, 3, 1.00, 'EACH', 1.0, 'COMPONENT', 'PICK_LIST', 'Business Storage', 0, GETDATE(), 1, 0, 1),
-(2, 3, 4, 0.50, 'EACH', 2.0, 'COMPONENT', 'PICK_LIST', 'Basic Graphics', 1, GETDATE(), 1, 0, 1),
-(2, 2, 5, 0.25, 'EACH', 5.0, 'COMPONENT', 'PICK_LIST', 'Spare Processor', 1, GETDATE(), 1, 0, 1);
+(2, 2, 1.00, 2.0, 2, GETDATE(), 1, 0, 1),
+(2, 4, 8.00, 1.0, 4, GETDATE(), 1, 0, 1),
+(2, 5, 1.00, 1.0, 5, GETDATE(), 1, 0, 1),
+(2, 3, 0.50, 2.0, 3, GETDATE(), 1, 0, 1),
+(2, 2, 0.25, 5.0, 2, GETDATE(), 1, 0, 1);
 
 -- ===================================================================
 -- 8. WORK ORDERS (5 records)
 -- ===================================================================
 INSERT INTO WorkOrders (
-    WorkOrderNumber, BillOfMaterialId, ProductMaterialCardId, PlannedQuantity, 
-    CompletedQuantity, ScrapQuantity, Unit, Status, Priority, 
-    PlannedStartDate, PlannedEndDate, Description, WorkCenter,
-    WorkOrderType, CompletionPercentage, RequiresQualityCheck, QualityStatus,
-    CreateDate, CreateUserId, IsDeleted
+    BOMHeaderId, MaterialCardId, PlannedQuantity, PlannedStartDate, PlannedEndDate, Status, ReferenceNumber, CreateDate, CreateUserId, IsDeleted
 ) VALUES
-('WO-2024-001', 1, 1, 10.00, 7.00, 1.00, 'EACH', 'IN_PROGRESS', 1, DATEADD(day, -2, GETDATE()), DATEADD(day, 3, GETDATE()), 'Gaming laptop production batch 1', 'ASSEMBLY_LINE_1', 'PRODUCTION', 80.00, 1, 'PENDING', GETDATE(), 1, 0),
-('WO-2024-002', 2, 1, 5.00, 0.00, 0.00, 'EACH', 'CREATED', 2, GETDATE(), DATEADD(day, 2, GETDATE()), 'Business laptop production', 'ASSEMBLY_LINE_2', 'PRODUCTION', 0.00, 1, 'NOT_REQUIRED', GETDATE(), 1, 0),
-('WO-2024-003', 1, 1, 15.00, 15.00, 2.00, 'EACH', 'COMPLETED', 3, DATEADD(day, -5, GETDATE()), DATEADD(day, -1, GETDATE()), 'Gaming laptop production batch 2', 'ASSEMBLY_LINE_1', 'PRODUCTION', 100.00, 1, 'PASSED', GETDATE(), 1, 0),
-('WO-2024-004', 4, 1, 3.00, 1.00, 0.00, 'EACH', 'IN_PROGRESS', 1, DATEADD(day, -1, GETDATE()), DATEADD(day, 4, GETDATE()), 'Gaming Pro Max production', 'ASSEMBLY_LINE_3', 'PRODUCTION', 33.33, 1, 'PENDING', GETDATE(), 1, 0),
-('WO-2024-005', 2, 1, 20.00, 0.00, 0.00, 'EACH', 'RELEASED', 2, DATEADD(day, 1, GETDATE()), DATEADD(day, 7, GETDATE()), 'Large business laptop order', 'ASSEMBLY_LINE_2', 'PRODUCTION', 0.00, 1, 'NOT_REQUIRED', GETDATE(), 1, 0);
+(1, 1, 10.00, DATEADD(day, -2, GETDATE()), DATEADD(day, 3, GETDATE()), 'IN_PROGRESS', 'WO-2024-001', GETDATE(), 1, 0),
+(2, 1, 5.00, GETDATE(), DATEADD(day, 2, GETDATE()), 'CREATED', 'WO-2024-002', GETDATE(), 1, 0),
+(1, 1, 15.00, DATEADD(day, -5, GETDATE()), DATEADD(day, -1, GETDATE()), 'COMPLETED', 'WO-2024-003', GETDATE(), 1, 0),
+(4, 1, 3.00, DATEADD(day, -1, GETDATE()), DATEADD(day, 4, GETDATE()), 'IN_PROGRESS', 'WO-2024-004', GETDATE(), 1, 0),
+(2, 1, 20.00, DATEADD(day, 1, GETDATE()), DATEADD(day, 7, GETDATE()), 'RELEASED', 'WO-2024-005', GETDATE(), 1, 0);
 
 -- ===================================================================
 -- 9. PRODUCTION CONFIRMATIONS (5 records)
 -- ===================================================================
 INSERT INTO ProductionConfirmations (
-    ConfirmationNumber, WorkOrderId, ConfirmedQuantity, ScrapQuantity, ReworkQuantity,
-    Unit, ConfirmationDate, WorkCenter, Status, ConfirmationType,
-    OperatorUserId, Notes, QualityStatus, ActivityType, RequiresQualityCheck, MaterialConsumed,
-    CreateDate, CreateUserId, IsDeleted
+    WorkOrderId, ConfirmationDate, QuantityProduced, QuantityScrapped, LaborHoursUsed, PerformedBy, MaterialCardId, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
-('PC-2024-001', 1, 3.00, 0.00, 0.00, 'EACH', DATEADD(day, -1, GETDATE()), 'ASSEMBLY_LINE_1', 'CONFIRMED', 'PARTIAL', 2, 'First batch completed successfully', 'PASSED', 'ASSEMBLY', 0, 1, GETDATE(), 1, 0),
-('PC-2024-002', 1, 4.00, 1.00, 0.00, 'EACH', GETDATE(), 'ASSEMBLY_LINE_1', 'CONFIRMED', 'PARTIAL', 3, 'Second batch with minor issues', 'PASSED', 'ASSEMBLY', 0, 1, GETDATE(), 1, 0),
-('PC-2024-003', 3, 15.00, 2.00, 0.00, 'EACH', DATEADD(day, -1, GETDATE()), 'ASSEMBLY_LINE_1', 'POSTED', 'FINAL', 2, 'Batch completed successfully', 'PASSED', 'ASSEMBLY', 0, 1, GETDATE(), 1, 0),
-('PC-2024-004', 4, 1.00, 0.00, 0.00, 'EACH', GETDATE(), 'ASSEMBLY_LINE_3', 'CONFIRMED', 'PARTIAL', 4, 'Gaming Pro Max first unit', 'PASSED', 'ASSEMBLY', 0, 1, GETDATE(), 1, 0),
-('PC-2024-005', 1, 0.00, 0.00, 1.00, 'EACH', GETDATE(), 'ASSEMBLY_LINE_1', 'DRAFT', 'REWORK', 2, 'Unit requires rework', 'FAILED', 'REWORK', 1, 0, GETDATE(), 1, 0);
+(1, DATEADD(day, -1, GETDATE()), 3.00, 0.00, 8.00, 'John Doe', 1, GETDATE(), 1, 0, 1),
+(1, GETDATE(), 4.00, 1.00, 10.00, 'Jane Smith', 1, GETDATE(), 1, 0, 1),
+(3, DATEADD(day, -1, GETDATE()), 15.00, 2.00, 40.00, 'Bob Wilson', 1, GETDATE(), 1, 0, 1),
+(4, GETDATE(), 1.00, 0.00, 3.00, 'Alice Johnson', 1, GETDATE(), 1, 0, 1),
+(1, GETDATE(), 0.00, 0.00, 2.00, 'John Doe', 1, GETDATE(), 1, 0, 1);
 
 -- ===================================================================
 -- 10. MATERIAL MOVEMENTS (5 records)
 -- ===================================================================
 INSERT INTO MaterialMovements (
-    MovementCode, MaterialCardId, MovementType, Quantity, Unit, 
-    ReferenceType, ReferenceId, SourceLocation, TargetLocation, Description,
-    CreateDate, CreateUserId, IsDeleted, Status
+    MaterialCardId, MovementType, Quantity, UnitPrice, TotalAmount, MovementDate, ReferenceNumber, ReferenceType, LocationFrom, LocationTo, Description, CreateDate, CreateUserId, IsDeleted, Status
 ) VALUES
-('MOV-001', 2, 'IN', 50.00, 'EACH', 'PURCHASE_ORDER', 1001, 'WAREHOUSE', 'PRODUCTION_LINE_1', 'CPU delivery for production', GETDATE(), 1, 0, 1),
-('MOV-002', 3, 'IN', 25.00, 'EACH', 'PURCHASE_ORDER', 1002, 'WAREHOUSE', 'PRODUCTION_LINE_1', 'GPU delivery for production', GETDATE(), 1, 0, 1),
-('MOV-003', 4, 'OUT', 80.00, 'GB', 'WORK_ORDER', 1, 'WAREHOUSE', 'ASSEMBLY_LINE_1', 'RAM consumption for WO-2024-001', GETDATE(), 1, 0, 1),
-('MOV-004', 5, 'OUT', 10.00, 'EACH', 'WORK_ORDER', 1, 'WAREHOUSE', 'ASSEMBLY_LINE_1', 'SSD consumption for WO-2024-001', GETDATE(), 1, 0, 1),
-('MOV-005', 1, 'OUT', 7.00, 'EACH', 'SALES_ORDER', 2001, 'FINISHED_GOODS', 'SHIPPING', 'Laptop shipment to customer', GETDATE(), 1, 0, 1);
+(2, 'IN', 50.00, 200.00, 10000.00, GETDATE(), 'PO-1001', 'PURCHASE_ORDER', 'WAREHOUSE', 'PRODUCTION_LINE_1', 'CPU delivery for production', GETDATE(), 1, 0, 1),
+(3, 'IN', 25.00, 300.00, 7500.00, GETDATE(), 'PO-1002', 'PURCHASE_ORDER', 'WAREHOUSE', 'PRODUCTION_LINE_1', 'GPU delivery for production', GETDATE(), 1, 0, 1),
+(4, 'OUT', 80.00, 5.00, 400.00, GETDATE(), 'WO-2024-001', 'WORK_ORDER', 'WAREHOUSE', 'ASSEMBLY_LINE_1', 'RAM consumption for WO-2024-001', GETDATE(), 1, 0, 1),
+(5, 'OUT', 10.00, 80.00, 800.00, GETDATE(), 'WO-2024-001', 'WORK_ORDER', 'WAREHOUSE', 'ASSEMBLY_LINE_1', 'SSD consumption for WO-2024-001', GETDATE(), 1, 0, 1),
+(1, 'OUT', 7.00, 1200.00, 8400.00, GETDATE(), 'SO-2001', 'SALES_ORDER', 'FINISHED_GOODS', 'SHIPPING', 'Laptop shipment to customer', GETDATE(), 1, 0, 1);
 
 -- ===================================================================
 -- VERIFICATION QUERIES
@@ -167,8 +154,8 @@ UNION ALL SELECT 'Users', COUNT(*) FROM Users
 UNION ALL SELECT 'Roles', COUNT(*) FROM Roles
 UNION ALL SELECT 'MaterialCards', COUNT(*) FROM MaterialCards
 UNION ALL SELECT 'UserRoles', COUNT(*) FROM UserRoles
-UNION ALL SELECT 'BillOfMaterials', COUNT(*) FROM BillOfMaterials
-UNION ALL SELECT 'BillOfMaterialItems', COUNT(*) FROM BillOfMaterialItems
+UNION ALL SELECT 'BOMHeaders', COUNT(*) FROM BOMHeaders
+UNION ALL SELECT 'BOMItems', COUNT(*) FROM BOMItems
 UNION ALL SELECT 'WorkOrders', COUNT(*) FROM WorkOrders
 UNION ALL SELECT 'ProductionConfirmations', COUNT(*) FROM ProductionConfirmations
 UNION ALL SELECT 'MaterialMovements', COUNT(*) FROM MaterialMovements
@@ -180,11 +167,10 @@ SELECT Status, COUNT(*) as Count FROM WorkOrders GROUP BY Status;
 
 PRINT 'Production Summary:';
 SELECT 
-    wo.WorkOrderNumber,
+    wo.ReferenceNumber,
     wo.PlannedQuantity,
-    wo.CompletedQuantity,
     wo.Status,
-    bom.BOMName
+    bom.Version
 FROM WorkOrders wo
-JOIN BillOfMaterials bom ON wo.BillOfMaterialId = bom.Id
-ORDER BY wo.WorkOrderNumber; 
+JOIN BOMHeaders bom ON wo.BOMHeaderId = bom.BOMHeaderId
+ORDER BY wo.ReferenceNumber; 

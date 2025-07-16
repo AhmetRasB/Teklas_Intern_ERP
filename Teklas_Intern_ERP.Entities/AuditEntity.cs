@@ -7,7 +7,6 @@ namespace Teklas_Intern_ERP.Entities
 {
     public abstract class AuditEntity : IEntity
     {
-        [Key]
         public long Id { get; set; }
         
         [Required]
