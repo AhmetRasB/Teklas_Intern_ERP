@@ -73,5 +73,16 @@ namespace Teklas_Intern_ERP.Business.PurchasingManagement
             var entities = await _repository.GetActiveSupplierTypesAsync();
             return _mapper.Map<IEnumerable<SupplierTypeDto>>(entities);
         }
+
+        public async Task<IEnumerable<SupplierTypeDto>> GetDeletedAsync()
+        {
+            var entities = await _repository.GetDeletedAsync();
+            return _mapper.Map<IEnumerable<SupplierTypeDto>>(entities);
+        }
+
+        public async Task<bool> PermanentDeleteAsync(long id)
+        {
+            return await _repository.PermanentDeleteAsync(id);
+        }
     }
 } 

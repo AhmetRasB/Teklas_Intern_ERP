@@ -121,6 +121,13 @@ import LocationPage from './pages/LocationPage';
 import LocationTrashPage from './pages/LocationTrashPage';
 import StockEntryPage from './pages/StockEntryPage';
 import StockEntryTrashPage from './pages/StockEntryTrashPage';
+import PurchaseOrderPage from './pages/PurchaseOrderPage';
+import PurchaseOrderTrashPage from './pages/PurchaseOrderTrashPage';
+import SupplierTypePage from './pages/SupplierTypePage';
+import SupplierTypeTrashPage from './pages/SupplierTypeTrashPage';
+import CustomerOrderPage from './pages/CustomerOrderPage';
+import CustomerOrderTrashPage from './pages/CustomerOrderTrashPage';
+import ReportsPage from './pages/ReportsPage';
 
 function App() {
   return (
@@ -366,6 +373,62 @@ function App() {
             element={
               <ProtectedRoute>
                 <StockEntryTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/purchase-orders' 
+            element={
+              <ProtectedRoute>
+                <PurchaseOrderPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/purchase-order-trash' 
+            element={
+              <ProtectedRoute>
+                <PurchaseOrderTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/supplier-types' 
+            element={
+              <ProtectedRoute>
+                <SupplierTypePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/supplier-type-trash' 
+            element={
+              <ProtectedRoute>
+                <SupplierTypeTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/customer-orders' 
+            element={
+              <ProtectedRoute>
+                <CustomerOrderPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/customer-order-trash' 
+            element={
+              <ProtectedRoute>
+                <CustomerOrderTrashPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/reports' 
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
               </ProtectedRoute>
             } 
           />

@@ -104,5 +104,41 @@ namespace Teklas_Intern_ERP.Controllers.SalesManagement
             var result = await _service.SearchAsync(q);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Get all deleted (soft-deleted) customer orders
+        /// </summary>
+        [HttpGet("deleted")]
+        public async Task<ActionResult<IEnumerable<CustomerOrderDto>>> GetDeleted()
+        {
+            try
+            {
+                var result = await _service.GetDeletedAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Permanently delete a customer order
+        /// </summary>
+        [HttpDelete("{id}/permanent")]
+        public async Task<ActionResult> PermanentDelete(long id)
+        {
+            try
+            {
+                var result = await _service.PermanentDeleteAsync(id);
+                if (!result)
+                    return NotFound(new { error = "Customer order not found", id });
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+            }
+        }
     }
 } 

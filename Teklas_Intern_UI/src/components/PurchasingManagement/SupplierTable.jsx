@@ -76,7 +76,7 @@ const SupplierTable = () => {
 
   const fetchSupplierTypes = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/suppliertypes`);
+      const res = await axios.get(`${BASE_URL}/api/suppliertype`);
       setSupplierTypes(res.data);
     } catch (err) {
       setSupplierTypes([]);
@@ -273,7 +273,7 @@ const SupplierTable = () => {
   };
 
   if (loading) return <div>Yükleniyor...</div>;
-  if (error) return <div>{error}</div>;
+  if (formError) return <div>{formError}</div>;
 
   return (
     <div className="col-lg-12">

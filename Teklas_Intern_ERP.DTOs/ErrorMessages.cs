@@ -98,8 +98,6 @@ namespace Teklas_Intern_ERP.DTOs
         public const string ExpiryDatePast = "Son kullanma tarihi geçmiş tarih olamaz.";
         public const string StatusMaxLength = "Durum en fazla 50 karakter olabilir.";
         public const string StatusInvalid = "Geçerli bir durum seçiniz. (PENDING, CONFIRMED, CANCELLED, COMPLETED)";
-
-        // Production Management Error Messages
         public const string BOMHeaderIdRequired = "BOM (Ürün Ağacı) seçimi zorunludur.";
         public const string BOMItemIdRequired = "BOM kalemi seçimi zorunludur.";
         public const string WorkOrderIdRequired = "İş emri seçimi zorunludur.";

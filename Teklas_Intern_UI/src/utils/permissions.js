@@ -279,7 +279,7 @@ export const ROLE_PERMISSIONS = {
   ],
   
   WarehouseWorker: [
-    // Material and movement focus
+   
     PERMISSIONS.MATERIALS_VIEW,
     PERMISSIONS.MATERIALS_CREATE,
     PERMISSIONS.MATERIALS_EDIT,

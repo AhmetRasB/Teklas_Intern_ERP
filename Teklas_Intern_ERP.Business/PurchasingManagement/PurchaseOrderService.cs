@@ -83,5 +83,16 @@ namespace Teklas_Intern_ERP.Business.PurchasingManagement
             var entities = await _repository.GetOrdersByDateRangeAsync(startDate, endDate);
             return _mapper.Map<IEnumerable<PurchaseOrderDto>>(entities);
         }
+
+        public async Task<IEnumerable<PurchaseOrderDto>> GetDeletedAsync()
+        {
+            var entities = await _repository.GetDeletedAsync();
+            return _mapper.Map<IEnumerable<PurchaseOrderDto>>(entities);
+        }
+
+        public async Task<bool> PermanentDeleteAsync(long id)
+        {
+            return await _repository.PermanentDeleteAsync(id);
+        }
     }
 } 

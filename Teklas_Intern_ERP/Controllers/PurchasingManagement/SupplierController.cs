@@ -5,7 +5,8 @@ using Teklas_Intern_ERP.DTOs.PurchasingManagement;
 namespace Teklas_Intern_ERP.Controllers.PurchasingManagement
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/supplier")]
+    [Route("api/suppliers")]
     public class SupplierController : ControllerBase
     {
         private readonly ISupplierService _service;
@@ -102,6 +103,42 @@ namespace Teklas_Intern_ERP.Controllers.PurchasingManagement
 
             var result = await _service.SearchAsync(q);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get all deleted (soft-deleted) suppliers
+        /// </summary>
+        [HttpGet("deleted")]
+        public async Task<ActionResult<IEnumerable<SupplierDto>>> GetDeleted()
+        {
+            try
+            {
+                var result = await _service.GetDeletedAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Permanently delete a supplier
+        /// </summary>
+        [HttpDelete("{id}/permanent")]
+        public async Task<ActionResult> PermanentDelete(long id)
+        {
+            try
+            {
+                var result = await _service.PermanentDeleteAsync(id);
+                if (!result)
+                    return NotFound(new { error = "Supplier not found", id });
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+            }
         }
     }
 } 

@@ -11,5 +11,7 @@ namespace Teklas_Intern_ERP.Business.Interfaces
         Task<bool> DeleteAsync(long id);
         Task<bool> RestoreAsync(long id);
         Task<IEnumerable<SupplierTypeDto>> SearchAsync(string searchTerm);
+        Task<IEnumerable<SupplierTypeDto>> GetDeletedAsync();
+        Task<bool> PermanentDeleteAsync(long id);
     }
 } 
