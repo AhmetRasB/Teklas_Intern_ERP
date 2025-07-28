@@ -106,6 +106,7 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerOrderRepository, CustomerOrderRepository>();
 builder.Services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
 builder.Services.AddScoped<IProductionConfirmationRepository, ProductionConfirmationRepository>();
+builder.Services.AddScoped<UserTableColumnPreferenceRepository>();
 
 // Add Services - Interface to Implementation mappings for proper DI
 builder.Services.AddScoped<IMaterialCardService, MaterialCardService>();
@@ -125,6 +126,7 @@ builder.Services.AddScoped<ICustomerOrderService, CustomerOrderService>();
 builder.Services.AddScoped<IBillOfMaterialService, BillOfMaterialService>();
 builder.Services.AddScoped<IWorkOrderService, WorkOrderService>();
 builder.Services.AddScoped<IProductionConfirmationService, ProductionConfirmationService>();
+builder.Services.AddScoped<IUserTableColumnPreferenceService, UserTableColumnPreferenceService>();
 
 // Add JWT Helper
 builder.Services.AddScoped<JwtHelper>();
@@ -207,7 +209,11 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors(builder =>
+    builder.WithOrigins("http://localhost:3000")
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+           .AllowCredentials());
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -22,6 +22,7 @@ namespace Teklas_Intern_ERP.DataAccess
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserTableColumnPreference> UserTableColumnPreferences { get; set; }
 
         // Production Management
         public DbSet<BOMHeader> BOMHeaders { get; set; }
@@ -178,6 +179,16 @@ namespace Teklas_Intern_ERP.DataAccess
                       .WithMany(r => r.UserRoles)
                       .HasForeignKey(ur => ur.RoleId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserTableColumnPreference>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TableKey).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.ColumnsJson).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.UpdatedAt).IsRequired();
+                entity.HasIndex(e => new { e.UserId, e.TableKey }).IsUnique();
             });
         }
 

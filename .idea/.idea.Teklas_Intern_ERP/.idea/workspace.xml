@@ -10,9 +10,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26c4b929-c9ef-484e-a9d9-0c3a164af0d7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Teklas_Intern_ERP/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Teklas_Intern_ERP/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Teklas_Intern_ERP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Teklas_Intern_ERP/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP.DTOs/ErrorMessages.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_ERP.DTOs/ErrorMessages.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP.Business/Interfaces/IUserTablePreferencesService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP.Business/Mapping/EntityMappingProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_ERP.Business/Mapping/EntityMappingProfile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP.DTOs/UserManagement/UserTablePreferenceDto.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP.DataAccess/AppDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_ERP.DataAccess/AppDbContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP.DataAccess/Migrations/AppDbContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_ERP.DataAccess/Migrations/AppDbContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP/Controllers/SalesManagement/CustomerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_ERP/Controllers/SalesManagement/CustomerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP/Controllers/UserManagement/UserTablePreferencesController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_ERP/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_ERP/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/MaterialManagement/MaterialCardTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/MaterialManagement/MaterialCardTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/MaterialManagement/MaterialCategoryTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/MaterialManagement/MaterialCategoryTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/MaterialManagement/MaterialMovementTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/MaterialManagement/MaterialMovementTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/ProductionManagement/BillOfMaterialTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/ProductionManagement/BillOfMaterialTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/ProductionManagement/WorkOrderTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/ProductionManagement/WorkOrderTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/PurchasingManagement/PurchaseOrderTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/PurchasingManagement/PurchaseOrderTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/PurchasingManagement/SupplierTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/PurchasingManagement/SupplierTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/PurchasingManagement/SupplierTypeTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/PurchasingManagement/SupplierTypeTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/SalesManagement/CustomerOrderTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/SalesManagement/CustomerOrderTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/SalesManagement/CustomerTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/SalesManagement/CustomerTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/WarehouseManagement/LocationTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/WarehouseManagement/LocationTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/WarehouseManagement/StockEntryTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/WarehouseManagement/StockEntryTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/WarehouseManagement/WarehouseTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/components/WarehouseManagement/WarehouseTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Teklas_Intern_UI/src/masterLayout/MasterLayout.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Teklas_Intern_UI/src/masterLayout/MasterLayout.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,23 +70,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.TeklasApi: IIS Express.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.TeklasApi: https.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.TeklasApi: IIS Express.executor": "Run",
+    ".NET Launch Settings Profile.TeklasApi: http.executor": "Run",
+    ".NET Launch Settings Profile.TeklasApi: https.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.TeklasApi: https">
     <configuration name="TeklasApi: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/Teklas_Intern_ERP/TeklasApi.csproj" />
@@ -127,6 +149,8 @@
       <workItem from="1753005040760" duration="25000" />
       <workItem from="1753006222174" duration="1613000" />
       <workItem from="1753032561584" duration="759000" />
+      <workItem from="1753260993603" duration="272000" />
+      <workItem from="1753262444808" duration="11437000" />
     </task>
     <servers />
   </component>

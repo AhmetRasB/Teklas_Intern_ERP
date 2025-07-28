@@ -128,6 +128,7 @@ import SupplierTypeTrashPage from './pages/SupplierTypeTrashPage';
 import CustomerOrderPage from './pages/CustomerOrderPage';
 import CustomerOrderTrashPage from './pages/CustomerOrderTrashPage';
 import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -429,6 +430,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ReportsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/settings' 
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             } 
           />

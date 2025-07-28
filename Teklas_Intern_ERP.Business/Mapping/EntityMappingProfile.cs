@@ -16,6 +16,7 @@ using EntityBOMItem = Teklas_Intern_ERP.Entities.ProductionManagment.BOMItem;
 using EntityWorkOrder = Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrder;
 using EntityWorkOrderOperation = Teklas_Intern_ERP.Entities.ProductionManagment.WorkOrderOperation;
 using EntityProductionConfirmation = Teklas_Intern_ERP.Entities.ProductionManagment.ProductionConfirmation;
+using Teklas_Intern_ERP.DTOs.UserManagement;
 
 namespace Teklas_Intern_ERP.Business.Mapping
 {
@@ -69,6 +70,8 @@ namespace Teklas_Intern_ERP.Business.Mapping
                 .ReverseMap()
                 .ForMember(dest => dest.UserRoles, opt => opt.Ignore());
 
+            CreateMap<UserTableColumnPreference, UserTableColumnPreferenceDto>().ReverseMap();
+
             // MaterialMovement Mappings
             CreateMap<MaterialMovement, MaterialMovementDto>()
                 .ForMember(dest => dest.MaterialCardName, opt => opt.MapFrom(src => src.MaterialCard.CardName))
@@ -82,7 +85,7 @@ namespace Teklas_Intern_ERP.Business.Mapping
                 .ForMember(dest => dest.Id, opt => opt.Condition(src => src.Id > 0));
 
             // Production Management Mappings
-            CreateMap<EntityBOMHeader, BOMHeaderDto>()
+            CreateMap<EntityBOMHeader, BOMHeaderDto>()    
                 .ForMember(dest => dest.ParentMaterialCardName, opt => opt.MapFrom(src => src.ParentMaterialCard.CardName))
                 .ForMember(dest => dest.BOMItems, opt => opt.MapFrom(src => src.BOMItems))
                 .ReverseMap();

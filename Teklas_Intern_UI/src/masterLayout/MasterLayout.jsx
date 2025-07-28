@@ -352,6 +352,12 @@ const MasterLayout = ({ children }) => {
                 </li>
               </ul>
             </li>
+            <li>
+              <NavLink to='/settings' className={(navData) => navData.isActive ? 'active-page' : ''}>
+                <Icon icon='icon-park-outline:setting-two' className='menu-icon' />
+                <span>Ayarlar</span>
+              </NavLink>
+            </li>
           </ul>
         </div>
       </aside>

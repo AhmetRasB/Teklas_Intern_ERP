@@ -8,6 +8,7 @@ import PaginationLayer from '../PaginationLayer';
 import TableDataLayer from '../TableDataLayer';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 // import useModulePermissions from '../../hooks/useModulePermissions'; // Uncomment if you have permissions logic
 
 const BASE_URL = 'https://localhost:7178';
@@ -36,6 +37,17 @@ const swalDarkStyles = `
   }
 `;
 
+const COLUMN_OPTIONS = [
+  { key: 'bomName', label: 'BOM Adı' },
+  { key: 'materialCardName', label: 'Ürün' },
+  { key: 'plannedQuantity', label: 'Planlanan Miktar' },
+  { key: 'plannedStartDate', label: 'Başlangıç Tarihi' },
+  { key: 'status', label: 'Durum' },
+  { key: 'isActive', label: 'Aktif mi?' }
+];
+
+const TABLE_KEY = 'WorkOrderTable';
+
 const WorkOrderTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +66,41 @@ const WorkOrderTable = () => {
   const [showDeleted, setShowDeleted] = useState(false);
   const [deletedData, setDeletedData] = useState([]);
   const [restoreLoading, setRestoreLoading] = useState(false);
+  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+  const [selectedColumns, setSelectedColumns] = useState(COLUMN_OPTIONS.map(col => col.key));
+  const [searchCol, setSearchCol] = useState('');
+  const { user } = useAuth();
+  const userId = user?.id || user?.userId;
+
+  // Sütun tercihlerini yükle
+  useEffect(() => {
+    if (!userId) return;
+    axios.get(`${BASE_URL}/api/user-table-column-preferences`, {
+      params: { userId, tableKey: TABLE_KEY }
+    })
+      .then(res => {
+        if (res.data && res.data.columnsJson) {
+          const config = JSON.parse(res.data.columnsJson);
+          if (Array.isArray(config.columns)) {
+            setSelectedColumns(config.columns.filter(c => c.visible).map(c => c.key));
+          }
+        }
+      })
+      .catch(() => {
+        setSelectedColumns(COLUMN_OPTIONS.map(col => col.key));
+      });
+  }, [userId]);
+
+  // Sütun seçimi değişince kaydet
+  useEffect(() => {
+    if (!userId) return;
+    const columnsConfig = { columns: COLUMN_OPTIONS.map(col => ({ key: col.key, visible: selectedColumns.includes(col.key) })) };
+    axios.post(`${BASE_URL}/api/user-table-column-preferences`, {
+      userId,
+      tableKey: TABLE_KEY,
+      columnsJson: JSON.stringify(columnsConfig)
+    }).catch(() => {});
+  }, [selectedColumns, userId]);
 
   const navigate = useNavigate();
   // const { canWrite, isAdmin } = useModulePermissions(); // Uncomment if you have permissions logic
@@ -313,14 +360,30 @@ const WorkOrderTable = () => {
     handleDelete(row);
   };
 
+  // Sütun seçici modalı
+  const handleColumnToggle = (key) => {
+    setSelectedColumns(cols =>
+      cols.includes(key) ? cols.filter(c => c !== key) : [...cols, key]
+    );
+  };
+  const handleSelectAllColumns = () => {
+    if (selectedColumns.length === COLUMN_OPTIONS.length) {
+      setSelectedColumns([]);
+    } else {
+      setSelectedColumns(COLUMN_OPTIONS.map(col => col.key));
+    }
+  };
+  const filteredColumnOptions = COLUMN_OPTIONS.filter(col =>
+    col.label.toLowerCase().includes(searchCol.toLowerCase())
+  );
+
+  // Tablo kolon başlıkları (seçime göre)
   const columns = [
-    { header: '#', accessor: 'rowNumber' },
-    { header: 'BOM Adı', accessor: 'bomName' },
-    { header: 'Ürün', accessor: 'materialCardName' },
-    { header: 'Planlanan Miktar', accessor: 'plannedQuantity' },
-    { header: 'Başlangıç Tarihi', accessor: 'plannedStartDate' },
-    { header: 'Durum', accessor: 'status' },
-    { header: 'Aktif mi?', accessor: 'isActive' },
+    { header: "#", accessor: "rowNumber" },
+    ...COLUMN_OPTIONS.filter(col => selectedColumns.includes(col.key)).map(col => ({
+      header: col.label,
+      accessor: col.key
+    }))
   ];
   const dataWithRowNumber = data.map((item, idx) => ({
     ...item,
@@ -341,6 +404,14 @@ const WorkOrderTable = () => {
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="card-title mb-0">İş Emirleri</h5>
           <div className="d-flex gap-2 align-items-center">
+            {/* Sütun Seç Butonu */}
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setColumnSelectorOpen(true)}
+              title="Sütunları Seç"
+            >
+              <Icon icon="mdi:table-column" className="me-1" /> Sütun Seç
+            </button>
             <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => setShowModal(true)}>
               <i className="ri-add-line"></i> Yeni Ekle
             </button>
@@ -348,13 +419,63 @@ const WorkOrderTable = () => {
               className="btn rounded-pill btn-soft-danger text-danger px-20 py-11"
               style={{ fontWeight: 600 }}
               title="Silinenleri Göster"
-              onClick={() => navigate('/work-order-trash')}
+              onClick={() => handleShowDeleted()}
             >
               <i className="ri-delete-bin-6-line" style={{ marginRight: 6 }} />
               Silinenleri Göster
             </button>
           </div>
         </div>
+        {/* Sütun Seçici Modal */}
+        {columnSelectorOpen && (
+          <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.2)' }}>
+            <div className="modal-dialog" style={{ maxWidth: 340 }}>
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Sütunları Seç</h5>
+                  <button type="button" className="btn-close" onClick={() => setColumnSelectorOpen(false)}></button>
+                </div>
+                <div className="modal-body">
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Ara..."
+                    value={searchCol}
+                    onChange={e => setSearchCol(e.target.value)}
+                  />
+                  <div className="form-check mb-2">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="selectAllCols"
+                      checked={selectedColumns.length === COLUMN_OPTIONS.length}
+                      onChange={handleSelectAllColumns}
+                    />
+                    <label className="form-check-label" htmlFor="selectAllCols">Tümünü Seç</label>
+                  </div>
+                  <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    {filteredColumnOptions.map(col => (
+                      <div className="form-check" key={col.key}>
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          id={col.key}
+                          checked={selectedColumns.includes(col.key)}
+                          onChange={() => handleColumnToggle(col.key)}
+                        />
+                        <label className="form-check-label" htmlFor={col.key}>{col.label}</label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-primary" onClick={() => setColumnSelectorOpen(false)}>Tamam</button>
+                  <button className="btn btn-secondary" onClick={() => setColumnSelectorOpen(false)}>İptal</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="card-body">
           <div className="table-responsive">
             <TableDataLayer

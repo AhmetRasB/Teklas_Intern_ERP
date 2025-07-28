@@ -264,22 +264,18 @@ namespace Teklas_Intern_ERP.Controllers.UserManagement
         {
             try
             {
-                // Check if user exists
                 var user = await _userService.GetUserByIdAsync(id);
                 if (user == null)
                 {
                     return NotFound(new { error = "Kullanıcı bulunamadı." });
                 }
 
-                // Get current user roles
                 var currentRoles = await _userService.GetUserRolesAsync(id);
                 var currentRoleNames = currentRoles.Select(r => r.Name).ToList();
 
-                // Get all available roles from role service
                 var _roleService = HttpContext.RequestServices.GetRequiredService<IRoleService>();
                 var allRoles = await _roleService.GetAllRolesAsync();
                 
-                // Remove roles that are not in the new assignment
                 foreach (var currentRole in currentRoles)
                 {
                     if (!assignRolesDto.RoleNames.Contains(currentRole.Name))
@@ -288,7 +284,6 @@ namespace Teklas_Intern_ERP.Controllers.UserManagement
                     }
                 }
 
-                // Add new roles
                 foreach (var roleName in assignRolesDto.RoleNames)
                 {
                     if (!currentRoleNames.Contains(roleName))

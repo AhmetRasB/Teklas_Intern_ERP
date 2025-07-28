@@ -8,6 +8,7 @@ import PaginationLayer from '../PaginationLayer';
 import TableDataLayer from '../TableDataLayer';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const BASE_URL = 'https://localhost:7178';
 
@@ -49,6 +50,19 @@ const swalDarkStyles = `
   }
 `;
 
+const COLUMN_OPTIONS = [
+  { key: 'materialCardName', label: 'Malzeme' },
+  { key: 'movementType', label: 'Hareket Tipi' },
+  { key: 'quantity', label: 'Miktar' },
+  { key: 'movementDate', label: 'Tarih' },
+  { key: 'referenceNumber', label: 'Referans No' },
+  { key: 'locationFrom', label: 'Lokasyon (Çıkış)' },
+  { key: 'locationTo', label: 'Lokasyon (Varış)' },
+  { key: 'description', label: 'Açıklama' }
+];
+
+const TABLE_KEY = 'MaterialMovementTable';
+
 const MaterialMovementTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +80,11 @@ const MaterialMovementTable = () => {
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+  const [selectedColumns, setSelectedColumns] = useState(COLUMN_OPTIONS.map(col => col.key));
+  const [searchCol, setSearchCol] = useState('');
+  const { user } = useAuth();
+  const userId = user?.id || user?.userId;
 
   const navigate = useNavigate();
 
@@ -79,6 +98,36 @@ const MaterialMovementTable = () => {
   useEffect(() => {
     fetchData();
   }, [selectedMaterial]);
+
+  // Sütun tercihlerini yükle
+  useEffect(() => {
+    if (!userId) return;
+    axios.get(`${BASE_URL}/api/user-table-column-preferences`, {
+      params: { userId, tableKey: TABLE_KEY }
+    })
+      .then(res => {
+        if (res.data && res.data.columnsJson) {
+          const config = JSON.parse(res.data.columnsJson);
+          if (Array.isArray(config.columns)) {
+            setSelectedColumns(config.columns.filter(c => c.visible).map(c => c.key));
+          }
+        }
+      })
+      .catch(() => {
+        setSelectedColumns(COLUMN_OPTIONS.map(col => col.key));
+      });
+  }, [userId]);
+
+  // Sütun seçimi değişince kaydet
+  useEffect(() => {
+    if (!userId) return;
+    const columnsConfig = { columns: COLUMN_OPTIONS.map(col => ({ key: col.key, visible: selectedColumns.includes(col.key) })) };
+    axios.post(`${BASE_URL}/api/user-table-column-preferences`, {
+      userId,
+      tableKey: TABLE_KEY,
+      columnsJson: JSON.stringify(columnsConfig)
+    }).catch(() => {});
+  }, [selectedColumns, userId]);
 
   const fetchData = () => {
     setLoading(true);
@@ -271,16 +320,30 @@ const MaterialMovementTable = () => {
     handleDelete(row);
   };
 
+  // Sütun seçici modalı
+  const handleColumnToggle = (key) => {
+    setSelectedColumns(cols =>
+      cols.includes(key) ? cols.filter(c => c !== key) : [...cols, key]
+    );
+  };
+  const handleSelectAllColumns = () => {
+    if (selectedColumns.length === COLUMN_OPTIONS.length) {
+      setSelectedColumns([]);
+    } else {
+      setSelectedColumns(COLUMN_OPTIONS.map(col => col.key));
+    }
+  };
+  const filteredColumnOptions = COLUMN_OPTIONS.filter(col =>
+    col.label.toLowerCase().includes(searchCol.toLowerCase())
+  );
+
+  // Tablo kolon başlıkları (seçime göre)
   const columns = [
-    { header: '#', accessor: 'rowNumber' },
-    { header: 'Malzeme', accessor: 'materialCardName', render: val => truncate(val, 15) },
-    { header: 'Hareket Tipi', accessor: 'movementType' },
-    { header: 'Miktar', accessor: 'quantity' },
-    { header: 'Tarih', accessor: 'movementDate', render: val => formatDateTime(val) },
-    { header: 'Referans No', accessor: 'referenceNumber', render: val => truncate(val, 12) },
-    { header: 'Lokasyon (Çıkış)', accessor: 'locationFrom', render: val => truncate(val, 12) },
-    { header: 'Lokasyon (Varış)', accessor: 'locationTo', render: val => truncate(val, 12) },
-    { header: 'Açıklama', accessor: 'description', render: val => truncate(val, 20) },
+    { header: "#", accessor: "rowNumber" },
+    ...COLUMN_OPTIONS.filter(col => selectedColumns.includes(col.key)).map(col => ({
+      header: col.label,
+      accessor: col.key
+    }))
   ];
 
   const dataWithRowNumber = data.map((item, idx) => ({ ...item, rowNumber: idx + 1 }));
@@ -292,6 +355,14 @@ const MaterialMovementTable = () => {
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="card-title mb-0">Malzeme Hareketleri</h5>
           <div className="d-flex gap-2 align-items-center">
+            {/* Sütun Seç Butonu */}
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setColumnSelectorOpen(true)}
+              title="Sütunları Seç"
+            >
+              <Icon icon="mdi:table-column" className="me-1" /> Sütun Seç
+            </button>
             <button className="btn rounded-pill btn-primary-100 text-primary-600 px-20 py-11" onClick={() => setShowModal(true)}>
               <i className="ri-add-line"></i> Yeni Ekle
             </button>
@@ -306,6 +377,56 @@ const MaterialMovementTable = () => {
             </button>
           </div>
         </div>
+        {/* Sütun Seçici Modal */}
+        {columnSelectorOpen && (
+          <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.2)' }}>
+            <div className="modal-dialog" style={{ maxWidth: 340 }}>
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Sütunları Seç</h5>
+                  <button type="button" className="btn-close" onClick={() => setColumnSelectorOpen(false)}></button>
+                </div>
+                <div className="modal-body">
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Ara..."
+                    value={searchCol}
+                    onChange={e => setSearchCol(e.target.value)}
+                  />
+                  <div className="form-check mb-2">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="selectAllCols"
+                      checked={selectedColumns.length === COLUMN_OPTIONS.length}
+                      onChange={handleSelectAllColumns}
+                    />
+                    <label className="form-check-label" htmlFor="selectAllCols">Tümünü Seç</label>
+                  </div>
+                  <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    {filteredColumnOptions.map(col => (
+                      <div className="form-check" key={col.key}>
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          id={col.key}
+                          checked={selectedColumns.includes(col.key)}
+                          onChange={() => handleColumnToggle(col.key)}
+                        />
+                        <label className="form-check-label" htmlFor={col.key}>{col.label}</label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-primary" onClick={() => setColumnSelectorOpen(false)}>Tamam</button>
+                  <button className="btn btn-secondary" onClick={() => setColumnSelectorOpen(false)}>İptal</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="card-body">
           <TableDataLayer
             data={dataWithRowNumber}

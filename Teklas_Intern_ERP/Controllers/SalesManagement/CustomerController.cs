@@ -16,9 +16,7 @@ namespace Teklas_Intern_ERP.Controllers.SalesManagement
             _service = service;
         }
 
-        /// <summary>
-        /// Get all customers
-        /// </summary>
+       
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAll()
         {
